@@ -1,16 +1,17 @@
-name: main
+name: CI
+
 on:
-push:
-  branches:
-    - main
-  paths:
-    - "frontend/**"
-    - ".github/workflows/vitests.yml"
+  push:
+    branches:
+      - main
+    paths:
+      # - "frontend/**"
+      - ".github/workflows/main.yml"
 
 jobs:
   test-backend:
-    needs: changes
-    if: needs.changes.outputs.backendChanges == 'true'
+    # needs: changes
+    # if: needs.changes.outputs.backendChanges == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -20,8 +21,8 @@ jobs:
       - name: Run test
         run: cd backend && npm run test:postgres
   test-frontend:
-    needs: changes
-    if: needs.changes.outputs.frontendChanges == 'true'
+    # needs: changes
+    # if: needs.changes.outputs.frontendChanges == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
