@@ -9,7 +9,7 @@ on:
       - "frontend/**"
       - ".github/workflows/main.yml"
   
-  pull-request:
+  pull_request:
     branches:
       - main
     paths:
