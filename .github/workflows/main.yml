@@ -8,7 +8,7 @@ on:
       - "backend/**"
       - "frontend/**"
       - ".github/workflows/main.yml"
-  
+
   pull_request:
     branches:
       - main
@@ -29,8 +29,8 @@ jobs:
         run: cd backend && npm ci
       - name: Run test
         run: cd backend && npm run test:postgres || true
-  docker:
-    needs: test-back
+  docker-backend:
+    needs: test-backend
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -60,8 +60,8 @@ jobs:
         run: cd frontend && npm ci
       - name: Run test
         run: cd frontend && npm test
-  docker:
-    needs: test-front
+  docker-frontend:
+    needs: test-frontend
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
