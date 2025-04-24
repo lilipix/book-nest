@@ -1,37 +1,50 @@
-name: CI
+name: CI/CD pipeline
 
 on:
   push:
     branches:
+      - dev
       - main
     paths:
       - "backend/**"
       - "frontend/**"
-      - ".github/workflows/main.yml"
-
+      - ".github/workflows/ci-cd.yml"
   pull_request:
     branches:
+      - dev
       - main
     paths:
       - "backend/**"
       - "frontend/**"
-      - ".github/workflows/main.yml"
+      - ".github/workflows/ci-cd.yml"
 
 jobs:
   test-backend:
-    # needs: changes
-    # if: needs.changes.outputs.backendChanges == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install
         run: cd backend && npm ci
-      - name: Run test
+      - name: Run backend tests
         run: cd backend && npm run test:postgres || true
+
+  test-frontend:
+    # needs: changes
+    # if: needs.changes.outputs.frontendChanges == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Install
+        run: cd frontend && npm ci
+      - name: Run test
+        run: cd frontend && npm test
+
   docker-backend:
     needs: test-backend
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.event_name == 'push' 
+       && (github.ref_name == 'dev' || github.ref_name == 'main') }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -48,21 +61,13 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:backend"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest:latest
-  test-frontend:
-    # needs: changes
-    # if: needs.changes.outputs.frontendChanges == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-      - name: Install
-        run: cd frontend && npm ci
-      - name: Run test
-        run: cd frontend && npm test
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}
+
+
   docker-frontend:
     needs: test-frontend
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.event_name == 'push' 
+       && (github.ref_name == 'dev' || github.ref_name == 'main') }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -79,4 +84,4 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:frontend"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}
