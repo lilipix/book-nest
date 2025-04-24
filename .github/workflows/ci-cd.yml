@@ -19,6 +19,22 @@ on:
       - ".github/workflows/ci-cd.yml"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backendChanges: ${{ steps.filter.outputs.backendChanges }}
+      frontendChanges: ${{ steps.filter.outputs.frontendChanges }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backendChanges:
+              - 'backend/**'
+            frontendChanges:
+              - 'frontend/**'
   test-backend:
     runs-on: ubuntu-latest
     steps:
