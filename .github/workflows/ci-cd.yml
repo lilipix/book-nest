@@ -61,7 +61,7 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:backend"
-          tags: "${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}"
+          tags: "${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' && 'latest' || format('dev-%s', github.sha) }}"
 
   docker-frontend:
     needs: test-frontend
@@ -83,4 +83,4 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:frontend"
-          tags: "${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}"
+          tags: "${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' && 'latest' || format('dev-%s', github.sha) }}"
