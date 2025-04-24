@@ -43,8 +43,8 @@ jobs:
 
   docker-backend:
     needs: test-backend
-    if: ${{ github.event_name == 'push' 
-       && (github.ref_name == 'dev' || github.ref_name == 'main') }}
+    if: ${{ github.event_name == 'push'
+      && (github.ref_name == 'dev' || github.ref_name == 'main') }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -61,13 +61,12 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:backend"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}
-
+          tags: "${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}"
 
   docker-frontend:
     needs: test-frontend
-    if: ${{ github.event_name == 'push' 
-       && (github.ref_name == 'dev' || github.ref_name == 'main') }}
+    if: ${{ github.event_name == 'push'
+      && (github.ref_name == 'dev' || github.ref_name == 'main') }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -84,4 +83,4 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:frontend"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}
+          tags: "${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' ? 'latest' : format('dev-%s', github.sha) }}"
