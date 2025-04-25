@@ -59,15 +59,25 @@ jobs:
 
   test-frontend:
     needs: changes
-    if: needs.changes.outputs.frontendChanges == 'true'
+    # if: needs.changes.outputs.frontendChanges == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Install
-        run: cd frontend && npm ci
-      - name: Run test
-        run: cd frontend && npm test
+      # - name: Install
+      #   run: cd frontend && npm ci
+      # - name: Run test
+      #   run: cd frontend && npm test
+      - name: Run frontend tests
+        if: ${{ needs.changes.outputs.frontendChanges == 'true' }}
+        run: |
+          cd frontend
+          npm ci
+          npm test
+
+      - name: Skip backend tests
+        if: ${{ needs.changes.outputs.backendChanges == 'false' }}
+        run: echo "Pas de changements dans backend, tests sautés."
 
   docker-backend:
     needs: [changes, test-backend]
