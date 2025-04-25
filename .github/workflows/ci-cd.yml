@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -37,7 +39,7 @@ jobs:
               - 'frontend/**'
   test-backend:
     needs: changes
-    # if: needs.changes.outputs.backendChanges == 'true'
+    if: ${{ needs.changes.outputs.backendChanges == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -47,19 +49,15 @@ jobs:
       # - name: Run backend tests
       #   run: cd backend && npm run test:postgres || true
       - name: Run backend tests
-        if: ${{ needs.changes.outputs.backendChanges == 'true' }}
+
         run: |
           cd backend
           npm ci
           npm run test:postgres
 
-      - name: Skip backend tests
-        if: ${{ needs.changes.outputs.backendChanges == 'false' }}
-        run: echo "Pas de changements dans backend, tests sautés."
-
   test-frontend:
     needs: changes
-    # if: needs.changes.outputs.frontendChanges == 'true'
+    if: ${{ needs.changes.outputs.frontendChanges == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -69,20 +67,15 @@ jobs:
       # - name: Run test
       #   run: cd frontend && npm test
       - name: Run frontend tests
-        if: ${{ needs.changes.outputs.frontendChanges == 'true' }}
         run: |
           cd frontend
           npm ci
           npm test
 
-      - name: Skip backend tests
-        if: ${{ needs.changes.outputs.backendChanges == 'false' }}
-        run: echo "Pas de changements dans backend, tests sautés."
-
   docker-backend:
-    needs: [changes, test-backend]
+    needs: test-backend
     if: ${{ github.event_name == 'push'
-      && (github.ref_name == 'dev' || github.ref_name == 'main')  && needs.changes.outputs.backendChanges == 'true' }}
+      && (github.ref_name == 'dev' || github.ref_name == 'main')   }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -94,7 +87,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push backend
         uses: docker/build-push-action@v4
         with:
           push: true
@@ -102,9 +95,9 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest:${{ github.ref_name == 'main' && 'latest' || 'dev-' }}${{ github.sha }}
 
   docker-frontend:
-    needs: [changes, test-frontend]
+    needs: test-frontend
     if: ${{ github.event_name == 'push'
-      && (github.ref_name == 'dev' || github.ref_name == 'main') && needs.changes.outputs.frontendChanges == 'true'}}
+      && (github.ref_name == 'dev' || github.ref_name == 'main')}}
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -116,7 +109,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push frontend
         uses: docker/build-push-action@v4
         with:
           push: true
