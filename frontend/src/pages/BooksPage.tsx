@@ -37,7 +37,7 @@ const BooksPage = ({ isRead, isFavorite, toRead }: BooksPageProps) => {
   console.log(books);
   return (
     <>
-      <h1 className="text-2xl font-bold mx-auto">
+      <h1 className="text-2xl font-bold text-center mb-6">
         {getPageTitle(isRead, toRead, isFavorite)}
       </h1>
       <BookCard books={books ?? []} />
