@@ -3,11 +3,6 @@ import { Book, BookCreateInput, BookUpdateInput } from "../entities/Book";
 
 @Resolver()
 export class BookResolver {
-  @Query(() => [Book])
-  async books(): Promise<Book[]> {
-    const books = await Book.find();
-    return books;
-  }
   @Mutation(() => Book)
   async createBook(
     @Arg("data", () => BookCreateInput) data: BookCreateInput
@@ -16,6 +11,29 @@ export class BookResolver {
     Object.assign(newBook, data);
     await newBook.save();
     return newBook;
+  }
+
+  @Query(() => [Book])
+  async books(
+    @Arg("isRead", { nullable: true }) isRead: boolean,
+    @Arg("toRead", { nullable: true }) toRead: boolean,
+    @Arg("isFavorite", { nullable: true }) isFavorite: boolean
+  ): Promise<Book[]> {
+    const where: any = {};
+
+    if (isRead !== undefined) {
+      where.isRead = isRead;
+    }
+
+    if (toRead !== undefined) {
+      where.toRead = toRead;
+    }
+
+    if (isFavorite !== undefined) {
+      where.isFavorite = isFavorite;
+    }
+
+    return await Book.findBy(where);
   }
 
   @Mutation(() => Book, { nullable: true })

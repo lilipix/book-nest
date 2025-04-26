@@ -101,7 +101,8 @@ const CreateBookForm = () => {
           const book = data.items[0].volumeInfo;
           form.setValue("title", book.title || "");
           form.setValue("author", book.authors ? book.authors.join(", ") : "");
-          form.setValue("image", book.imageLinks?.thumbnail || "");
+          form.setValue("image", book.imageLinks?.thumbnail || null);
+          navigate("/create-book");
         } else if (data.totalItems === 0) {
           setIsScanOpen(false);
           setError("Livre non trouvé, veuillez le saisir manuellement.");
@@ -208,7 +209,7 @@ const CreateBookForm = () => {
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="Author"
+                          placeholder="Auteur"
                           {...field}
                           value={field.value}
                         />
