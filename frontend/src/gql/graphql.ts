@@ -104,6 +104,13 @@ export type Query = {
 };
 
 
+export type QueryBooksArgs = {
+  isFavorite?: InputMaybe<Scalars['Boolean']['input']>;
+  isRead?: InputMaybe<Scalars['Boolean']['input']>;
+  toRead?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type QueryUserArgs = {
   id: Scalars['ID']['input'];
 };
