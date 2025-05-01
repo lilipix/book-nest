@@ -20,10 +20,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { queryBooks } from "@/api/Books";
 
 const CreateBookSchema = z.object({
   title: z
-    .string({ required_error: "Requis." })
+    .string({ required_error: "Title is required." })
     .min(2, {
       message:
         "Le titre doit être renseigné et posséder au moins 2 caractères.",
@@ -33,7 +34,7 @@ const CreateBookSchema = z.object({
         "Le titre doit être renseigné et posséder au maximum 100 caractères.",
     }),
   author: z
-    .string({ required_error: "Requis." })
+    .string({ required_error: "Author is required." })
     .min(2, {
       message:
         "L'auteur doit être renseigné et posséder au moins 2 caractères.",
@@ -54,7 +55,7 @@ const CreateBookSchema = z.object({
 
 export type CreateBookFormValues = z.infer<typeof CreateBookSchema>;
 
-const CreateBookForm = () => {
+const CreateBookPage = () => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"manual" | "scan" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -62,10 +63,10 @@ const CreateBookForm = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
 
   const [createBook, { loading }] = useMutation(
-    mutationCreateBook as DocumentNode
-    // {
-    //   refetchQueries: [{ query: queryBooks }],
-    // }
+    mutationCreateBook as DocumentNode,
+    {
+      refetchQueries: [{ query: queryBooks }],
+    }
   );
   const form = useForm<CreateBookFormValues>({
     resolver: zodResolver(CreateBookSchema),
@@ -351,4 +352,4 @@ const CreateBookForm = () => {
   );
 };
 
-export default CreateBookForm;
+export default CreateBookPage;
