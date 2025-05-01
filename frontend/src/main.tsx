@@ -12,9 +12,9 @@ import Create from "./pages/Admin.tsx";
 import AuthComponent from "./components/AuthComponent.tsx";
 import BadURLRedirect from "./components/BadURLRedirect.tsx";
 import { AuthStates } from "./services/AuthStates.ts";
-import CreateBookForm from "./pages/CreateBookPage.tsx";
-import BooksToRead from "./pages/BooksPage.tsx";
 import BooksPage from "./pages/BooksPage.tsx";
+import CreateBookPage from "./pages/CreateBookPage.tsx";
+import EditBookPage from "./pages/EditBookPage.tsx";
 
 const client = new ApolloClient({
   uri: "/api",
@@ -47,7 +47,15 @@ const router = createBrowserRouter([
         path: `/create-book`,
         element: (
           <AuthComponent authStates={[AuthStates.unauthenticated]}>
-            <CreateBookForm />
+            <CreateBookPage />
+          </AuthComponent>
+        ),
+      },
+      {
+        path: `/edit-book/:id`,
+        element: (
+          <AuthComponent authStates={[AuthStates.unauthenticated]}>
+            <EditBookPage />
           </AuthComponent>
         ),
       },
