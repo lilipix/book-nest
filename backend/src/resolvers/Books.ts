@@ -3,14 +3,18 @@ import { Book, BookCreateInput, BookUpdateInput } from "../entities/Book";
 
 @Resolver()
 export class BookResolver {
-  @Mutation(() => Book)
-  async createBook(
-    @Arg("data", () => BookCreateInput) data: BookCreateInput
-  ): Promise<Book> {
-    const newBook = new Book();
-    Object.assign(newBook, data);
-    await newBook.save();
-    return newBook;
+  @Query(() => Book, { nullable: true })
+  async book(@Arg("id", () => ID) id: number): Promise<Book | null> {
+    try {
+      const book = await Book.findOneBy({ id });
+      if (!book) {
+        throw new Error(`Book with id ${id} not found`);
+      }
+      return book;
+    } catch (error) {
+      console.error("Error fetching book:", error);
+      throw new Error("Failed to fetch book");
+    }
   }
 
   @Query(() => [Book])
@@ -34,6 +38,16 @@ export class BookResolver {
     }
 
     return await Book.findBy(where);
+  }
+
+  @Mutation(() => Book)
+  async createBook(
+    @Arg("data", () => BookCreateInput) data: BookCreateInput
+  ): Promise<Book> {
+    const newBook = new Book();
+    Object.assign(newBook, data);
+    await newBook.save();
+    return newBook;
   }
 
   @Mutation(() => Book, { nullable: true })
