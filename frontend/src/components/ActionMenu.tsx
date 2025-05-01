@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
 import { Link } from "react-router-dom";
+import DeleteBook from "./DeleteBook";
 
 type ActionMenuProps = {
   id: string;
@@ -21,7 +22,9 @@ const ActionMenu = ({ id }: ActionMenuProps) => {
         <DropdownMenuItem asChild>
           <Link to={`/edit-book/${id}`}>Modifier</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>Supprimer</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <DeleteBook id={id} />
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
