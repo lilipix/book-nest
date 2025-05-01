@@ -115,11 +115,9 @@ const EditBookPage = () => {
     }
   }, [data, form]);
 
-  if (loading) return <p>Chargement du livre...</p>;
-
   if (error) {
     return (
-      <div className="text-red-500">
+      <div className="text-red-500 m-4">
         Erreur :{" "}
         {error.message.includes("introuvable")
           ? "Ce livre n'existe pas."
