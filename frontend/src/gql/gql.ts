@@ -18,6 +18,7 @@ type Documents = {
     "\n    query Books($isRead: Boolean, $toRead: Boolean, $isFavorite: Boolean) {\n     books(isRead: $isRead, toRead: $toRead, isFavorite: $isFavorite) {\n      id\n      title\n      author\n      isRead\n      toRead\n      isFavorite\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n": typeof types.BooksDocument,
     "\nmutation CreateBook($data: BookCreateInput!) {\n    createBook(data: $data) {\n      id\n      title\n    }\n  }": typeof types.CreateBookDocument,
     "\nmutation CreateUser($data: UserCreateInput!) {\n    createUser(data: $data) {\n      id\n      email\n    }\n  }": typeof types.CreateUserDocument,
+    "\n  mutation DeleteBook($id: ID!) {\n    deleteBook(id: $id)\n  }\n": typeof types.DeleteBookDocument,
     "\nmutation Signin($email: String!, $password: String! ) {\n  signin(email: $email, password: $password) {\n    id\n    email\n  }\n}": typeof types.SigninDocument,
     "\nmutation Mutation {\n  signout\n}\n  ": typeof types.MutationDocument,
     "\n  mutation UpdateBook($id: ID!, $data: BookUpdateInput!) {\n    updateBook(id: $id, data: $data) {\n      id\n    }\n  }\n": typeof types.UpdateBookDocument,
@@ -28,6 +29,7 @@ const documents: Documents = {
     "\n    query Books($isRead: Boolean, $toRead: Boolean, $isFavorite: Boolean) {\n     books(isRead: $isRead, toRead: $toRead, isFavorite: $isFavorite) {\n      id\n      title\n      author\n      isRead\n      toRead\n      isFavorite\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n": types.BooksDocument,
     "\nmutation CreateBook($data: BookCreateInput!) {\n    createBook(data: $data) {\n      id\n      title\n    }\n  }": types.CreateBookDocument,
     "\nmutation CreateUser($data: UserCreateInput!) {\n    createUser(data: $data) {\n      id\n      email\n    }\n  }": types.CreateUserDocument,
+    "\n  mutation DeleteBook($id: ID!) {\n    deleteBook(id: $id)\n  }\n": types.DeleteBookDocument,
     "\nmutation Signin($email: String!, $password: String! ) {\n  signin(email: $email, password: $password) {\n    id\n    email\n  }\n}": types.SigninDocument,
     "\nmutation Mutation {\n  signout\n}\n  ": types.MutationDocument,
     "\n  mutation UpdateBook($id: ID!, $data: BookUpdateInput!) {\n    updateBook(id: $id, data: $data) {\n      id\n    }\n  }\n": types.UpdateBookDocument,
@@ -64,6 +66,10 @@ export function gql(source: "\nmutation CreateBook($data: BookCreateInput!) {\n 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\nmutation CreateUser($data: UserCreateInput!) {\n    createUser(data: $data) {\n      id\n      email\n    }\n  }"): (typeof documents)["\nmutation CreateUser($data: UserCreateInput!) {\n    createUser(data: $data) {\n      id\n      email\n    }\n  }"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeleteBook($id: ID!) {\n    deleteBook(id: $id)\n  }\n"): (typeof documents)["\n  mutation DeleteBook($id: ID!) {\n    deleteBook(id: $id)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
