@@ -15,6 +15,7 @@ import { AuthStates } from "./services/AuthStates.ts";
 import BooksPage from "./pages/BooksPage.tsx";
 import CreateBookPage from "./pages/CreateBookPage.tsx";
 import EditBookPage from "./pages/EditBookPage.tsx";
+import { Filter } from "./types/types";
 
 const client = new ApolloClient({
   uri: "/api",
@@ -63,7 +64,7 @@ const router = createBrowserRouter([
         path: `/to-read`,
         element: (
           <AuthComponent authStates={[AuthStates.unauthenticated]}>
-            <BooksPage toRead={true} />
+            <BooksPage filter={Filter.ToRead} />
           </AuthComponent>
         ),
       },
@@ -71,7 +72,7 @@ const router = createBrowserRouter([
         path: `/read`,
         element: (
           <AuthComponent authStates={[AuthStates.unauthenticated]}>
-            <BooksPage isRead={true} />
+            <BooksPage filter={Filter.Read} />
           </AuthComponent>
         ),
       },
@@ -79,7 +80,7 @@ const router = createBrowserRouter([
         path: `/favorites`,
         element: (
           <AuthComponent authStates={[AuthStates.unauthenticated]}>
-            <BooksPage isFavorite={true} />
+            <BooksPage filter={Filter.Favorites} />
           </AuthComponent>
         ),
       },
@@ -87,7 +88,15 @@ const router = createBrowserRouter([
         path: `/not-read`,
         element: (
           <AuthComponent authStates={[AuthStates.unauthenticated]}>
-            <BooksPage isRead={false} />
+            <BooksPage filter={Filter.Unread} />
+          </AuthComponent>
+        ),
+      },
+      {
+        path: `/loan-books`,
+        element: (
+          <AuthComponent authStates={[AuthStates.unauthenticated]}>
+            <BooksPage filter={Filter.Borrowed} />
           </AuthComponent>
         ),
       },

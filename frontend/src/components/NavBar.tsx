@@ -73,6 +73,14 @@ const NavBar = () => {
                     <Heart className="text-red-500" />
                   </MenubarShortcut>
                 </MenubarItem>
+                <MenubarItem>
+                  <Link to="/loan-books" className="">
+                    Livres prêtés
+                  </Link>
+                  <MenubarShortcut>
+                    {/* <Heart className="text-red-500" /> */}
+                  </MenubarShortcut>
+                </MenubarItem>
                 <MenubarSeparator />
                 <MenubarItem>
                   <Link to="/signup" className="">
