@@ -63,7 +63,24 @@ const EditBookSchema = z
     isFavorite: z.boolean(),
     toRead: z.boolean(),
   })
-  .merge(DatePickerFormBlockSchema);
+  .merge(DatePickerFormBlockSchema)
+  .superRefine((data, ctx) => {
+    if (
+      (data.borrowedBy && !data.borrowedAt) ||
+      (!data.borrowedBy && data.borrowedAt)
+    ) {
+      ctx.addIssue({
+        path: ["borrowedBy"],
+        code: z.ZodIssueCode.custom,
+        message: "Les deux champs de prêt doivent être remplis ensemble.",
+      });
+      ctx.addIssue({
+        path: ["borrowedAt"],
+        code: z.ZodIssueCode.custom,
+        message: "Les deux champs de prêt doivent être remplis ensemble.",
+      });
+    }
+  });
 
 export type EditBookFormValues = z.infer<typeof EditBookSchema>;
 

@@ -7,6 +7,7 @@ type BookCardProps = {
   books: BooksQuery["books"];
 };
 const BookCard = ({ books }: BookCardProps) => {
+  console.log("books", books);
   return (
     <div className="grid mx-auto gap-4 md:grid-cols-2 lg:grid-cols-3">
       {books?.map((book) => (
