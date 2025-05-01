@@ -41,8 +41,7 @@ const DeleteBook = ({ id }: DeleteBookProps) => {
 
   return (
     <>
-      <button
-        type="button"
+      <span
         className="w-full text-left px-2 py-1.5 text-sm"
         onClick={(e) => {
           e.preventDefault();
@@ -50,7 +49,7 @@ const DeleteBook = ({ id }: DeleteBookProps) => {
         }}
       >
         Supprimer
-      </button>
+      </span>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

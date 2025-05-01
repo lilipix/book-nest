@@ -8,6 +8,14 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
+export enum Filter {
+  Read = "read",
+  Unread = "unread",
+  ToRead = "to-read",
+  Favorites = "favorites",
+  Borrowed = "borrowed",
+}
+
 @Entity()
 @ObjectType()
 export class Book extends BaseEntity {
@@ -107,4 +115,15 @@ export class BookUpdateInput {
   @IsOptional()
   @Length(2, 100, { message: "Full name must be between 2 and 100 chars" })
   borrowedBy!: string | null;
+
+  validate(): void {
+    const hasOne = !!this.borrowedAt || !!this.borrowedBy;
+    const hasBoth = !!this.borrowedAt && !!this.borrowedBy;
+
+    if (hasOne && !hasBoth) {
+      throw new Error(
+        "Les champs borrowedAt et borrowedBy doivent être remplis ensemble"
+      );
+    }
+  }
 }
