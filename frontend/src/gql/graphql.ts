@@ -97,10 +97,16 @@ export type MutationUpdateBookArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  book?: Maybe<Book>;
   books: Array<Book>;
   user: User;
   users: Array<User>;
   whoami?: Maybe<User>;
+};
+
+
+export type QueryBookArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
