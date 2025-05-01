@@ -12,7 +12,9 @@ import Create from "./pages/Admin.tsx";
 import AuthComponent from "./components/AuthComponent.tsx";
 import BadURLRedirect from "./components/BadURLRedirect.tsx";
 import { AuthStates } from "./services/AuthStates.ts";
-import CreateBookForm from "./pages/CreateBookPage.tsx";
+import BooksPage from "./pages/BooksPage.tsx";
+import CreateBookPage from "./pages/CreateBookPage.tsx";
+import EditBookPage from "./pages/EditBookPage.tsx";
 
 const client = new ApolloClient({
   uri: "/api",
@@ -45,7 +47,47 @@ const router = createBrowserRouter([
         path: `/create-book`,
         element: (
           <AuthComponent authStates={[AuthStates.unauthenticated]}>
-            <CreateBookForm />
+            <CreateBookPage />
+          </AuthComponent>
+        ),
+      },
+      {
+        path: `/edit-book/:id`,
+        element: (
+          <AuthComponent authStates={[AuthStates.unauthenticated]}>
+            <EditBookPage />
+          </AuthComponent>
+        ),
+      },
+      {
+        path: `/to-read`,
+        element: (
+          <AuthComponent authStates={[AuthStates.unauthenticated]}>
+            <BooksPage toRead={true} />
+          </AuthComponent>
+        ),
+      },
+      {
+        path: `/read`,
+        element: (
+          <AuthComponent authStates={[AuthStates.unauthenticated]}>
+            <BooksPage isRead={true} />
+          </AuthComponent>
+        ),
+      },
+      {
+        path: `/favorites`,
+        element: (
+          <AuthComponent authStates={[AuthStates.unauthenticated]}>
+            <BooksPage isFavorite={true} />
+          </AuthComponent>
+        ),
+      },
+      {
+        path: `/not-read`,
+        element: (
+          <AuthComponent authStates={[AuthStates.unauthenticated]}>
+            <BooksPage isRead={false} />
           </AuthComponent>
         ),
       },
