@@ -307,25 +307,6 @@ const CreateBookPage = () => {
                     </>
                   )}
                 />
-                {/* <FormField
-                  control={form.control}
-                  name="borrowedBy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Prêté à</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Nom de l'emprunteur"
-                          {...field}
-                          value={field.value}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                /> */}
-                {/* <DatePicker /> */}
                 <div className="flex justify-between">
                   <Button
                     type="button"
