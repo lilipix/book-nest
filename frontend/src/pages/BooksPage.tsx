@@ -34,7 +34,6 @@ const BooksPage = ({ isRead, isFavorite, toRead }: BooksPageProps) => {
     if (isFavorite) return "Livres favoris";
   };
 
-  console.log(books);
   return (
     <>
       <h1 className="text-2xl font-bold text-center mb-10">

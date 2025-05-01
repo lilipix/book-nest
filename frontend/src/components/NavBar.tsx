@@ -11,15 +11,10 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from "./ui/menubar";
-import { BookOpen, BookOpenCheck, Heart, MenuIcon, X } from "lucide-react";
-import { useState } from "react";
+import { BookOpen, BookOpenCheck, Heart, MenuIcon } from "lucide-react";
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
 
   const { data: whoAmIData } = useQuery(queryWhoAmI);
   const me = whoAmIData?.whoami;
@@ -41,15 +36,8 @@ const NavBar = () => {
         <div className="flex text-end">
           <Menubar className="w-fit !p-0 absolute top-0 right-0 m-2">
             <MenubarMenu>
-              <MenubarTrigger
-                onClick={toggleMenu}
-                className="flex items-center"
-              >
-                {isOpen ? (
-                  <X />
-                ) : (
-                  <MenuIcon className="block md:hidden w-6 h-6" />
-                )}
+              <MenubarTrigger className="flex items-center">
+                <MenuIcon className="block md:hidden w-6 h-6" />
                 <span className="hidden md:block">Menu</span>
               </MenubarTrigger>
               <MenubarContent className="m-2">
