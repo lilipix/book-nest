@@ -1,5 +1,5 @@
-import * as React from "react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -20,37 +20,41 @@ export const DatePickerFormBlockSchema = z.object({
 export type DatePickerFormBlockValues = z.infer<
   typeof DatePickerFormBlockSchema
 >;
-export function DatePicker() {
-  const [date, setDate] = React.useState<Date>();
+
+const DatePicker = () => {
   const formContext = useFormContext<DatePickerFormBlockValues>();
-  React.useEffect(() => {
-    if (formContext && date) {
-      formContext.setValue("borrowedAt", date);
-    }
-  }, [date, formContext]);
+  const date = formContext.watch("borrowedAt");
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <Button
           type="button"
           variant={"outline"}
           className={cn(
-            "w-[280px] justify-start text-left font-normal",
+            "h-9 w-full px-3 py-2 border border-input bg-background text-base font-normal text-left justify-start items-center rounded-md",
             !date && "text-muted-foreground"
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "fr‑FR") : <span>Sélectionnez une date</span>}
+          {date ? (
+            format(date, "PPP", { locale: fr })
+          ) : (
+            <span>Sélectionnez une date</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
-          selected={date}
-          onSelect={setDate}
+          selected={date ?? undefined}
+          onSelect={(selectedDate) =>
+            formContext.setValue("borrowedAt", selectedDate ?? null)
+          }
           initialFocus
         />
       </PopoverContent>
     </Popover>
   );
-}
+};
+
+export default DatePicker;
