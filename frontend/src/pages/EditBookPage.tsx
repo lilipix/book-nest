@@ -191,7 +191,7 @@ const EditBookPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Titre</FormLabel>
-                    <FormControl>
+                    <FormControl className="!bg-white">
                       <Input
                         type="text"
                         placeholder="Titre"
@@ -209,7 +209,7 @@ const EditBookPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Auteur</FormLabel>
-                    <FormControl>
+                    <FormControl className="!bg-white">
                       <Input
                         type="text"
                         placeholder="Auteur"
@@ -227,7 +227,7 @@ const EditBookPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Image</FormLabel>
-                    <FormControl>
+                    <FormControl className="!bg-white">
                       <Input
                         placeholder="Image"
                         {...field}
@@ -248,7 +248,7 @@ const EditBookPage = () => {
                 render={({ field }) => (
                   <>
                     <FormLabel>Déjà lu ?</FormLabel>
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
                       <div className="space-y-0.5">
                         <FormDescription>
                           Cochez si vous avez déjà lu ce livre.
@@ -270,7 +270,7 @@ const EditBookPage = () => {
                 render={({ field }) => (
                   <>
                     <FormLabel>A lire ?</FormLabel>
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
                       <div className="space-y-0.5">
                         <FormDescription>
                           Cochez si vous voulez ajouter ce livre à la liste des
@@ -293,7 +293,7 @@ const EditBookPage = () => {
                 render={({ field }) => (
                   <>
                     <FormLabel>Favori ?</FormLabel>
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
                       <div className="space-y-0.5">
                         <FormDescription>
                           Cochez si ce livre fait partie de vos favoris.
@@ -315,7 +315,7 @@ const EditBookPage = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Prêté à</FormLabel>
-                    <FormControl>
+                    <FormControl className="!bg-white">
                       <Input
                         type="text"
                         placeholder="Nom de l'emprunteur"

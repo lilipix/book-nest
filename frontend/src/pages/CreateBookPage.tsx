@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { Card } from "@/components/ui/card";
 
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import { LoaderCircle } from "lucide-react";
@@ -142,46 +143,49 @@ const CreateBookPage = () => {
   const handleCancel = () => navigate("/");
   return (
     <div className="flex flex-col items-center justify-center m-6">
-      <h1 className="text-2xl font-bold">Ajouter un livre</h1>
-      <p className="text-gray-500 my-6 text-center">
+      <h1 className="text-2xl font-bold border border-border rounded-md w-full text-center py-3 bg-primary opacity-75">
+        Ajouter un livre
+      </h1>
+      <p className="text-grey-800 my-6 text-center">
         Ajoutez un livre en le scannant ou en le saisissant manuellement.
       </p>
-      <div className="flex flex-col items-center justify-center">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="mx-auto flex flex-col gap-4"
-          >
-            <div className="flex justify-center gap-4">
-              <Button type="button" onClick={() => setMode("scan")}>
-                Scanner le code barre
-              </Button>
-              <Button type="button" onClick={() => setMode("manual")}>
-                Saisie manuelle
-              </Button>
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mx-auto flex flex-col gap-4"
+        >
+          <div className="flex justify-center gap-4">
+            <Button type="button" onClick={() => setMode("scan")}>
+              Scanner le code barre
+            </Button>
+            <Button type="button" onClick={() => setMode("manual")}>
+              Saisie manuelle
+            </Button>
+          </div>
+          {mode === "scan" && isScanOpen && (
+            <div className="flex flex-col items-center justify-center text-center">
+              <p className="text-gray-500 my-6">
+                Si le livre n'est pas trouvé, vous pourrez le saisir
+                manuellement.
+              </p>
+              <BarcodeScannerComponent
+                width={300}
+                height={300}
+                onUpdate={handleScanUpdate}
+              />
+              <p className="text-gray-500 my-6">
+                En attente de la détection du code…
+              </p>
             </div>
-            {mode === "scan" && isScanOpen && (
-              <div className="flex flex-col items-center justify-center text-center">
-                <p className="text-gray-500 my-6">
-                  Si le livre n'est pas trouvé, vous pourrez le saisir
-                  manuellement.
-                </p>
-                <BarcodeScannerComponent
-                  width={300}
-                  height={300}
-                  onUpdate={handleScanUpdate}
-                />
-                <p className="text-gray-500 my-6">
-                  En attente de la détection du code…
-                </p>
-              </div>
-            )}
-            {isScanOpen && error && (
-              <div className="text-red-500">
-                <p>{error}</p>
-              </div>
-            )}
-            {mode === "manual" && (
+          )}
+          {isScanOpen && error && (
+            <div className="text-red-500">
+              <p>{error}</p>
+            </div>
+          )}
+          {mode === "manual" && (
+            <Card className="px-6">
               <div className="flex flex-col gap-4 mt-6">
                 <FormField
                   control={form.control}
@@ -246,18 +250,19 @@ const CreateBookPage = () => {
                   render={({ field }) => (
                     <>
                       <FormLabel>Déjà lu ?</FormLabel>
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormDescription>
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-3">
+                        <div>
+                          <FormDescription className="text-md text-foreground">
                             Cochez si vous avez déjà lu ce livre.
                           </FormDescription>
+
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
                         </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
                       </FormItem>
                     </>
                   )}
@@ -268,9 +273,9 @@ const CreateBookPage = () => {
                   render={({ field }) => (
                     <>
                       <FormLabel>A lire ?</FormLabel>
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormDescription>
+                          <FormDescription className="text-md text-foreground">
                             Cochez si vous voulez ajouter ce livre à la liste
                             des livres à lire.
                           </FormDescription>
@@ -291,9 +296,9 @@ const CreateBookPage = () => {
                   render={({ field }) => (
                     <>
                       <FormLabel>Favori ?</FormLabel>
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormDescription>
+                          <FormDescription className="text-md text-foreground">
                             Cochez si ce livre fait partie de vos favoris.
                           </FormDescription>
                         </div>
@@ -307,7 +312,7 @@ const CreateBookPage = () => {
                     </>
                   )}
                 />
-                <div className="flex justify-between">
+                <div className="flex justify-between m-4">
                   <Button
                     type="button"
                     variant="outline"
@@ -325,10 +330,10 @@ const CreateBookPage = () => {
                   </Button>
                 </div>
               </div>
-            )}
-          </form>
-        </Form>
-      </div>
+            </Card>
+          )}
+        </form>
+      </Form>
     </div>
   );
 };
