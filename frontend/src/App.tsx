@@ -1,4 +1,5 @@
-import { Outlet } from "react-router-dom";
+import bookNest from "./assets/bookNest.png";
+import { Link, Outlet } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -18,13 +19,17 @@ const App = () => {
         draggable
         pauseOnHover
       />
-
-      <header className="header">
-        <NavBar />
-      </header>
-      <main className=" mt-32">
-        <Outlet />
-      </main>
+      <div className="min-h-screen">
+        <header className="header">
+          <Link to="/">
+            <img src={bookNest} alt="Description du logo" className="w-16" />
+          </Link>
+          <NavBar />
+        </header>
+        <main className=" mt-32">
+          <Outlet />
+        </main>
+      </div>
     </>
   );
 };

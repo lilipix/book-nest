@@ -1,5 +1,11 @@
+import bookNest from "../assets/bookNest.png";
+
 const Home = () => {
-  return <div>Page Home</div>;
+  return (
+    <div className="flex justify-center items-center">
+      <img src={bookNest} alt="logo" className="w-64" />
+    </div>
+  );
 };
 
 export default Home;

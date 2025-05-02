@@ -56,7 +56,7 @@ const BooksPage = ({ filter }: BooksPageProps) => {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-center mb-10">
+      <h1 className="text-2xl font-bold border border-border rounded-md text-center py-3 bg-primary opacity-75 mb-10 mx-6">
         {getPageTitle(filter)}
       </h1>
       <div className="flex justify-center mb-4">
