@@ -34,10 +34,10 @@ const NavBar = () => {
     <>
       <nav>
         <div className="flex text-end">
-          <Menubar className="w-fit !p-0 absolute top-0 right-0 m-2">
+          <Menubar className="!p-0 absolute top-0 right-0 m-2 border-none bg-primary md:h-6">
             <MenubarMenu>
               <MenubarTrigger className="flex items-center">
-                <MenuIcon className="block md:hidden w-6 h-6" />
+                <MenuIcon className="block md:hidden w-6 h-7" />
                 <span className="hidden md:block">Menu</span>
               </MenubarTrigger>
               <MenubarContent className="m-2">
