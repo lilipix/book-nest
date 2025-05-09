@@ -1,10 +1,11 @@
 services:
   back:
     build: ./backend
-    ports:
-      - 5000:5000
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+    # the port entry is not necessary with NGINX as a reverse proxy!
+    # ports:
+    #   - 5000:5000
+    # environment:
+    #   - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./backend/src:/app/src
     env_file:
@@ -19,8 +20,9 @@ services:
     build: ./frontend
     environment:
       - GRAPHQL_SCHEMA_URL=http://back:5000
-    ports:
-      - 5173:5173 # host_port:container_port
+    # the port entry is not necessary with NGINX as a reverse proxy!
+    # ports:
+    #   - 5173:5173 # host_port:container_port
     env_file:
       - .env.development
     volumes:
@@ -41,6 +43,16 @@ services:
       - database.env
     volumes:
       - dbdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+    ports:
+      - 8080:80
+    depends_on:
+      - back
+      - front
 
 volumes:
   dbdata:

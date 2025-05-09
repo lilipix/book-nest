@@ -22,6 +22,7 @@ import { queryBook } from "@/api/Book";
 import { LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
 import DatePicker, { DatePickerFormBlockSchema } from "@/components/DatePicker";
+import { Card } from "@/components/ui/card";
 
 const EditBookSchema = z
   .object({
@@ -174,176 +175,184 @@ const EditBookPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center m-6">
-      <h1 className="text-2xl font-bold">Modifier un livre</h1>
-      <p className="text-gray-500 my-6 text-center">
+      <h1 className="text-2xl font-bold border border-border rounded-md w-full text-center py-3 bg-primary opacity-75">
+        Modifier un livre
+      </h1>
+      <p className="text-gray-800 my-6 text-center">
         Modifier le livre dans le formulaire ci-dessous.
       </p>
       <div className="flex flex-col items-center justify-center">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="mx-auto flex flex-col gap-4"
-          >
-            <div className="flex flex-col gap-4 mt-6">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Titre</FormLabel>
-                    <FormControl className="!bg-white">
-                      <Input
-                        type="text"
-                        placeholder="Titre"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="author"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Auteur</FormLabel>
-                    <FormControl className="!bg-white">
-                      <Input
-                        type="text"
-                        placeholder="Auteur"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="image"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image</FormLabel>
-                    <FormControl className="!bg-white">
-                      <Input
-                        placeholder="Image"
-                        {...field}
-                        value={field.value ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value.trim();
-                          field.onChange(value === "" ? null : value);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isRead"
-                render={({ field }) => (
-                  <>
-                    <FormLabel>Déjà lu ?</FormLabel>
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
-                      <div className="space-y-0.5">
-                        <FormDescription>
-                          Cochez si vous avez déjà lu ce livre.
-                        </FormDescription>
-                      </div>
+        <Card className="px-6">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="mx-auto flex flex-col gap-4"
+            >
+              <div className="flex flex-col gap-4 mt-6">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Titre</FormLabel>
                       <FormControl>
-                        <Switch
-                          checked={field.value ?? false}
-                          onCheckedChange={field.onChange}
+                        <Input
+                          type="text"
+                          placeholder="Titre"
+                          {...field}
+                          value={field.value ?? ""}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
-                  </>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="toRead"
-                render={({ field }) => (
-                  <>
-                    <FormLabel>A lire ?</FormLabel>
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
-                      <div className="space-y-0.5">
-                        <FormDescription>
-                          Cochez si vous voulez ajouter ce livre à la liste des
-                          livres à lire.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value ?? false}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  </>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isFavorite"
-                render={({ field }) => (
-                  <>
-                    <FormLabel>Favori ?</FormLabel>
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
-                      <div className="space-y-0.5">
-                        <FormDescription>
-                          Cochez si ce livre fait partie de vos favoris.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value ?? false}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  </>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="borrowedBy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Prêté à</FormLabel>
-                    <FormControl className="!bg-white">
-                      <Input
-                        type="text"
-                        placeholder="Nom de l'emprunteur"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DatePicker />
-              <div className="flex justify-between">
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                  Annuler
-                </Button>
-                <Button disabled={loading} type="submit">
-                  Enregistrer{" "}
-                  {loading ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : (
-                    ""
                   )}
-                </Button>
+                />
+                <FormField
+                  control={form.control}
+                  name="author"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Auteur</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Auteur"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Image"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const value = e.target.value.trim();
+                            field.onChange(value === "" ? null : value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isRead"
+                  render={({ field }) => (
+                    <>
+                      <FormLabel>Déjà lu ?</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-3 ">
+                        <div>
+                          <FormDescription className="text-md text-foreground">
+                            Cochez si vous avez déjà lu ce livre.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value ?? false}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    </>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="toRead"
+                  render={({ field }) => (
+                    <>
+                      <FormLabel>A lire ?</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-input p-3">
+                        <div className="space-y-0.5">
+                          <FormDescription>
+                            Cochez si vous voulez ajouter ce livre à la liste
+                            des livres à lire.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value ?? false}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    </>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isFavorite"
+                  render={({ field }) => (
+                    <>
+                      <FormLabel>Favori ?</FormLabel>
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 border-input">
+                        <div className="space-y-0.5">
+                          <FormDescription>
+                            Cochez si ce livre fait partie de vos favoris.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value ?? false}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    </>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="borrowedBy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prêté à</FormLabel>
+                      <FormControl className="!bg-white">
+                        <Input
+                          type="text"
+                          placeholder="Nom de l'emprunteur"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DatePicker />
+                <div className="flex justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                  >
+                    Annuler
+                  </Button>
+                  <Button disabled={loading} type="submit">
+                    Enregistrer{" "}
+                    {loading ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      ""
+                    )}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </form>
-        </Form>
+            </form>
+          </Form>
+        </Card>
       </div>
     </div>
   );

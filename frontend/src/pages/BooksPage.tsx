@@ -25,8 +25,7 @@ const BooksPage = ({ filter }: BooksPageProps) => {
         return {};
     }
   };
-  const variables = getFilterVariables(filter);
-  console.log("📦 Variables envoyées à Apollo :", variables);
+
   const { data, loading, error } = useQuery(queryBooks, {
     variables: getFilterVariables(filter),
 
@@ -54,13 +53,34 @@ const BooksPage = ({ filter }: BooksPageProps) => {
     }
   };
 
+  const getPageMessage = (filter?: Filter) => {
+    switch (filter) {
+      case Filter.Read:
+        return "livres lus";
+      case Filter.Unread:
+        return "livres non lus";
+      case Filter.ToRead:
+        return "livres à lire";
+      case Filter.Favorites:
+        return "livres favoris";
+      case Filter.Borrowed:
+        return "livres prêtés";
+      default:
+        return "tous les livres";
+    }
+  };
+
+  const pageMessage = `Vous n'avez pas encore ajouté de ${getPageMessage(
+    filter
+  )} dans votre bibliothèque.`;
+
   return (
     <>
-      <h1 className="text-2xl font-bold border border-border rounded-md text-center py-3 bg-primary opacity-75 mb-10 mx-6">
+      <h1 className="text-2xl font-bold border border-border rounded-md text-center py-3 px-5 bg-primary opacity-75 mb-10 mx-6">
         {getPageTitle(filter)}
       </h1>
       <div className="flex justify-center mb-4">
-        <BookCard books={books ?? []} />
+        <BookCard books={books ?? []} pageMessage={pageMessage} />
       </div>
     </>
   );
