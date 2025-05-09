@@ -88,7 +88,9 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:backend"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest-backend:latest-${{ github.sha }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/book-nest-backend
+            ${{ secrets.DOCKERHUB_USERNAME }}/book-nest-backend:latest-${{ github.sha }}
 
   docker-frontend:
     needs: test-frontend
@@ -110,4 +112,6 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:frontend"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book-nest-frontend:latest-${{ github.sha }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/book-nest-frontend
+            ${{ secrets.DOCKERHUB_USERNAME }}/book-nest-frontend:latest-${{ github.sha }}
