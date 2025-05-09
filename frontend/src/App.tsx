@@ -26,7 +26,7 @@ const App = () => {
           </Link>
           <NavBar />
         </header>
-        <main className=" mt-32">
+        <main className=" mt-32 md:mt-24">
           <Outlet />
         </main>
       </div>

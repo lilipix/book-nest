@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import { LoaderCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mutationCreateBook } from "@/api/CreateBook";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,6 +81,26 @@ const CreateBookPage = () => {
     },
   });
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (mode === "scan" && isScanOpen) {
+      timeoutRef.current = setTimeout(() => {
+        setIsScanOpen(false);
+        setError(
+          "Aucun code détecté après 15 secondes. Veuillez saisir le livre manuellement."
+        );
+      }, 15000);
+
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+      };
+    }
+  }, [mode, isScanOpen]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleScanUpdate = async (error: unknown, result: any) => {
     if (error) {
@@ -91,6 +111,11 @@ const CreateBookPage = () => {
       return;
     }
     if (result) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+
       const scannedIsbn = result.text || "";
       console.log("Scanned ISBN:", scannedIsbn);
       try {
@@ -179,8 +204,8 @@ const CreateBookPage = () => {
               </p>
             </div>
           )}
-          {isScanOpen && error && (
-            <div className="text-red-500">
+          {error && (
+            <div className="text-red-500 m-6">
               <p>{error}</p>
             </div>
           )}

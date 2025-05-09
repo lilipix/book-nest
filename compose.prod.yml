@@ -1,0 +1,32 @@
+services:
+  front:
+    image: lilipix/book-nest-frontend:latest
+    # override default CMD command for the frontend
+    entrypoint: sh
+    command: -c "npx serve dist"
+  back:
+    image: lilipix/book-nest-backend:latest
+    env_file:
+      - database.env
+      - backend.env
+  db:
+    image: postgres
+    ports:
+      - 4001:5432
+    env_file:
+      - database.env
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx-prod:/etc/nginx
+    ports:
+      - 4000:80
+    depends_on:
+      - back
+      - front
+
+volumes:
+  dbdata:
+    driver: local
