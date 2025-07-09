@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import bookNest from "../assets/bookNest.png";
 import { useNavigate } from "react-router-dom";
+import UploadForm from "@/components/UploadForm";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -11,6 +12,9 @@ const Home = () => {
       <Button className="mt-14" onClick={() => navigate("/create-book")}>
         Ajouter un livre
       </Button>
+      <div className="mt-10">
+        <UploadForm />
+      </div>
     </div>
   );
 };
