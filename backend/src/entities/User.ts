@@ -18,10 +18,10 @@ import { ContextType } from "../auth";
 
 export const IsUser: MiddlewareFn<ContextType> = async (
   { context, root },
-  next
+  next,
 ) => {
   if (context.user) {
-    if (context.user.role === "admin" || context.user.id === root.id) {
+    if (context.user.id === root.id) {
       //si je suis admin ou si je suis le user il faut que le user connecté soit le même que le user requêté
       return await next(); // dans ce cas on poursuit le traitement
     } else {
@@ -37,28 +37,22 @@ export class User extends BaseEntity {
   @Field(() => ID)
   id!: number;
 
+  @Column()
+  @Field(() => String)
+  name!: string;
+
   @Column({ unique: true })
   @IsEmail({}, { message: "Invalid email" })
   @Field({ nullable: true }) // this should be nullable because only admins + self user may see this, null otherwise
   @UseMiddleware(IsUser)
   email!: string;
 
-  @Column({ enum: ["user", "admin"], default: "user" })
-  @Field()
-  role!: string;
-
   @Column()
-  // @Field()
   hashedPassword!: string;
 
   @CreateDateColumn()
   @Field()
   createdAt!: Date;
-
-  // may be needed if user can create other users
-  // @ManyToOne(() => User)
-  // @Field(() => User)
-  // createdBy!: User;
 }
 
 @InputType()

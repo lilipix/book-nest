@@ -12,6 +12,7 @@ import express from "express";
 import multer from "multer";
 import cors from "cors";
 import { expressMiddleware } from "@as-integrations/express5";
+// import cookieParser from "cookie-parser";
 
 async function initiliaze() {
   await datasource.initialize();
@@ -27,9 +28,11 @@ async function initiliaze() {
   await server.start();
 
   const app = express();
+  const upload = multer({ dest: "uploads/" });
 
-  app.use(cors());
+  // app.use(cors());
   app.use(express.json());
+  // app.use(cookieParser());
 
   // return healthcheck healthy
   app.post("/health", (req, res) => {
@@ -53,16 +56,10 @@ async function initiliaze() {
     })
   );
 
-  const upload = multer({ dest: "uploads/" });
   app.post("/upload", upload.single("file"), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: "Aucun fichier envoyé." });
     }
-    // res.json({
-    //   message: "Fichier reçu",
-    //   originalName: req.file.originalname,
-    //   storedAs: req.file.filename,
-    // });
     const user = await getUserFromContext({
       req,
       res,
@@ -75,7 +72,7 @@ async function initiliaze() {
     user.profilePicture = req.file.path;
     await datasource.getRepository(User).save(user);
 
-    res.json({ message: "Image de profil mise à jour." });
+    res.json({ message: "Image saved." });
   });
 
   app.listen(5000, () => {

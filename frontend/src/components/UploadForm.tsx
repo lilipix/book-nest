@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@apollo/client";
+import { queryWhoAmI } from "@/api/WhoAmI";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
+
+  const { data: whoAmIData, loading, refetch } = useQuery(queryWhoAmI);
+  const me = whoAmIData?.whoami;
+  if (loading) return <p>Chargement...</p>;
+  if (!me) return;
 
   const handleUpload = async () => {
     if (!file) return;
@@ -15,8 +22,11 @@ const UploadForm = () => {
       body: formData,
     });
 
-    const result = await res.json();
-    console.log("Réponse backend :", result);
+    await refetch();
+    if (!res.ok) {
+      console.error("Erreur lors de l'envoi du fichier");
+      return;
+    }
   };
 
   return (
@@ -28,11 +38,11 @@ const UploadForm = () => {
         />
         <Button onClick={handleUpload}>Envoyer</Button>
       </>
-      {user?.profilePicture ? (
+      {me?.profilePicture ? (
         <img
-          src={`http://localhost:8080/${user.profilePicture}`}
+          src={`http://localhost:8080/${me.profilePicture}`}
           alt="Photo de profil"
-          style={{ width: 150, borderRadius: "50%" }}
+          style={{ width: 50, height: 50, borderRadius: "50%" }}
         />
       ) : (
         <p>Aucune photo de profil</p>

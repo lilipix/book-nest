@@ -5,12 +5,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
 export enum Filter {
   Read = "read",
-  Unread = "unread",
   ToRead = "to-read",
   Favorites = "favorites",
   Borrowed = "borrowed",
@@ -23,6 +23,11 @@ export class Book extends BaseEntity {
   @Field(() => ID)
   id!: number;
 
+  @Index({ unique: true })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  isbn!: string;
+
   @Field()
   @Column()
   title!: string;
@@ -34,6 +39,10 @@ export class Book extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   image!: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  description!: string;
 
   @Field()
   @Column()
@@ -54,6 +63,10 @@ export class Book extends BaseEntity {
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
   borrowedBy!: string;
+
+  @Field(() => Date, { nullable: true })
+  @Column({ type: "timestamp", nullable: true })
+  returnedAt!: Date;
 
   @Field()
   @CreateDateColumn()
@@ -122,7 +135,7 @@ export class BookUpdateInput {
 
     if (hasOne && !hasBoth) {
       throw new Error(
-        "Les champs borrowedAt et borrowedBy doivent être remplis ensemble"
+        "Les champs borrowedAt et borrowedBy doivent être remplis ensemble",
       );
     }
   }
