@@ -49,6 +49,7 @@ services:
     image: nginx
     volumes:
       - ./nginx:/etc/nginx
+      - ./backend/uploads:/app/uploads
     ports:
       - 8080:80
     depends_on:
