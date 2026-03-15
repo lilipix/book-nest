@@ -5,8 +5,26 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { registerEnumType } from "type-graphql";
+
+// export enum Filter {
+//   Read = "read",
+//   ToRead = "to-read",
+//   Favorites = "favorites",
+//   Borrowed = "borrowed",
+// }
+
+export enum BookStatus {
+  TO_READ = "TO_READ",
+  READ = "READ",
+  UNREAD = "UNREAD",
+}
+registerEnumType(BookStatus, {
+  name: "BookStatus",
+});
 
 @Entity()
 @ObjectType()
@@ -14,6 +32,11 @@ export class Book extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id!: number;
+
+  @Index({ unique: true })
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  isbn!: string;
 
   @Field()
   @Column()
@@ -27,17 +50,25 @@ export class Book extends BaseEntity {
   @Column({ nullable: true })
   image!: string;
 
-  @Field()
-  @Column()
-  isRead: boolean = false;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  description!: string;
 
-  @Field()
-  @Column()
-  toRead: boolean = false;
+  @Field(() => BookStatus)
+  @Column({
+    type: "enum",
+    enum: BookStatus,
+    default: BookStatus.UNREAD,
+  })
+  status: BookStatus = BookStatus.UNREAD;
 
   @Field()
   @Column()
   isFavorite: boolean = false;
+
+  @Field()
+  @Column({ default: false })
+  isBorrowed: boolean = false;
 
   @Field(() => Date, { nullable: true })
   @Column({ type: "timestamp", nullable: true })
@@ -46,6 +77,10 @@ export class Book extends BaseEntity {
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
   borrowedBy!: string;
+
+  @Field(() => Date, { nullable: true })
+  @Column({ type: "timestamp", nullable: true })
+  returnedAt!: Date;
 
   @Field()
   @CreateDateColumn()
@@ -107,4 +142,15 @@ export class BookUpdateInput {
   @IsOptional()
   @Length(2, 100, { message: "Full name must be between 2 and 100 chars" })
   borrowedBy!: string | null;
+
+  validate(): void {
+    const hasOne = !!this.borrowedAt || !!this.borrowedBy;
+    const hasBoth = !!this.borrowedAt && !!this.borrowedBy;
+
+    if (hasOne && !hasBoth) {
+      throw new Error(
+        "Les champs borrowedAt et borrowedBy doivent être remplis ensemble",
+      );
+    }
+  }
 }

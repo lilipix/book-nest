@@ -9,6 +9,7 @@ export const queryBook = gql(`
       isRead
       toRead
       isFavorite
+      isBorrowed
       borrowedBy
       borrowedAt
       image

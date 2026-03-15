@@ -13,8 +13,10 @@ COPY tsconfig.node.json tsconfig.node.json
 COPY vite.config.ts vite.config.ts
 COPY codegen.ts codegen.ts
 COPY index.html index.html
-COPY public public
+# COPY public public
 COPY src src
+
+RUN npm run build
 
 EXPOSE 5173
 

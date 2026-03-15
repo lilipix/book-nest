@@ -1,26 +1,29 @@
 services:
   back:
     build: ./backend
-    ports:
-      - 5000:5000
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+    # the port entry is not necessary with NGINX as a reverse proxy!
+    # ports:
+    #   - 5000:5000
+    # environment:
+    #   - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./backend/src:/app/src
+      - ./backend/uploads:/app/uploads
     env_file:
       - database.env
       - backend.env
     healthcheck:
-      test: 'curl --fail  --request POST --header ''Content-Type: application/json'' --url ''http://localhost:5000/'' --data ''{"query": "query { __typename }"}'''
+      test: 'curl --fail  --request POST --header ''Content-Type: application/json'' --url ''http://localhost:5000/health'' --data ''{"query": "query { __typename }"}'''
       interval: 2s
       timeout: 260s
 
   front:
     build: ./frontend
     environment:
-      - GRAPHQL_SCHEMA_URL=http://back:5000
-    ports:
-      - 5173:5173 # host_port:container_port
+      - GRAPHQL_SCHEMA_URL=http://back:5000/graphql
+    # the port entry is not necessary with NGINX as a reverse proxy!
+    # ports:
+    #   - 5173:5173 # host_port:container_port
     env_file:
       - .env.development
     volumes:
@@ -41,6 +44,17 @@ services:
       - database.env
     volumes:
       - dbdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+      - ./backend/uploads:/app/uploads
+    ports:
+      - 8080:80
+    depends_on:
+      - back
+      - front
 
 volumes:
   dbdata:
