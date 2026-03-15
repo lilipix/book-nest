@@ -1,16 +1,16 @@
-import { gql } from "@/gql";
+import { gql } from "@apollo/client";
 
-export const queryBooks = gql(`
-    query Books($isRead: Boolean, $toRead: Boolean, $isFavorite: Boolean, $borrowedBy: String) {
-     books(isRead: $isRead, toRead: $toRead, isFavorite: $isFavorite, borrowedBy: $borrowedBy) {
+export const QUERY_BOOKS = gql(`
+    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean) {
+     books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed) {
       id
       title
       author
-      isRead
-      toRead
+      status
       isFavorite
       borrowedBy
       borrowedAt
+      returnedAt
       image
     }
   }

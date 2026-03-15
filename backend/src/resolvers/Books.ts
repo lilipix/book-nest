@@ -1,6 +1,11 @@
 import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
-import { Book, BookCreateInput, BookUpdateInput } from "../entities/Book";
-import { IsNull, Not } from "typeorm";
+import {
+  Book,
+  BookCreateInput,
+  BookStatus,
+  BookUpdateInput,
+} from "../entities/Book";
+import { ILike, IsNull, Not } from "typeorm";
 
 @Resolver()
 export class BookResolver {
@@ -20,38 +25,40 @@ export class BookResolver {
 
   @Query(() => [Book])
   async books(
-    @Arg("isRead", { nullable: true }) isRead: boolean,
-    @Arg("toRead", { nullable: true }) toRead: boolean,
-    @Arg("isFavorite", { nullable: true }) isFavorite: boolean,
-    @Arg("borrowedBy", { nullable: true }) borrowedBy: string
+    @Arg("status", () => BookStatus, { nullable: true }) status?: BookStatus,
+    @Arg("isFavorite", { nullable: true }) isFavorite?: boolean,
+    @Arg("isBorrowed", { nullable: true }) isBorrowed?: boolean,
+    @Arg("search", { nullable: true }) search?: string,
   ): Promise<Book[]> {
-    const query = Book.createQueryBuilder("book");
+    const baseWhere: any = {
+      ...(status && { status }),
+      ...(isFavorite && { isFavorite: true }),
+      ...(isBorrowed && { borrowedBy: Not(IsNull()) }),
+    };
 
-    if (typeof isRead === "boolean") {
-      query.andWhere("book.isRead = :isRead", { isRead });
+    let where;
+
+    if (search) {
+      where = [
+        { ...baseWhere, title: ILike(`%${search}%`) },
+        { ...baseWhere, author: ILike(`%${search}%`) },
+      ];
+    } else {
+      where = baseWhere;
     }
 
-    if (typeof toRead === "boolean") {
-      query.andWhere("book.toRead = :toRead", { toRead });
-    }
-
-    if (typeof isFavorite === "boolean") {
-      query.andWhere("book.isFavorite = :isFavorite", { isFavorite });
-    }
-
-    if (borrowedBy === "__any__") {
-      query.andWhere("book.borrowedBy IS NOT NULL AND book.borrowedBy != ''");
-    } else if (borrowedBy) {
-      query.andWhere("book.borrowedBy = :borrowedBy", { borrowedBy });
-    }
-
-    const books = await query.getMany();
-    return books;
+    return Book.find({
+      where,
+      order: {
+        status: "ASC",
+        createdAt: "DESC",
+      },
+    });
   }
 
   @Mutation(() => Book)
   async createBook(
-    @Arg("data", () => BookCreateInput) data: BookCreateInput
+    @Arg("data", () => BookCreateInput) data: BookCreateInput,
   ): Promise<Book> {
     const newBook = new Book();
     Object.assign(newBook, data);
@@ -63,7 +70,7 @@ export class BookResolver {
   async updateBook(
     @Arg("id", () => ID) id: number,
     @Arg("data", () => BookUpdateInput)
-    data: BookUpdateInput
+    data: BookUpdateInput,
   ): Promise<Book | null> {
     data.validate();
     const book = await Book.findOneBy({ id });

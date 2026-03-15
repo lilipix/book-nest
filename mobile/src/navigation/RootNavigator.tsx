@@ -6,12 +6,12 @@ import AuthNavigator from "./AuthNavigator";
 
 import { useAuth } from "../context/AuthContext";
 
-import SigninScreen from "../screens/SigninScreen";
-import SignupScreen from "../screens/SignupScreen";
+// import SigninScreen from "../screens/SigninScreen";
+// import SignupScreen from "../screens/SignupScreen";
 import BooksScreen from "../screens/LibraryScreen";
-import CreateBookScreen from "../screens/CreateBookScreen";
-import EditBookScreen from "../screens/EditBookScreen";
+
 import LibraryScreen from "../screens/LibraryScreen";
+import AddBookScreen from "../screens/AddBookScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -26,11 +26,11 @@ export default function RootNavigator() {
           options={{ headerShown: false }}
         />
 
-        <Stack.Screen name="Signin" component={SigninScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
+        {/* <Stack.Screen name="Signin" component={SigninScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} /> */}
         <Stack.Screen name="Books" component={LibraryScreen} />
         <Stack.Screen name="CreateBook" component={AddBookScreen} />
-        <Stack.Screen name="EditBook" component={EditBookScreen} />
+        {/* <Stack.Screen name="EditBook" component={EditBookScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -8,13 +8,23 @@ import {
   Index,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { registerEnumType } from "type-graphql";
 
-export enum Filter {
-  Read = "read",
-  ToRead = "to-read",
-  Favorites = "favorites",
-  Borrowed = "borrowed",
+// export enum Filter {
+//   Read = "read",
+//   ToRead = "to-read",
+//   Favorites = "favorites",
+//   Borrowed = "borrowed",
+// }
+
+export enum BookStatus {
+  TO_READ = "TO_READ",
+  READ = "READ",
+  UNREAD = "UNREAD",
 }
+registerEnumType(BookStatus, {
+  name: "BookStatus",
+});
 
 @Entity()
 @ObjectType()
@@ -44,17 +54,21 @@ export class Book extends BaseEntity {
   @Column({ nullable: true })
   description!: string;
 
-  @Field()
-  @Column()
-  isRead: boolean = false;
-
-  @Field()
-  @Column()
-  toRead: boolean = false;
+  @Field(() => BookStatus)
+  @Column({
+    type: "enum",
+    enum: BookStatus,
+    default: BookStatus.UNREAD,
+  })
+  status: BookStatus = BookStatus.UNREAD;
 
   @Field()
   @Column()
   isFavorite: boolean = false;
+
+  @Field()
+  @Column({ default: false })
+  isBorrowed: boolean = false;
 
   @Field(() => Date, { nullable: true })
   @Column({ type: "timestamp", nullable: true })

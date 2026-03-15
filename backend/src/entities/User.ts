@@ -37,8 +37,8 @@ export class User extends BaseEntity {
   @Field(() => ID)
   id!: number;
 
-  @Column()
-  @Field(() => String)
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   name!: string;
 
   @Column({ unique: true })
@@ -47,12 +47,25 @@ export class User extends BaseEntity {
   @UseMiddleware(IsUser)
   email!: string;
 
+  @Column({ enum: ["user", "admin"], default: "user" })
+  @Field()
+  role!: string;
+
   @Column()
+  // @Field()
   hashedPassword!: string;
 
   @CreateDateColumn()
   @Field()
   createdAt!: Date;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  profilePicture?: string; // URL to the profile picture, can be null
+  // may be needed if user can create other users
+  // @ManyToOne(() => User)
+  // @Field(() => User)
+  // createdBy!: User;
 }
 
 @InputType()
