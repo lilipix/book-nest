@@ -53,7 +53,7 @@ async function initiliaze() {
         context.user = user;
         return context;
       },
-    })
+    }),
   );
 
   app.post("/upload", upload.single("file"), async (req, res) => {
@@ -77,6 +77,26 @@ async function initiliaze() {
 
   app.listen(5000, () => {
     console.info("🚀 Serveur disponible sur http://localhost:5000");
+  });
+
+  app.post("/books/:id/cover", upload.single("file"), async (req, res) => {
+    const bookId = Number(req.params.id);
+
+    const book = await datasource.getRepository(Book).findOneBy({ id: bookId });
+
+    if (!book) {
+      return res.status(404).json({ error: "Livre introuvable" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "Aucun fichier envoyé" });
+    }
+
+    book.image = req.file.path;
+
+    await datasource.getRepository(Book).save(book);
+
+    res.json({ message: "Couverture enregistrée", image: book.image });
   });
 }
 

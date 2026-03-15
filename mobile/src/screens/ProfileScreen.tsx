@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 
-export default function FavoritesScreen() {
+export default function ProfileScreen() {
   return (
     <View>
       <Text>Favorites</Text>

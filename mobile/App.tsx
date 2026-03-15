@@ -3,9 +3,10 @@ import { ApolloProvider } from "@apollo/client/react";
 import RootNavigator from "./src/navigation/RootNavigator";
 import { AuthProvider } from "./src/context/AuthContext";
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const client = new ApolloClient({
   link: new HttpLink({
-    uri: "http://192.168.1.57:8080/api",
+    uri: API_URL,
   }),
   cache: new InMemoryCache(),
 });
