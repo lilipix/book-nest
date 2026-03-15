@@ -30,30 +30,31 @@ export class BookResolver {
     @Arg("isBorrowed", { nullable: true }) isBorrowed?: boolean,
     @Arg("search", { nullable: true }) search?: string,
   ): Promise<Book[]> {
-    const baseWhere: any = {
-      ...(status && { status }),
-      ...(isFavorite && { isFavorite: true }),
-      ...(isBorrowed && { borrowedBy: Not(IsNull()) }),
-    };
+    const qb = Book.createQueryBuilder("book");
 
-    let where;
-
-    if (search) {
-      where = [
-        { ...baseWhere, title: ILike(`%${search}%`) },
-        { ...baseWhere, author: ILike(`%${search}%`) },
-      ];
-    } else {
-      where = baseWhere;
+    if (status) {
+      qb.andWhere("book.status = :status", { status });
     }
 
-    return Book.find({
-      where,
-      order: {
-        status: "ASC",
-        createdAt: "DESC",
-      },
-    });
+    if (isFavorite) {
+      qb.andWhere("book.isFavorite = true");
+    }
+
+    if (isBorrowed) {
+      qb.andWhere("book.borrowedBy IS NOT NULL");
+    }
+
+    if (search) {
+      qb.andWhere(
+        `(unaccent(book.title) ILIKE unaccent(:search)
+      OR unaccent(book.author) ILIKE unaccent(:search))`,
+        { search: `%${search}%` },
+      );
+    }
+
+    qb.orderBy("book.status", "ASC").addOrderBy("book.createdAt", "DESC");
+
+    return qb.getMany();
   }
 
   @Mutation(() => Book)
