@@ -1,5 +1,11 @@
 import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
-import { Book, BookCreateInput, BookUpdateInput } from "../entities/Book";
+import {
+  Book,
+  BookCreateInput,
+  BookStatus,
+  BookUpdateInput,
+} from "../entities/Book";
+import { ILike, IsNull, Not } from "typeorm";
 
 @Resolver()
 export class BookResolver {
@@ -19,30 +25,40 @@ export class BookResolver {
 
   @Query(() => [Book])
   async books(
-    @Arg("isRead", { nullable: true }) isRead: boolean,
-    @Arg("toRead", { nullable: true }) toRead: boolean,
-    @Arg("isFavorite", { nullable: true }) isFavorite: boolean
+    @Arg("status", () => BookStatus, { nullable: true }) status?: BookStatus,
+    @Arg("isFavorite", { nullable: true }) isFavorite?: boolean,
+    @Arg("isBorrowed", { nullable: true }) isBorrowed?: boolean,
+    @Arg("search", { nullable: true }) search?: string,
   ): Promise<Book[]> {
-    const where: any = {};
+    const baseWhere: any = {
+      ...(status && { status }),
+      ...(isFavorite && { isFavorite: true }),
+      ...(isBorrowed && { borrowedBy: Not(IsNull()) }),
+    };
 
-    if (isRead !== undefined) {
-      where.isRead = isRead;
+    let where;
+
+    if (search) {
+      where = [
+        { ...baseWhere, title: ILike(`%${search}%`) },
+        { ...baseWhere, author: ILike(`%${search}%`) },
+      ];
+    } else {
+      where = baseWhere;
     }
 
-    if (toRead !== undefined) {
-      where.toRead = toRead;
-    }
-
-    if (isFavorite !== undefined) {
-      where.isFavorite = isFavorite;
-    }
-
-    return await Book.findBy(where);
+    return Book.find({
+      where,
+      order: {
+        status: "ASC",
+        createdAt: "DESC",
+      },
+    });
   }
 
   @Mutation(() => Book)
   async createBook(
-    @Arg("data", () => BookCreateInput) data: BookCreateInput
+    @Arg("data", () => BookCreateInput) data: BookCreateInput,
   ): Promise<Book> {
     const newBook = new Book();
     Object.assign(newBook, data);
@@ -54,8 +70,9 @@ export class BookResolver {
   async updateBook(
     @Arg("id", () => ID) id: number,
     @Arg("data", () => BookUpdateInput)
-    data: BookUpdateInput
+    data: BookUpdateInput,
   ): Promise<Book | null> {
+    data.validate();
     const book = await Book.findOneBy({ id });
     if (!book) return null;
     Object.assign(book, data);

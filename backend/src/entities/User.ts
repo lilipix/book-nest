@@ -18,10 +18,10 @@ import { ContextType } from "../auth";
 
 export const IsUser: MiddlewareFn<ContextType> = async (
   { context, root },
-  next
+  next,
 ) => {
   if (context.user) {
-    if (context.user.role === "admin" || context.user.id === root.id) {
+    if (context.user.id === root.id) {
       //si je suis admin ou si je suis le user il faut que le user connecté soit le même que le user requêté
       return await next(); // dans ce cas on poursuit le traitement
     } else {
@@ -36,6 +36,10 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id!: number;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  name!: string;
 
   @Column({ unique: true })
   @IsEmail({}, { message: "Invalid email" })
@@ -55,6 +59,9 @@ export class User extends BaseEntity {
   @Field()
   createdAt!: Date;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  profilePicture?: string; // URL to the profile picture, can be null
   // may be needed if user can create other users
   // @ManyToOne(() => User)
   // @Field(() => User)

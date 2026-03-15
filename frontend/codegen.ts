@@ -3,7 +3,7 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 const config: CodegenConfig = {
   schema: process.env.GRAPHQL_SCHEMA_URL
     ? process.env.GRAPHQL_SCHEMA_URL
-    : "http://localhost:5000/",
+    : "http://localhost:5000/api/graphql",
   documents: ["src/api/*.ts"],
   generates: {
     "./src/gql/": {

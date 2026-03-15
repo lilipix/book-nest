@@ -24,36 +24,45 @@ export type DatePickerFormBlockValues = z.infer<
 const DatePicker = () => {
   const formContext = useFormContext<DatePickerFormBlockValues>();
   const date = formContext.watch("borrowedAt");
+  const error = formContext.formState.errors.borrowedAt;
   return (
-    <Popover>
-      <PopoverTrigger>
-        <Button
-          type="button"
-          variant={"outline"}
-          className={cn(
-            "h-9 w-full px-3 py-2 border border-input bg-background text-base font-normal text-left justify-start items-center rounded-md",
-            !date && "text-muted-foreground"
-          )}
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? (
-            format(date, "PPP", { locale: fr })
-          ) : (
-            <span>Sélectionnez une date</span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date ?? undefined}
-          onSelect={(selectedDate) =>
-            formContext.setValue("borrowedAt", selectedDate ?? null)
-          }
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
+    <div className="space-y-2">
+      <Popover>
+        <PopoverTrigger>
+          <span className="text-sm font-medium flex items-center mb-2">
+            Date de prêt
+          </span>
+          <Button
+            type="button"
+            variant={"outline"}
+            className={cn(
+              "h-9 w-full px-3 py-2 border border-input bg-background text-base font-normal text-left justify-start items-center rounded-md",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date ? (
+              format(date, "PPP", { locale: fr })
+            ) : (
+              <span>Sélectionnez une date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={date ?? undefined}
+            onSelect={(selectedDate) =>
+              formContext.setValue("borrowedAt", selectedDate ?? null)
+            }
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      {error && (
+        <p className="text-sm font-medium text-destructive">{error.message}</p>
+      )}
+    </div>
   );
 };
 
