@@ -1,13 +1,22 @@
 import React, { useState } from "react";
-import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  Text,
+  StyleSheet,
+  FlatList,
+} from "react-native";
 import BookList from "../components/BookList";
 import FilterSegment from "../components/FilterSegment";
 import { useBooks, Filter } from "../hooks/useBooks";
+import SearchBar from "@/components/SearchBar";
+import BookGridItem from "@/components/BookGridItem";
 
 export default function BooksScreen() {
   const [filter, setFilter] = useState<Filter | undefined>();
+  const [search, setSearch] = useState("");
 
-  const { books, loading, error } = useBooks(filter);
+  const { books, loading, error } = useBooks(filter, search);
 
   const getPageTitle = (filter?: Filter) => {
     switch (filter) {
@@ -47,13 +56,28 @@ export default function BooksScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{getPageTitle(filter)}</Text>
-      <FilterSegment onChange={setFilter} />
+      <SearchBar
+        onSearch={setSearch}
+        // onScanPress={openScanner}
+      />
+      {/* <Text style={styles.title}>{getPageTitle(filter)}</Text> */}
+      <FilterSegment active={filter} onChange={setFilter} />
 
       {books.length === 0 ? (
         <Text style={styles.empty}>{emptyMessage}</Text>
       ) : (
-        <BookList books={books} />
+        // <BookList books={books} />
+        <FlatList
+          data={books}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={3}
+          renderItem={({ item }) => (
+            <BookGridItem
+              book={item}
+              // onPress={() => openBook(item)}
+            />
+          )}
+        />
       )}
     </View>
   );
