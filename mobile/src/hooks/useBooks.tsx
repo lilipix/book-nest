@@ -38,18 +38,21 @@ const getFilterVariables = (filter?: Filter) => {
   }
 };
 
-export const useBooks = (filter?: Filter) => {
-  const { data, loading, error } = useQuery<BooksQuery, BooksVariables>(
-    QUERY_BOOKS,
-    {
-      variables: getFilterVariables(filter),
-      fetchPolicy: "cache-and-network",
+export const useBooks = (filter?: Filter, search?: string) => {
+  const { data, loading, error, refetch } = useQuery<
+    BooksQuery,
+    BooksVariables
+  >(QUERY_BOOKS, {
+    variables: {
+      ...getFilterVariables(filter),
     },
-  );
+    fetchPolicy: "cache-and-network",
+  });
 
   return {
     books: data?.books ?? [],
     loading,
     error,
+    refetch,
   };
 };

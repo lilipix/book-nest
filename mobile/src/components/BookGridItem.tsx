@@ -51,6 +51,7 @@ type Props = {
   onPress: () => void;
 };
 
+// TODO AJOUTER MEMO
 export default function BookGridItem({ book, onPress }: Props) {
   const backgroundColor = getBookColor(book.title);
   return (
