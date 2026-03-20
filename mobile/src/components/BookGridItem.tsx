@@ -1,47 +1,3 @@
-// import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-// import { Book } from "@/gql/graphql";
-
-// type Props = {
-//   book: Book;
-//   onPress: () => void;
-// };
-
-// export default function BookGridItem({ book, onPress }: Props) {
-//   return (
-//     <Pressable style={styles.container} onPress={onPress}>
-//       <Image
-//         source={{
-//           uri: book.image || "https://via.placeholder.com/120x180",
-//         }}
-//         style={styles.cover}
-//       />
-
-//       <Text numberOfLines={2} style={styles.title}>
-//         {book.title}
-//       </Text>
-//     </Pressable>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     margin: 6,
-//     alignItems: "center",
-//   },
-
-//   cover: {
-//     width: 110,
-//     height: 160,
-//     borderRadius: 6,
-//   },
-
-//   title: {
-//     fontSize: 12,
-//     marginTop: 4,
-//     textAlign: "center",
-//   },
-// });
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { Book, BookStatus } from "@/gql/graphql";
 import { getBookColor } from "@/utils";
@@ -49,13 +5,21 @@ import { getBookColor } from "@/utils";
 type Props = {
   book: Book;
   onPress: () => void;
+  highlighted?: boolean;
 };
 
 // TODO AJOUTER MEMO
-export default function BookGridItem({ book, onPress }: Props) {
+export default function BookGridItem({
+  book,
+  onPress,
+  highlighted = false,
+}: Props) {
   const backgroundColor = getBookColor(book.title);
   return (
-    <Pressable style={styles.container} onPress={onPress}>
+    <Pressable
+      style={[styles.container, highlighted && styles.highlightedContainer]}
+      onPress={onPress}
+    >
       <View style={styles.coverContainer}>
         {book.image ? (
           <Image source={{ uri: book.image }} style={styles.cover} />
@@ -176,5 +140,14 @@ const styles = StyleSheet.create({
 
   badgeText: {
     fontSize: 12,
+  },
+  // highlighted: {
+  //   borderWidth: 3,
+  //   borderColor: "#4CAF50",
+  // },
+  highlightedContainer: {
+    borderWidth: 5,
+    borderColor: "#009688",
+    backgroundColor: "#E8F6F4",
   },
 });

@@ -2,6 +2,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
+import { Vibration } from "react-native";
+import { set } from "zod";
 
 function isValidISBN13(isbn: string): boolean {
   if (!/^\d{13}$/.test(isbn)) return false;
@@ -21,18 +23,24 @@ export default function Isbn() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [isbn, setIsbn] = useState<string | null>(null);
-  const [message, setMessage] = useState("Scanne un code ISBN");
+  const [message, setMessage] = useState("Scanner un code ISBN");
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { mode } = route.params;
 
   const handleScan = (isbn: string) => {
     if (mode === "search") {
-      navigation.navigate("Books", { search: isbn });
+      navigation.navigate("Main", {
+        screen: "Bibiliothèque",
+        params: { scannedIsbn: isbn },
+      });
+      return;
     }
-
     if (mode === "add") {
-      navigation.navigate("AddBook", { isbn });
+      navigation.navigate("Main", {
+        screen: "Ajouter un livre",
+        params: { isbn },
+      });
     }
   };
 
@@ -52,13 +60,14 @@ export default function Isbn() {
   const handleBarcodeScanned = ({ data }: { data: string }) => {
     if (scanned) return;
     setScanned(true);
-
+    console.log("Code scanné :", data);
     if (isValidISBN13(data)) {
+      setIsbn(data);
       setMessage("ISBN valide détecté");
+      Vibration.vibrate(100);
       setTimeout(() => {
         handleScan(data);
       }, 500);
-      handleScan(data);
     } else {
       setIsbn(null);
       setMessage(`Code détecté mais ISBN invalide : ${data}`);
@@ -83,7 +92,7 @@ export default function Isbn() {
           onPress={() => {
             setScanned(false);
             setIsbn(null);
-            setMessage("Scanne un code ISBN");
+            setMessage("Scanner un code ISBN");
           }}
         />
       </View>
