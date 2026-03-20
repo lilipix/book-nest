@@ -10,13 +10,6 @@ import {
 } from "typeorm";
 import { registerEnumType } from "type-graphql";
 
-// export enum Filter {
-//   Read = "read",
-//   ToRead = "to-read",
-//   Favorites = "favorites",
-//   Borrowed = "borrowed",
-// }
-
 export enum BookStatus {
   TO_READ = "TO_READ",
   READ = "READ",
@@ -102,11 +95,8 @@ export class BookCreateInput {
   @Length(2, 255, { message: "Image must be between 2 and 100 chars" })
   image!: string | null;
 
-  @Field()
-  isRead!: boolean;
-
-  @Field()
-  toRead!: boolean;
+  @Field(() => BookStatus)
+  status!: BookStatus;
 
   @Field()
   isFavorite!: boolean;

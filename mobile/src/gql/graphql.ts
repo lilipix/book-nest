@@ -39,9 +39,8 @@ export type BookCreateInput = {
   author: Scalars['String']['input'];
   image?: InputMaybe<Scalars['String']['input']>;
   isFavorite: Scalars['Boolean']['input'];
-  isRead: Scalars['Boolean']['input'];
+  status: BookStatus;
   title: Scalars['String']['input'];
-  toRead: Scalars['Boolean']['input'];
 };
 
 export enum BookStatus {
