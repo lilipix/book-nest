@@ -3,6 +3,8 @@ import LibraryScreen from "@/screens/LibraryScreen";
 import ProfileScreen from "@/screens/ProfileScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import LibraryStackNavigator from "./LibraryStackNavigator";
+import AddBookStackNavigator from "./AddBookStackNavigator";
 
 export type MainTabParamList = {
   Bibliothèque: { scannedIsbn?: string } | undefined;
@@ -37,9 +39,9 @@ export default function TabNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Bibliothèque" component={LibraryScreen} />
-      <Tab.Screen name="Ajouter un livre" component={AddBookScreen} />
-      <Tab.Screen name="Profil" component={ProfileScreen} />
+      <Tab.Screen name="Bibliothèque" component={LibraryStackNavigator} />
+      <Tab.Screen name="Ajouter un livre" component={AddBookStackNavigator} />
+      <Tab.Screen name="Profil" component={ProfileStackNavigator} />
     </Tab.Navigator>
   );
 }
