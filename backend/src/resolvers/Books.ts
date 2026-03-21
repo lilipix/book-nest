@@ -11,16 +11,7 @@ import { ILike, IsNull, Not } from "typeorm";
 export class BookResolver {
   @Query(() => Book, { nullable: true })
   async book(@Arg("id", () => ID) id: number): Promise<Book | null> {
-    try {
-      const book = await Book.findOneBy({ id });
-      if (!book) {
-        throw new Error(`Book with id ${id} not found`);
-      }
-      return book;
-    } catch (error) {
-      console.error("Error fetching book:", error);
-      throw new Error("Failed to fetch book");
-    }
+    return await Book.findOneBy({ id });
   }
 
   @Query(() => [Book])
@@ -46,8 +37,10 @@ export class BookResolver {
 
     if (search) {
       qb.andWhere(
-        `(unaccent(book.title) ILIKE unaccent(:search)
-      OR unaccent(book.author) ILIKE unaccent(:search))`,
+        `(
+        unaccent(book.title) ILIKE unaccent(:search)
+      OR unaccent(book.author) ILIKE unaccent(:search) OR book.isbn ILIKE :search
+      )`,
         { search: `%${search}%` },
       );
     }

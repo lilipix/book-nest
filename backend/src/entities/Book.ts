@@ -92,14 +92,18 @@ export class BookCreateInput {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  @Length(2, 255, { message: "Image must be between 2 and 100 chars" })
-  image!: string | null;
+  @Length(2, 255, { message: "Image must be between 2 and 255 chars" })
+  image?: string | null;
 
   @Field(() => BookStatus)
   status!: BookStatus;
 
   @Field()
   isFavorite!: boolean;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  isbn?: string | null;
 }
 @InputType()
 export class BookUpdateInput {

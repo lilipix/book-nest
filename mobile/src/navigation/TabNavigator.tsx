@@ -17,22 +17,11 @@ export default function TabNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true,
-        tabBarActiveTintColor: "#111827",
+        tabBarActiveTintColor: "#0F766E",
         tabBarInactiveTintColor: "#8E8E93",
         tabBarLabelStyle: {
           fontSize: 12,
         },
-        //         tabBarStyle: {
-        //   height: 72,
-        //   paddingTop: 8,
-        //   paddingBottom: 10,
-        //   borderTopWidth: 0,
-        //   backgroundColor: "#FFFFFF",
-        //   elevation: 8,
-        // },
-
-        // tabBarActiveTintColor: "#111827",
-        // tabBarInactiveTintColor: "#9CA3AF",
         tabBarIcon: ({ color, size, focused }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 

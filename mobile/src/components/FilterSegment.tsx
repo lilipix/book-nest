@@ -8,63 +8,33 @@ type Props = {
 };
 
 export default function FilterSegment({ onChange, active }: Props) {
-  return (
-    <View style={styles.container}>
-      <Pressable
-        style={[styles.button, active === undefined && styles.active]}
-        onPress={() => onChange(undefined)}
-      >
-        <Text style={[styles.text, active === undefined && styles.activeText]}>
-          Tous
-        </Text>
-      </Pressable>
+  const renderSegment = (label: string, value: Filter | undefined) => {
+    const isActive = active === value;
 
+    return (
       <Pressable
-        style={[styles.button, active === Filter.ToRead && styles.active]}
-        onPress={() => onChange(Filter.ToRead)}
-      >
-        <Text
-          style={[styles.text, active === Filter.ToRead && styles.activeText]}
-        >
-          À lire
-        </Text>
-      </Pressable>
-
-      <Pressable
-        style={[styles.button, active === Filter.Read && styles.active]}
-        onPress={() => onChange(Filter.Read)}
-      >
-        <Text
-          style={[styles.text, active === Filter.Read && styles.activeText]}
-        >
-          Lus
-        </Text>
-      </Pressable>
-
-      <Pressable
-        style={[styles.button, active === Filter.Favorites && styles.active]}
-        onPress={() => onChange(Filter.Favorites)}
+        style={[styles.button, isActive ? styles.active : styles.inactive]}
+        onPress={() => onChange(value)}
       >
         <Text
           style={[
             styles.text,
-            active === Filter.Favorites && styles.activeText,
+            isActive ? styles.activeText : styles.inactiveText,
           ]}
         >
-          Favoris
+          {label}
         </Text>
       </Pressable>
+    );
+  };
 
-      <Pressable
-        style={[styles.button, active === Filter.Borrowed && styles.active]}
-        onPress={() => onChange(Filter.Borrowed)}
-      >
-        <Text
-          style={[styles.text, active === Filter.Borrowed && styles.activeText]}
-        >
-          Prêtés
-        </Text>
-      </Pressable>
+  return (
+    <View style={styles.container}>
+      {renderSegment("Tous", undefined)}
+      {renderSegment("À lire", Filter.ToRead)}
+      {renderSegment("Lus", Filter.Read)}
+      {renderSegment("Favoris", Filter.Favorites)}
+      {renderSegment("Prêtés", Filter.Borrowed)}
     </View>
   );
 }
@@ -78,23 +48,31 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 18,
   },
 
   text: {
     fontSize: 14,
-    color: "#444",
+  },
+
+  inactive: {
+    backgroundColor: "transparent",
+  },
+
+  inactiveText: {
+    color: "#374151",
+    fontWeight: "500",
   },
 
   active: {
-    backgroundColor: "#4A6FA5",
+    backgroundColor: "#0F766E",
     transform: [{ scale: 1.05 }],
   },
 
   activeText: {
-    color: "white",
+    color: "#FFFFFF",
     fontWeight: "600",
   },
 });
