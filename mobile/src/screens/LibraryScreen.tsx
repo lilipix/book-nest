@@ -11,8 +11,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Touchable,
-  TouchableOpacity,
   Pressable,
 } from "react-native";
 import BookList from "../components/BookList";
@@ -28,173 +26,23 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { set } from "zod";
+import { Ionicons } from "@expo/vector-icons";
 
 type LibraryRouteParams = {
   Library: { scannedIsbn?: string } | undefined;
 };
 
-// export default function BooksScreen() {
-//   const listRef = useRef<FlatList>(null);
-//   const [filter, setFilter] = useState<Filter | undefined>();
-//   const [search, setSearch] = useState("");
-//   const [refreshing, setRefreshing] = useState(false);
-//   const navigation = useNavigation<any>();
-//   const route = useRoute<RouteProp<LibraryRouteParams, "Library">>();
-//   const scannedIsbn = route.params?.scannedIsbn;
-
-//   const { books, loading, error, refetch } = useBooks(filter);
-
-//   useEffect(() => {
-//     if (!scannedIsbn) return;
-
-//     const index = books.findIndex((b) => b.isbn === scannedIsbn);
-
-//     if (index !== -1) {
-//       listRef.current?.scrollToIndex({
-//         index,
-//         animated: true,
-//       });
-//     }
-//   }, [scannedIsbn, books]);
-
-//   useFocusEffect(
-//     useCallback(() => {
-//       refetch();
-//     }, [refetch]),
-//   );
-
-//   const normalizedSearch = search.trim().toLowerCase();
-
-//   const filteredBooks = useMemo(() => {
-//     if (!normalizedSearch) return books;
-
-//     return books.filter((book) => {
-//       return (
-//         book.title.toLowerCase().includes(normalizedSearch) ||
-//         book.author.toLowerCase().includes(normalizedSearch)
-//       );
-//     });
-//   }, [books, normalizedSearch]);
-
-//   const onRefresh = async () => {
-//     setRefreshing(true);
-//     await refetch();
-//     setRefreshing(false);
-//   };
-//   const getPageTitle = (filter?: Filter) => {
-//     switch (filter) {
-//       case Filter.ToRead:
-//         return "Livres à lire";
-//       case Filter.Favorites:
-//         return "Livres favoris";
-//       case Filter.Borrowed:
-//         return "Livres prêtés";
-//       default:
-//         return "Tous les livres";
-//     }
-//   };
-
-//   const getPageMessage = (filter?: Filter) => {
-//     switch (filter) {
-//       case Filter.ToRead:
-//         return "livres à lire";
-//       case Filter.Read:
-//         return "livres lus";
-//       case Filter.Favorites:
-//         return "livres favoris";
-//       case Filter.Borrowed:
-//         return "livres prêtés";
-//       default:
-//         return "livres";
-//     }
-//   };
-//   const openScanner = () => {
-//     navigation.navigate("ScanBook", { mode: "search" });
-//   };
-
-//   const addBook = () => {
-//     navigation.navigate("CreateBook");
-//   };
-
-//   const renderItem = useCallback(
-//     ({ item }: { item: Book }) => (
-//       <BookGridItem book={item} highlighted={item.isbn === scannedIsbn} />
-//     ),
-//     [],
-//   );
-
-//   if (loading) return <ActivityIndicator />;
-
-//   if (error) return <Text>Erreur : {error.message}</Text>;
-
-//   const index = books.findIndex((b) => b.isbn === scannedIsbn);
-//   listRef.current?.scrollToIndex({
-//     index,
-//     animated: true,
-//   });
-//   const emptyMessage = normalizedSearch
-//     ? "Aucun livre ne correspond à votre recherche."
-//     : `Vous n'avez pas encore spécifié de ${getPageMessage(
-//         filter,
-//       )} dans votre bibliothèque.`;
-
-//   return (
-//     <SafeAreaView style={styles.container} edges={["left", "right"]}>
-//       <SearchBar onSearch={setSearch} onScanPress={openScanner} />
-//       <FilterSegment active={filter} onChange={setFilter} />
-
-//       {filteredBooks.length === 0 ? (
-//         <View>
-//           <Text style={styles.empty}>{emptyMessage}</Text>
-//         </View>
-//       ) : (
-//         <FlatList
-//           ref={listRef}
-//           data={filteredBooks}
-//           keyExtractor={(item) => item.id.toString()}
-//           numColumns={3}
-//           renderItem={renderItem}
-//           initialNumToRender={12}
-//           windowSize={10}
-//           removeClippedSubviews
-//           refreshing={refreshing}
-//           onRefresh={onRefresh}
-//           contentContainerStyle={{ paddingBottom: 100 }}
-//         />
-//       )}
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     paddingTop: 16,
-//   },
-//   title: {
-//     fontSize: 22,
-//     fontWeight: "bold",
-//     textAlign: "center",
-//     marginBottom: 16,
-//   },
-//   empty: {
-//     textAlign: "center",
-//     marginTop: 40,
-//     fontSize: 16,
-//     color: "#666",
-//   },
-// });
 export default function LibraryScreen() {
-  console.log("LibraryScreen render");
-
   const listRef = useRef<FlatList>(null);
   const [filter, setFilter] = useState<Filter | undefined>();
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [highlightIsbn, setHighlightIsbn] = useState<string | undefined>();
+  const [showScanMessage, setShowScanMessage] = useState(false);
   const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<LibraryRouteParams, "Library">>();
   const scannedIsbn = route.params?.scannedIsbn;
-  console.log("route.params", route.params);
   const { books, loading, error, refetch } = useBooks(filter);
 
   useFocusEffect(
@@ -207,14 +55,15 @@ export default function LibraryScreen() {
 
   const scannedBook = useMemo(() => {
     if (!scannedIsbn) return undefined;
-    console.log("scannedIsbn", scannedIsbn);
-    console.log("books", books);
-    console.log(
-      "found",
-      books.find((b) => b.isbn === scannedIsbn),
-    );
     return books.find((b) => b.isbn === scannedIsbn);
   }, [books, scannedIsbn]);
+
+  useEffect(() => {
+    if (scannedIsbn) {
+      setHighlightIsbn(scannedIsbn);
+      setShowScanMessage(true);
+    }
+  }, [scannedIsbn]);
 
   const filteredBooks = useMemo(() => {
     let result = books;
@@ -268,11 +117,24 @@ export default function LibraryScreen() {
     navigation.navigate("CreateBook");
   };
 
+  const clearScanFeedback = useCallback(() => {
+    setHighlightIsbn(undefined);
+    setShowScanMessage(false);
+    navigation.setParams({ scannedIsbn: undefined });
+  }, [navigation]);
+
   const renderItem = useCallback(
     ({ item }: { item: Book }) => (
-      <BookGridItem book={item} highlighted={item.id === scannedBook?.id} />
+      <BookGridItem
+        book={item}
+        highlighted={item.isbn === highlightIsbn}
+        onPress={() => {
+          clearScanFeedback();
+          // openBook(item);
+        }}
+      />
     ),
-    [scannedBook],
+    [highlightIsbn, clearScanFeedback],
   );
 
   if (loading) return <ActivityIndicator />;
@@ -285,13 +147,35 @@ export default function LibraryScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
       <SearchBar onSearch={setSearch} onScanPress={openScanner} />
-      <FilterSegment active={filter} onChange={setFilter} />
+      {showScanMessage && (
+        <View style={styles.scanCard}>
+          <Text style={styles.scanCardText}>
+            {scannedBook
+              ? "Livre trouvé dans votre bibliothèque"
+              : "Livre non trouvé dans votre bibliothèque"}
+          </Text>
 
-      {scannedIsbn && scannedBook && (
-        <Text style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
-          Livre trouvé dans votre bibliothèque
-        </Text>
+          {!scannedBook && (
+            <Pressable
+              style={({ pressed }) => [
+                styles.addScannedButton,
+                pressed && styles.pressed,
+              ]}
+              onPress={() => {
+                if (!scannedIsbn) return;
+                navigation.navigate("Main", {
+                  screen: "Ajouter un livre",
+                  params: { isbn: scannedIsbn },
+                });
+              }}
+            >
+              <Text style={styles.addScannedButtonText}>Ajouter ce livre</Text>
+            </Pressable>
+          )}
+        </View>
       )}
+
+      <FilterSegment active={filter} onChange={setFilter} />
 
       {filteredBooks.length === 0 ? (
         <View>
@@ -310,8 +194,49 @@ export default function LibraryScreen() {
           refreshing={refreshing}
           onRefresh={onRefresh}
           contentContainerStyle={{ paddingBottom: 100 }}
+          onScrollBeginDrag={clearScanFeedback}
         />
       )}
     </SafeAreaView>
   );
 }
+const styles = StyleSheet.create({
+  scanCard: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "#F0FDFA",
+    borderWidth: 1,
+    borderColor: "#99F6E4",
+  },
+
+  scanCardText: {
+    color: "#065F46",
+    fontSize: 14,
+    fontWeight: "600",
+    alignSelf: "center",
+  },
+
+  addScannedButton: {
+    alignSelf: "center",
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#0F766E",
+    backgroundColor: "#FFFFFF",
+  },
+
+  addScannedButtonText: {
+    color: "#0F766E",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  pressed: {
+    opacity: 0.75,
+  },
+});

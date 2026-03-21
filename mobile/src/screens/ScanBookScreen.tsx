@@ -31,7 +31,7 @@ export default function Isbn() {
   const handleScan = (isbn: string) => {
     if (mode === "search") {
       navigation.navigate("Main", {
-        screen: "Bibiliothèque",
+        screen: "Bibliothèque",
         params: { scannedIsbn: isbn },
       });
       return;
@@ -59,9 +59,9 @@ export default function Isbn() {
 
   const handleBarcodeScanned = ({ data }: { data: string }) => {
     if (scanned) return;
-    setScanned(true);
-    console.log("Code scanné :", data);
+
     if (isValidISBN13(data)) {
+      setScanned(true);
       setIsbn(data);
       setMessage("ISBN valide détecté");
       Vibration.vibrate(100);

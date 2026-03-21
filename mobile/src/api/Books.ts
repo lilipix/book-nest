@@ -6,6 +6,7 @@ export const QUERY_BOOKS = gql(`
       id
       title
       author
+      isbn
       status
       isFavorite
       borrowedBy

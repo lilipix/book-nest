@@ -16,11 +16,13 @@ export default function BookGridItem({
 }: Props) {
   const backgroundColor = getBookColor(book.title);
   return (
-    <Pressable
-      style={[styles.container, highlighted && styles.highlightedContainer]}
-      onPress={onPress}
-    >
+    <Pressable style={[styles.container]} onPress={onPress}>
       <View style={styles.coverContainer}>
+        {highlighted && (
+          <View style={styles.foundBadge}>
+            <Text style={styles.foundBadgeText}>Trouvé</Text>
+          </View>
+        )}
         {book.image ? (
           <Image source={{ uri: book.image }} style={styles.cover} />
         ) : (
@@ -72,45 +74,66 @@ const styles = StyleSheet.create({
   },
 
   cover: {
+    // width: 110,
+    // height: 160,
+    // borderRadius: 6,
+
+    // // Ombre iOS
+    // shadowColor: "#000",
+    // shadowOpacity: 0.2,
+    // shadowRadius: 4,
+    // shadowOffset: { width: 0, height: 2 },
+
+    // // Ombre Android
+    // elevation: 4,
     width: 110,
     height: 160,
-    borderRadius: 6,
+    borderRadius: 12,
+    backgroundColor: "#E5E7EB",
 
-    // Ombre iOS
     shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-
-    // Ombre Android
-    elevation: 4,
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
 
   placeholder: {
+    // width: 110,
+    // height: 160,
+    // borderRadius: 6,
+    // justifyContent: "center",
+    // padding: 8,
+
+    // shadowColor: "#000",
+    // shadowOpacity: 0.2,
+    // shadowRadius: 4,
+    // shadowOffset: { width: 0, height: 2 },
+
+    // elevation: 4,
     width: 110,
     height: 160,
-    borderRadius: 6,
+    borderRadius: 12,
     justifyContent: "center",
-    padding: 8,
-
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-
-    elevation: 4,
+    alignItems: "center",
+    padding: 10,
   },
   placeholderTitle: {
-    color: "white",
+    color: "#1F2937",
     fontSize: 12,
     textAlign: "center",
     fontWeight: "600",
   },
 
   title: {
-    fontSize: 12,
-    marginTop: 4,
+    // fontSize: 12,
+    // marginTop: 4,
+    // textAlign: "center",
+    fontSize: 13,
+    marginTop: 6,
     textAlign: "center",
+    color: "#1F2937",
+    fontWeight: "500",
   },
 
   badge: {
@@ -141,13 +164,19 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 12,
   },
-  // highlighted: {
-  //   borderWidth: 3,
-  //   borderColor: "#4CAF50",
-  // },
-  highlightedContainer: {
-    borderWidth: 5,
-    borderColor: "#009688",
-    backgroundColor: "#E8F6F4",
+  foundBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "#0F766E",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
+    zIndex: 2,
+  },
+  foundBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });

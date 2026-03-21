@@ -8,7 +8,6 @@ type BookCardProps = {
   pageMessage: string;
 };
 const BookCard = ({ books, pageMessage }: BookCardProps) => {
-  console.log("books", books);
   return (
     <div className="grid mx-auto gap-4 md:grid-cols-2 lg:grid-cols-3">
       {books.length > 0 ? (
@@ -39,7 +38,7 @@ const BookCard = ({ books, pageMessage }: BookCardProps) => {
                       Emprunté le{" "}
                       {book.borrowedAt &&
                         new Date(book.borrowedAt).toLocaleDateString(
-                          "fr-FR"
+                          "fr-FR",
                         )}{" "}
                       par {book.borrowedBy}
                     </p>
