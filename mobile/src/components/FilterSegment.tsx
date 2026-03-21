@@ -3,37 +3,38 @@ import { View, Pressable, Text, StyleSheet } from "react-native";
 import { Filter } from "../hooks/useBooks";
 
 type Props = {
+  active?: Filter;
   onChange: (filter?: Filter) => void;
 };
 
-export default function FilterSegment({ onChange }: Props) {
+export default function FilterSegment({ onChange, active }: Props) {
+  const renderSegment = (label: string, value: Filter | undefined) => {
+    const isActive = active === value;
+
+    return (
+      <Pressable
+        style={[styles.button, isActive ? styles.active : styles.inactive]}
+        onPress={() => onChange(value)}
+      >
+        <Text
+          style={[
+            styles.text,
+            isActive ? styles.activeText : styles.inactiveText,
+          ]}
+        >
+          {label}
+        </Text>
+      </Pressable>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <Pressable style={styles.button} onPress={() => onChange(undefined)}>
-        <Text>Tous</Text>
-      </Pressable>
-
-      <Pressable style={styles.button} onPress={() => onChange(Filter.ToRead)}>
-        <Text>À lire</Text>
-      </Pressable>
-
-      <Pressable style={styles.button} onPress={() => onChange(Filter.Read)}>
-        <Text>Lus</Text>
-      </Pressable>
-
-      <Pressable
-        style={styles.button}
-        onPress={() => onChange(Filter.Favorites)}
-      >
-        <Text>Favoris</Text>
-      </Pressable>
-
-      <Pressable
-        style={styles.button}
-        onPress={() => onChange(Filter.Borrowed)}
-      >
-        <Text>Prêtés</Text>
-      </Pressable>
+      {renderSegment("Tous", undefined)}
+      {renderSegment("À lire", Filter.ToRead)}
+      {renderSegment("Lus", Filter.Read)}
+      {renderSegment("Favoris", Filter.Favorites)}
+      {renderSegment("Prêtés", Filter.Borrowed)}
     </View>
   );
 }
@@ -42,11 +43,36 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 12,
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
+
   button: {
-    backgroundColor: "#eee",
-    padding: 8,
-    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+  },
+
+  text: {
+    fontSize: 14,
+  },
+
+  inactive: {
+    backgroundColor: "transparent",
+  },
+
+  inactiveText: {
+    color: "#374151",
+    fontWeight: "500",
+  },
+
+  active: {
+    backgroundColor: "#0F766E",
+    transform: [{ scale: 1.05 }],
+  },
+
+  activeText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
   },
 });

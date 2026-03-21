@@ -2,6 +2,7 @@ import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import RootNavigator from "./src/navigation/RootNavigator";
 import { AuthProvider } from "./src/context/AuthContext";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const client = new ApolloClient({
@@ -13,10 +14,12 @@ const client = new ApolloClient({
 
 export default function App() {
   return (
-    <ApolloProvider client={client}>
-      <AuthProvider>
-        <RootNavigator />
-      </AuthProvider>
-    </ApolloProvider>
+    <SafeAreaProvider>
+      <ApolloProvider client={client}>
+        <AuthProvider>
+          <RootNavigator />
+        </AuthProvider>
+      </ApolloProvider>
+    </SafeAreaProvider>
   );
 }

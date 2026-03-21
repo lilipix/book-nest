@@ -37,7 +37,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres
+    image: postgres:17
     ports:
       - 5432:5432
     env_file:

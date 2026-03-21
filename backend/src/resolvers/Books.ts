@@ -11,16 +11,7 @@ import { ILike, IsNull, Not } from "typeorm";
 export class BookResolver {
   @Query(() => Book, { nullable: true })
   async book(@Arg("id", () => ID) id: number): Promise<Book | null> {
-    try {
-      const book = await Book.findOneBy({ id });
-      if (!book) {
-        throw new Error(`Book with id ${id} not found`);
-      }
-      return book;
-    } catch (error) {
-      console.error("Error fetching book:", error);
-      throw new Error("Failed to fetch book");
-    }
+    return await Book.findOneBy({ id });
   }
 
   @Query(() => [Book])
@@ -30,30 +21,33 @@ export class BookResolver {
     @Arg("isBorrowed", { nullable: true }) isBorrowed?: boolean,
     @Arg("search", { nullable: true }) search?: string,
   ): Promise<Book[]> {
-    const baseWhere: any = {
-      ...(status && { status }),
-      ...(isFavorite && { isFavorite: true }),
-      ...(isBorrowed && { borrowedBy: Not(IsNull()) }),
-    };
+    const qb = Book.createQueryBuilder("book");
 
-    let where;
-
-    if (search) {
-      where = [
-        { ...baseWhere, title: ILike(`%${search}%`) },
-        { ...baseWhere, author: ILike(`%${search}%`) },
-      ];
-    } else {
-      where = baseWhere;
+    if (status) {
+      qb.andWhere("book.status = :status", { status });
     }
 
-    return Book.find({
-      where,
-      order: {
-        status: "ASC",
-        createdAt: "DESC",
-      },
-    });
+    if (isFavorite) {
+      qb.andWhere("book.isFavorite = true");
+    }
+
+    if (isBorrowed) {
+      qb.andWhere("book.borrowedBy IS NOT NULL");
+    }
+
+    if (search) {
+      qb.andWhere(
+        `(
+        unaccent(book.title) ILIKE unaccent(:search)
+      OR unaccent(book.author) ILIKE unaccent(:search) OR book.isbn ILIKE :search
+      )`,
+        { search: `%${search}%` },
+      );
+    }
+
+    qb.orderBy("book.status", "ASC").addOrderBy("book.createdAt", "DESC");
+
+    return qb.getMany();
   }
 
   @Mutation(() => Book)

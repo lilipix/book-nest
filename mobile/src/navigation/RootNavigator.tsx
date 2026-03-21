@@ -2,21 +2,21 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import TabNavigator from "./TabNavigator";
-import AuthNavigator from "./AuthNavigator";
+import ScanBookScreen from "@/screens/ScanBookScreen";
 
-import { useAuth } from "../context/AuthContext";
+export type RootStackParamList = {
+  Main:
+    | {
+        screen?: keyof MainTabParamList;
+        params?: object;
+      }
+    | undefined;
+  ScanBook: { mode: "search" | "add" };
+};
 
-// import SigninScreen from "../screens/SigninScreen";
-// import SignupScreen from "../screens/SignupScreen";
-import BooksScreen from "../screens/LibraryScreen";
-
-import LibraryScreen from "../screens/LibraryScreen";
-import AddBookScreen from "../screens/AddBookScreen";
-
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
-  const { user } = useAuth();
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -25,12 +25,11 @@ export default function RootNavigator() {
           component={TabNavigator}
           options={{ headerShown: false }}
         />
-
-        {/* <Stack.Screen name="Signin" component={SigninScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} /> */}
-        <Stack.Screen name="Books" component={LibraryScreen} />
-        <Stack.Screen name="CreateBook" component={AddBookScreen} />
-        {/* <Stack.Screen name="EditBook" component={EditBookScreen} /> */}
+        <Stack.Screen
+          name="ScanBook"
+          component={ScanBookScreen}
+          options={{ title: "Scanner un livre" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
