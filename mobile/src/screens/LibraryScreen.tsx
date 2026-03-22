@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import BookList from "../components/BookList";
 import FilterSegment from "../components/FilterSegment";
-import { useBooks, Filter } from "../hooks/useBooks";
+import { useBooks } from "../hooks/useBooks";
 import SearchBar from "@/components/SearchBar";
 import BookGridItem from "@/components/BookGridItem";
 import { Book } from "@/gql/graphql";
@@ -28,10 +28,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { set } from "zod";
 import { Ionicons } from "@expo/vector-icons";
+import { LibraryStackParamList } from "@/navigation/types";
+import { Filter } from "types";
 
-type LibraryRouteParams = {
-  Library: { scannedIsbn?: string } | undefined;
-};
+type LibraryRouteProp = RouteProp<LibraryStackParamList, "LibraryHome">;
 
 export default function LibraryScreen() {
   const listRef = useRef<FlatList>(null);
@@ -40,8 +40,8 @@ export default function LibraryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [highlightIsbn, setHighlightIsbn] = useState<string | undefined>();
   const [showScanMessage, setShowScanMessage] = useState(false);
-  const navigation = useNavigation<any>();
-  const route = useRoute<RouteProp<LibraryRouteParams, "Library">>();
+  const navigation = useNavigation<LibraryRouteProp>();
+  const route = useRoute<LibraryRouteProp>();
   const scannedIsbn = route.params?.scannedIsbn;
   const { books, loading, error, refetch } = useBooks(filter);
 
@@ -113,15 +113,16 @@ export default function LibraryScreen() {
     navigation.navigate("ScanBook", { mode: "search" });
   };
 
-  const addBook = () => {
-    navigation.navigate("CreateBook");
-  };
-
   const clearScanFeedback = useCallback(() => {
     setHighlightIsbn(undefined);
     setShowScanMessage(false);
     navigation.setParams({ scannedIsbn: undefined });
   }, [navigation]);
+
+  const openBook = (book: Book) => {
+    console.log("openBook", book.id);
+    navigation.navigate("BookDetails", { bookId: book.id });
+  };
 
   const renderItem = useCallback(
     ({ item }: { item: Book }) => (
@@ -130,7 +131,7 @@ export default function LibraryScreen() {
         highlighted={item.isbn === highlightIsbn}
         onPress={() => {
           clearScanFeedback();
-          // openBook(item);
+          openBook(item);
         }}
       />
     ),
@@ -163,9 +164,12 @@ export default function LibraryScreen() {
               ]}
               onPress={() => {
                 if (!scannedIsbn) return;
-                navigation.navigate("Main", {
+                navigation.navigate("MainTabs", {
                   screen: "Ajouter un livre",
-                  params: { isbn: scannedIsbn },
+                  params: {
+                    screen: "AddBookHome",
+                    params: { isbn: scannedIsbn },
+                  },
                 });
               }}
             >

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable, Text, StyleSheet } from "react-native";
-import { Filter } from "../hooks/useBooks";
+import { Filter } from "types";
 
 type Props = {
   active?: Filter;

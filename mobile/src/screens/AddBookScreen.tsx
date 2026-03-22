@@ -9,7 +9,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { BookStatus } from "@/gql/graphql";
@@ -21,6 +21,9 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AddBookStackParamList } from "@/navigation/types";
+
+type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
 export const CreateBookSchema = z.object({
   title: z.string().min(2, "Titre trop court"),
@@ -34,7 +37,7 @@ export const CreateBookSchema = z.object({
 export type CreateBookFormValues = z.infer<typeof CreateBookSchema>;
 
 export default function AddBookScreen() {
-  const route = useRoute<any>();
+  const route = useRoute<AddBookRouteProp>();
   const navigation = useNavigation<any>();
   const isbn = route.params?.isbn;
 
@@ -71,9 +74,12 @@ export default function AddBookScreen() {
         variables: { data: { ...data, isbn: isbn } },
       });
 
-      navigation.navigate("Main", {
+      navigation.navigate("MainTabs", {
         screen: "Bibliothèque",
-        params: { scannedIsbn: isbn },
+        params: {
+          screen: "LibraryHome",
+          params: { scannedIsbn: isbn },
+        },
       });
     } catch (e) {
       console.error(e);

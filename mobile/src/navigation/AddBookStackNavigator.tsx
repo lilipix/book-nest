@@ -1,10 +1,10 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AddBookScreen from "@/screens/AddBookScreen";
-import type { AjouterLivreStackParamList } from "./types";
+import type { AddBookStackParamList } from "./types";
 
-const Stack = createNativeStackNavigator<AjouterLivreStackParamList>();
+const Stack = createNativeStackNavigator<AddBookStackParamList>();
 
-export default function AjouterLivreStackNavigator() {
+export default function AddBookStackNavigator() {
   return (
     <Stack.Navigator>
       <Stack.Screen

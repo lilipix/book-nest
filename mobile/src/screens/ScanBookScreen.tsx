@@ -30,16 +30,22 @@ export default function Isbn() {
 
   const handleScan = (isbn: string) => {
     if (mode === "search") {
-      navigation.navigate("Main", {
+      navigation.navigate("MainTabs", {
         screen: "Bibliothèque",
-        params: { scannedIsbn: isbn },
+        params: {
+          screen: "LibraryHome",
+          params: { scannedIsbn: isbn },
+        },
       });
       return;
     }
     if (mode === "add") {
-      navigation.navigate("Main", {
+      navigation.navigate("MainTabs", {
         screen: "Ajouter un livre",
-        params: { isbn },
+        params: {
+          screen: "AddBookHome",
+          params: { isbn },
+        },
       });
     }
   };
