@@ -1,13 +1,7 @@
 import { QUERY_BOOKS } from "@/api/Books";
 import { Book, BookStatus } from "@/gql/graphql";
 import { useQuery } from "@apollo/client/react";
-
-export enum Filter {
-  Read = "READ",
-  ToRead = "TO_READ",
-  Favorites = "FAVORITES",
-  Borrowed = "BORROWED",
-}
+import { Filter } from "types";
 
 type BooksQuery = {
   books: Book[];

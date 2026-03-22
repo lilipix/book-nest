@@ -3,9 +3,10 @@ import type { NavigatorScreenParams } from "@react-navigation/native";
 export type LibraryStackParamList = {
   LibraryHome: { scannedIsbn?: string } | undefined;
   BookDetails: { bookId: number };
+  EditBook: { bookId: number };
 };
 
-export type AjouterLivreStackParamList = {
+export type AddBookStackParamList = {
   AddBookHome: { isbn?: string } | undefined;
 };
 
@@ -15,7 +16,7 @@ export type ProfileStackParamList = {
 
 export type MainTabParamList = {
   Bibliothèque: NavigatorScreenParams<LibraryStackParamList>;
-  "Ajouter un livre": NavigatorScreenParams<AjouterLivreStackParamList>;
+  "Ajouter un livre": NavigatorScreenParams<AddBookStackParamList>;
   Profil: NavigatorScreenParams<ProfileStackParamList>;
 };
 
