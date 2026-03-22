@@ -1,16 +1,9 @@
-import AddBookScreen from "@/screens/AddBookScreen";
-import LibraryScreen from "@/screens/LibraryScreen";
-import ProfileScreen from "@/screens/ProfileScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import LibraryStackNavigator from "./LibraryStackNavigator";
 import AddBookStackNavigator from "./AddBookStackNavigator";
-
-export type MainTabParamList = {
-  Bibliothèque: { scannedIsbn?: string } | undefined;
-  "Ajouter un livre": { isbn?: string } | undefined;
-  Profil: undefined;
-};
+import ProfileStackNavigator from "./ProfileStackNavigator";
+import { MainTabParamList } from "./types";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -18,7 +11,7 @@ export default function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: true,
+        headerShown: false,
         tabBarActiveTintColor: "#0F766E",
         tabBarInactiveTintColor: "#8E8E93",
         tabBarLabelStyle: {

@@ -120,14 +120,14 @@ export class BookUpdateInput {
   @Length(2, 255, { message: "Image must be between 2 and 255 chars" })
   image!: string | null;
 
-  @Field()
-  isRead!: boolean;
-
-  @Field()
-  toRead!: boolean;
+  @Field(() => BookStatus)
+  status!: BookStatus;
 
   @Field()
   isFavorite!: boolean;
+
+  @Field()
+  isBorrowed!: boolean;
 
   @Field(() => Date, { nullable: true })
   borrowedAt!: Date | null;

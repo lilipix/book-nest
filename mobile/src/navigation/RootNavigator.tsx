@@ -3,9 +3,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import TabNavigator from "./TabNavigator";
 import ScanBookScreen from "@/screens/ScanBookScreen";
+import { MainTabParamList } from "./types";
 
 export type RootStackParamList = {
-  Main:
+  MainTabs:
     | {
         screen?: keyof MainTabParamList;
         params?: object;
@@ -21,7 +22,7 @@ export default function RootNavigator() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name="Main"
+          name="MainTabs"
           component={TabNavigator}
           options={{ headerShown: false }}
         />
