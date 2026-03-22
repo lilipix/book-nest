@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LibraryScreen from "@/screens/LibraryScreen";
 import BookDetailsScreen from "@/screens/BookDetailsScreen";
 import { LibraryStackParamList } from "./types";
+import EditBookScreen from "@/screens/EditBookScreen";
 
 const Stack = createNativeStackNavigator<LibraryStackParamList>();
 
@@ -17,6 +18,11 @@ export default function LibraryStackNavigator() {
         name="BookDetails"
         component={BookDetailsScreen}
         options={{ title: "Détail du livre" }}
+      />
+      <Stack.Screen
+        name="EditBook"
+        component={EditBookScreen}
+        options={{ title: "Modifier le livre" }}
       />
     </Stack.Navigator>
   );

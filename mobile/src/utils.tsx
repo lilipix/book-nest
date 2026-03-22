@@ -30,3 +30,8 @@ export function getBookColor(title: string) {
   const index = title.length % fallbackColors.length;
   return fallbackColors[index];
 }
+export function formatDateFr(date?: string | null) {
+  if (!date) return "Non renseignée";
+
+  return new Date(date).toLocaleDateString("fr-FR");
+}

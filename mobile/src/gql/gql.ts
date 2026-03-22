@@ -14,8 +14,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n": typeof types.BookDocument,
-    "\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n": typeof types.BooksDocument,
+    "\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isbn\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n": typeof types.BookDocument,
+    "\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      isbn\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n": typeof types.BooksDocument,
     "\nmutation CreateBook($data: BookCreateInput!) {\n    createBook(data: $data) {\n      id\n      title\n    }\n  }": typeof types.CreateBookDocument,
     "\nmutation CreateUser($data: UserCreateInput!) {\n    createUser(data: $data) {\n      id\n      email\n    }\n  }": typeof types.CreateUserDocument,
     "\n  mutation DeleteBook($id: ID!) {\n    deleteBook(id: $id)\n  }\n": typeof types.DeleteBookDocument,
@@ -25,8 +25,8 @@ type Documents = {
     "\nquery Whoami {\n  whoami {\n    id\n    email\n    role\n    profilePicture\n  }\n}\n": typeof types.WhoamiDocument,
 };
 const documents: Documents = {
-    "\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n": types.BookDocument,
-    "\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n": types.BooksDocument,
+    "\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isbn\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n": types.BookDocument,
+    "\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      isbn\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n": types.BooksDocument,
     "\nmutation CreateBook($data: BookCreateInput!) {\n    createBook(data: $data) {\n      id\n      title\n    }\n  }": types.CreateBookDocument,
     "\nmutation CreateUser($data: UserCreateInput!) {\n    createUser(data: $data) {\n      id\n      email\n    }\n  }": types.CreateUserDocument,
     "\n  mutation DeleteBook($id: ID!) {\n    deleteBook(id: $id)\n  }\n": types.DeleteBookDocument,
@@ -53,11 +53,11 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n"): (typeof documents)["\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n"];
+export function gql(source: "\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isbn\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n"): (typeof documents)["\n  query Book($id: ID!) {\n    book(id: $id) {\n      id\n      title\n      author\n      status\n      isbn\n      isFavorite\n      isBorrowed\n      borrowedBy\n      borrowedAt\n      image\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n"): (typeof documents)["\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n"];
+export function gql(source: "\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      isbn\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n"): (typeof documents)["\n    query Books($status: BookStatus, $isFavorite: Boolean, $isBorrowed: Boolean, $search: String) {\n    books(status: $status, isFavorite: $isFavorite, isBorrowed: $isBorrowed, search: $search) {\n      id\n      title\n      author\n      isbn\n      status\n      isFavorite\n      borrowedBy\n      borrowedAt\n      returnedAt\n      image\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
