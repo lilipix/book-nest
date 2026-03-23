@@ -107,18 +107,18 @@ export class BookCreateInput {
 }
 @InputType()
 export class BookUpdateInput {
-  @Field()
+  @Field({ nullable: true })
   @Length(2, 100, { message: "Title must be between 4 and 100 chars" })
-  title!: string;
+  title?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Length(2, 100, { message: "Author must be between 2 and 100 chars" })
-  author!: string;
+  author?: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
   @Length(2, 255, { message: "Image must be between 2 and 255 chars" })
-  image!: string | null;
+  image?: string | null;
 
   @Field(() => BookStatus)
   status!: BookStatus;
@@ -130,12 +130,15 @@ export class BookUpdateInput {
   isBorrowed!: boolean;
 
   @Field(() => Date, { nullable: true })
-  borrowedAt!: Date | null;
+  borrowedAt?: Date | null;
 
   @Field(() => String, { nullable: true })
   @IsOptional()
   @Length(2, 100, { message: "Full name must be between 2 and 100 chars" })
-  borrowedBy!: string | null;
+  borrowedBy?: string | null;
+
+  @Field(() => Date, { nullable: true })
+  returnedAt?: Date | null;
 
   validate(): void {
     const hasOne = !!this.borrowedAt || !!this.borrowedBy;

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,11 +13,18 @@ import {
 } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import DateTimePicker, {
+  DateTimePickerAndroid,
+} from "@react-native-community/datetimepicker";
+
 import { BookStatus } from "@/gql/graphql";
 import { useBook } from "@/hooks/useBook";
+import { useUpdateBook } from "@/hooks/useUpdateBook";
 import { LibraryStackParamList } from "@/navigation/types";
-import { formatDateFr } from "@/utils";
-// import { useUpdateBook } from "@/hooks/useUpdateBook";
+import { dateToIsoOnly, isoToDate, isoToFr } from "@/utils";
 
 type EditBookRouteProp = RouteProp<LibraryStackParamList, "EditBook">;
 type EditBookNavigationProp = NativeStackNavigationProp<
@@ -24,51 +32,111 @@ type EditBookNavigationProp = NativeStackNavigationProp<
   "EditBook"
 >;
 
+const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+const editBookSchema = z
+  .object({
+    status: z.nativeEnum(BookStatus),
+    isFavorite: z.boolean(),
+    isBorrowed: z.boolean(),
+    borrowedBy: z.string(),
+    borrowedAt: z.string(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.isBorrowed) {
+      if (!values.borrowedBy.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["borrowedBy"],
+          message:
+            "Le nom de la personne est obligatoire si le livre est prêté.",
+        });
+      }
+
+      if (!values.borrowedAt.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["borrowedAt"],
+          message: "La date de prêt est obligatoire.",
+        });
+      } else if (!isoDateRegex.test(values.borrowedAt)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["borrowedAt"],
+          message: "Date invalide.",
+        });
+      }
+    }
+  });
+
+type EditBookFormValues = z.infer<typeof editBookSchema>;
+
+function normalizeIsoDate(value?: string | null) {
+  if (!value) return "";
+  return value.slice(0, 10);
+}
+
+function isoDateToIsoDateTime(date: string) {
+  return `${date}T12:00:00.000Z`;
+}
+
 export default function EditBookScreen() {
   const route = useRoute<EditBookRouteProp>();
   const navigation = useNavigation<EditBookNavigationProp>();
   const { bookId } = route.params;
 
   const { book, loading, error } = useBook(String(bookId));
-  // const { updateBook, loading: updating } = useUpdateBook();
+  const { updateBook, loading: updating } = useUpdateBook();
 
-  const [status, setStatus] = useState<BookStatus>(BookStatus.ToRead);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isBorrowed, setIsBorrowed] = useState(false);
-  const [borrowedBy, setBorrowedBy] = useState("");
-  const [borrowedAt, setBorrowedAt] = useState("");
-  const [returnedAt, setReturnedAt] = useState("");
+  const [showIOSBorrowedPicker, setShowIOSBorrowedPicker] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<EditBookFormValues>({
+    resolver: zodResolver(editBookSchema),
+    defaultValues: {
+      status: BookStatus.ToRead,
+      isFavorite: false,
+      isBorrowed: false,
+      borrowedBy: "",
+      borrowedAt: "",
+    },
+  });
+
+  const isBorrowed = watch("isBorrowed");
 
   useEffect(() => {
     if (!book) return;
 
-    setStatus(book.status ?? BookStatus.ToRead);
-    setIsFavorite(!!book.isFavorite);
-    setIsBorrowed(!!book.isBorrowed);
-    setBorrowedBy(book.borrowedBy ?? "");
-    setBorrowedAt(book.borrowedAt ?? "");
-    setReturnedAt(book.returnedAt ?? "");
-  }, [book]);
+    reset({
+      status: book.status ?? BookStatus.Unread,
+      isFavorite: !!book.isFavorite,
+      isBorrowed: !!book.isBorrowed,
+      borrowedBy: book.borrowedBy ?? "",
+      borrowedAt: normalizeIsoDate(book.borrowedAt),
+    });
+  }, [book, reset]);
 
-  const handleSave = async () => {
+  const onSubmit = async (data: EditBookFormValues) => {
     try {
-      const payload = {
-        status,
-        isFavorite,
-        isBorrowed,
-        borrowedBy: isBorrowed ? borrowedBy : "",
-        borrowedAt: isBorrowed ? borrowedAt : "",
-        returnedAt: isBorrowed ? returnedAt : "",
-      };
-
-      console.log("Payload update", payload);
-
-      // await updateBook({
-      //   variables: {
-      //     id: String(bookId),
-      //     data: payload,
-      //   },
-      // });
+      await updateBook({
+        id: String(bookId),
+        data: {
+          status: data.status,
+          isFavorite: data.isFavorite,
+          isBorrowed: data.isBorrowed,
+          borrowedBy: data.isBorrowed ? data.borrowedBy.trim() || null : null,
+          borrowedAt:
+            data.isBorrowed && data.borrowedAt.trim()
+              ? isoDateToIsoDateTime(data.borrowedAt.trim())
+              : null,
+        },
+      });
 
       Alert.alert("Succès", "Livre mis à jour.");
       navigation.goBack();
@@ -99,80 +167,104 @@ export default function EditBookScreen() {
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Statut</Text>
 
-        <View style={styles.statusList}>
-          <Pressable
-            style={[
-              styles.statusButton,
-              status === BookStatus.Unread && styles.statusButtonActive,
-            ]}
-            onPress={() => setStatus(BookStatus.Unread)}
-          >
-            <Text
-              style={[
-                styles.statusButtonText,
-                status === BookStatus.Unread && styles.statusButtonTextActive,
-              ]}
-            >
-              Non lu
-            </Text>
-          </Pressable>
+        <Controller
+          control={control}
+          name="status"
+          render={({ field: { value, onChange } }) => (
+            <View style={styles.statusList}>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  value === BookStatus.Unread && styles.statusButtonActive,
+                ]}
+                onPress={() => onChange(BookStatus.Unread)}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    value === BookStatus.Unread &&
+                      styles.statusButtonTextActive,
+                  ]}
+                >
+                  Non lu
+                </Text>
+              </Pressable>
 
-          <Pressable
-            style={[
-              styles.statusButton,
-              status === BookStatus.ToRead && styles.statusButtonActive,
-            ]}
-            onPress={() => setStatus(BookStatus.ToRead)}
-          >
-            <Text
-              style={[
-                styles.statusButtonText,
-                status === BookStatus.ToRead && styles.statusButtonTextActive,
-              ]}
-            >
-              À lire
-            </Text>
-          </Pressable>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  value === BookStatus.ToRead && styles.statusButtonActive,
+                ]}
+                onPress={() => onChange(BookStatus.ToRead)}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    value === BookStatus.ToRead &&
+                      styles.statusButtonTextActive,
+                  ]}
+                >
+                  À lire
+                </Text>
+              </Pressable>
 
-          <Pressable
-            style={[
-              styles.statusButton,
-              status === BookStatus.Read && styles.statusButtonActive,
-            ]}
-            onPress={() => setStatus(BookStatus.Read)}
-          >
-            <Text
-              style={[
-                styles.statusButtonText,
-                status === BookStatus.Read && styles.statusButtonTextActive,
-              ]}
-            >
-              Lu
-            </Text>
-          </Pressable>
-        </View>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  value === BookStatus.Read && styles.statusButtonActive,
+                ]}
+                onPress={() => onChange(BookStatus.Read)}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    value === BookStatus.Read && styles.statusButtonTextActive,
+                  ]}
+                >
+                  Lu
+                </Text>
+              </Pressable>
+            </View>
+          )}
+        />
+
+        {errors.status && (
+          <Text style={styles.errorText}>{errors.status.message}</Text>
+        )}
       </View>
 
       <View style={styles.card}>
-        <View style={styles.rowBetween}>
-          <Text style={styles.label}>Favori</Text>
-          <Switch value={isFavorite} onValueChange={setIsFavorite} />
-        </View>
+        <Controller
+          control={control}
+          name="isFavorite"
+          render={({ field: { value, onChange } }) => (
+            <View style={styles.rowBetween}>
+              <Text style={styles.label}>Favori</Text>
+              <Switch value={value} onValueChange={onChange} />
+            </View>
+          )}
+        />
 
-        <View style={styles.rowBetween}>
-          <Text style={styles.label}>Prêté</Text>
-          <Switch
-            value={isBorrowed}
-            onValueChange={(value) => {
-              setIsBorrowed(value);
-              if (!value) {
-                setBorrowedBy("");
-                setBorrowedAt("");
-                setReturnedAt("");
-              }
-            }}
-          />
-        </View>
+        <Controller
+          control={control}
+          name="isBorrowed"
+          render={({ field: { value, onChange } }) => (
+            <View style={styles.rowBetween}>
+              <Text style={styles.label}>Prêté</Text>
+              <Switch
+                value={value}
+                onValueChange={(nextValue) => {
+                  onChange(nextValue);
+
+                  if (!nextValue) {
+                    setValue("borrowedBy", "");
+                    setValue("borrowedAt", "");
+                  }
+                }}
+              />
+            </View>
+          )}
+        />
       </View>
 
       {isBorrowed && (
@@ -180,33 +272,82 @@ export default function EditBookScreen() {
           <Text style={styles.sectionTitle}>Informations de prêt</Text>
 
           <Text style={styles.inputLabel}>Prêté à</Text>
-          <TextInput
-            value={borrowedBy}
-            onChangeText={setBorrowedBy}
-            placeholder="Nom de la personne"
-            style={styles.input}
+          <Controller
+            control={control}
+            name="borrowedBy"
+            render={({ field: { value, onChange } }) => (
+              <TextInput
+                value={value}
+                onChangeText={onChange}
+                placeholder="Nom de la personne"
+                style={styles.input}
+              />
+            )}
           />
+          {errors.borrowedBy && (
+            <Text style={styles.errorText}>{errors.borrowedBy.message}</Text>
+          )}
 
           <Text style={styles.inputLabel}>Date de prêt</Text>
-          <TextInput
-            value={formatDateFr(borrowedAt)}
-            onChangeText={setBorrowedAt}
-            placeholder="2026-03-22"
-            style={styles.input}
-          />
+          <Controller
+            control={control}
+            name="borrowedAt"
+            render={({ field: { value, onChange } }) => (
+              <>
+                <Pressable
+                  style={styles.input}
+                  onPress={() => {
+                    const currentDate = isoToDate(value);
 
-          <Text style={styles.inputLabel}>Date de retour</Text>
-          <TextInput
-            value={returnedAt}
-            onChangeText={setReturnedAt}
-            placeholder="Laisser vide si non rendu"
-            style={styles.input}
+                    if (Platform.OS === "android") {
+                      DateTimePickerAndroid.open({
+                        value: currentDate,
+                        mode: "date",
+                        is24Hour: true,
+                        onChange: (_, selectedDate) => {
+                          if (!selectedDate) return;
+                          onChange(dateToIsoOnly(selectedDate));
+                        },
+                      });
+                    } else {
+                      setShowIOSBorrowedPicker(true);
+                    }
+                  }}
+                >
+                  <Text style={{ color: value ? "#0F172A" : "#94A3B8" }}>
+                    {value ? isoToFr(value) : "Sélectionner une date"}
+                  </Text>
+                </Pressable>
+
+                {Platform.OS === "ios" && showIOSBorrowedPicker && (
+                  <DateTimePicker
+                    value={isoToDate(value)}
+                    mode="date"
+                    display="spinner"
+                    onChange={(_, selectedDate) => {
+                      if (!selectedDate) return;
+                      onChange(dateToIsoOnly(selectedDate));
+                      setShowIOSBorrowedPicker(false);
+                    }}
+                  />
+                )}
+              </>
+            )}
           />
+          {errors.borrowedAt && (
+            <Text style={styles.errorText}>{errors.borrowedAt.message}</Text>
+          )}
         </View>
       )}
 
-      <Pressable style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Enregistrer</Text>
+      <Pressable
+        style={[styles.saveButton, updating && styles.saveButtonDisabled]}
+        onPress={handleSubmit(onSubmit)}
+        disabled={updating}
+      >
+        <Text style={styles.saveButtonText}>
+          {updating ? "Enregistrement..." : "Enregistrer"}
+        </Text>
       </Pressable>
     </ScrollView>
   );
@@ -277,12 +418,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: "white",
   },
+  errorText: {
+    color: "#DC2626",
+    fontSize: 13,
+    marginTop: -6,
+  },
   saveButton: {
     backgroundColor: "#0F766E",
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
     marginBottom: 24,
+  },
+  saveButtonDisabled: {
+    opacity: 0.7,
   },
   saveButtonText: {
     color: "white",
