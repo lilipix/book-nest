@@ -51,14 +51,15 @@ export enum BookStatus {
 }
 
 export type BookUpdateInput = {
-  author: Scalars['String']['input'];
+  author?: InputMaybe<Scalars['String']['input']>;
   borrowedAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   borrowedBy?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  isBorrowed: Scalars['Boolean']['input'];
   isFavorite: Scalars['Boolean']['input'];
-  isRead: Scalars['Boolean']['input'];
-  title: Scalars['String']['input'];
-  toRead: Scalars['Boolean']['input'];
+  returnedAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  status: BookStatus;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Mutation = {
