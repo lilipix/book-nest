@@ -13,7 +13,6 @@ import {
   FlatList,
   Pressable,
 } from "react-native";
-import BookList from "../components/BookList";
 import FilterSegment from "../components/FilterSegment";
 import { useBooks } from "../hooks/useBooks";
 import SearchBar from "@/components/SearchBar";
@@ -26,8 +25,6 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { set } from "zod";
-import { Ionicons } from "@expo/vector-icons";
 import { LibraryStackParamList } from "@/navigation/types";
 import { Filter } from "types";
 
@@ -120,7 +117,6 @@ export default function LibraryScreen() {
   }, [navigation]);
 
   const openBook = (book: Book) => {
-    console.log("openBook", book.id);
     navigation.navigate("BookDetails", { bookId: book.id });
   };
 

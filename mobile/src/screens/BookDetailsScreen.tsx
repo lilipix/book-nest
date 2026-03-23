@@ -1,7 +1,9 @@
+import { DELETE_BOOK } from "@/api/DeleteBook";
 import { BookStatus } from "@/gql/graphql";
 import { useBook } from "@/hooks/useBook";
 import { LibraryStackParamList } from "@/navigation/types";
 import { formatDateFr, getBookColor } from "@/utils";
+import { useMutation } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   RouteProp,
@@ -20,6 +22,7 @@ import {
   View,
   StyleSheet,
 } from "react-native";
+import { de, id } from "zod/v4/locales";
 
 type BookDetailsRouteProp = RouteProp<LibraryStackParamList, "BookDetails">;
 type BookDetailNavigationProp = NativeStackNavigationProp<
@@ -44,6 +47,7 @@ const BookDetailsScreen = () => {
   const navigation = useNavigation<BookDetailNavigationProp>();
   const { bookId } = route.params;
   const { book, loading, error, refetch } = useBook(String(bookId));
+  const [deleteBook, { loading: deleting }] = useMutation(DELETE_BOOK);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,22 +62,23 @@ const BookDetailsScreen = () => {
     navigation.navigate("EditBook", { bookId });
   };
   const handleDelete = () => {
+    if (deleting) return;
     Alert.alert(
       "Supprimer le livre",
-      "Es-tu sûre de vouloir supprimer ce livre de ta bibliothèque ?",
+      "Etes-vous sûr de vouloir supprimer ce livre de la bibliothèque ?",
       [
         { text: "Annuler", style: "cancel" },
         {
           text: "Supprimer",
           style: "destructive",
-          onPress: () => {
-            // TODO: brancher ta mutation de suppression
-            // await deleteBook(...)
-            // navigation.goBack()
-            Alert.alert(
-              "Suppression",
-              "Mutation de suppression à brancher ici.",
-            );
+          onPress: async () => {
+            try {
+              await deleteBook({ variables: { id: String(bookId) } });
+              navigation.goBack();
+            } catch (error) {
+              console.error(error);
+              Alert.alert("Erreur", "Impossible de supprimer le livre.");
+            }
           },
         },
       ],
@@ -97,7 +102,7 @@ const BookDetailsScreen = () => {
   }
   const isFavorite = !!book.isFavorite;
   const isBorrowed = !!book.isBorrowed;
-  console.log(book);
+
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.topSection}>
@@ -174,13 +179,6 @@ const BookDetailsScreen = () => {
               </Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Rendu</Text>
-              <Text style={styles.infoValue}>
-                {book.returnedAt ? "Oui" : "Non"}
-              </Text>
-            </View>
-
             {book.returnedAt && (
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Date de retour</Text>
@@ -211,7 +209,9 @@ const BookDetailsScreen = () => {
           ]}
         >
           <Ionicons name="trash-outline" size={18} color="#B91C1C" />
-          <Text style={styles.secondaryButtonText}>Supprimer</Text>
+          <Text style={styles.secondaryButtonText}>
+            {deleting ? "Suppression..." : "Supprimer"}
+          </Text>
         </Pressable>
       </View>
     </ScrollView>
