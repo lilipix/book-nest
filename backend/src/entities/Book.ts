@@ -7,6 +7,7 @@ import {
   Entity,
   Index,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import { registerEnumType } from "type-graphql";
 
@@ -21,6 +22,7 @@ registerEnumType(BookStatus, {
 
 @Entity()
 @ObjectType()
+@Unique(["title", "author"])
 export class Book extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)

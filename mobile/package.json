@@ -23,6 +23,7 @@
     "date-fns": "^4.1.0",
     "expo": "54.0.33",
     "expo-camera": "~17.0.10",
+    "expo-image-picker": "~17.0.10",
     "expo-status-bar": "~3.0.9",
     "graphql": "^16.13.1",
     "lucide-react-native": "^0.577.0",
