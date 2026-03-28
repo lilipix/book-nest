@@ -9,9 +9,9 @@ import { User } from "./entities/User";
 import { Book } from "./entities/Book";
 import { BookResolver } from "./resolvers/Books";
 import express from "express";
-import multer from "multer";
-import cors from "cors";
+
 import { expressMiddleware } from "@as-integrations/express5";
+import { upload } from "./utils/multer";
 // import cookieParser from "cookie-parser";
 
 async function initiliaze() {
@@ -28,7 +28,6 @@ async function initiliaze() {
   await server.start();
 
   const app = express();
-  const upload = multer({ dest: "uploads/" });
 
   // app.use(cors());
   app.use(express.json());
@@ -56,28 +55,26 @@ async function initiliaze() {
     }),
   );
 
-  app.post("/upload", upload.single("file"), async (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ error: "Aucun fichier envoyé." });
-    }
-    const user = await getUserFromContext({
-      req,
-      res,
-      user: undefined as User | null | undefined,
-    });
+  app.use("/uploads", express.static("uploads"));
 
-    if (!user) {
-      return res.status(401).json({ error: "Utilisateur non authentifié." });
-    }
-    user.profilePicture = req.file.path;
-    await datasource.getRepository(User).save(user);
+  // app.post("/upload", upload.single("file"), async (req, res) => {
+  //   if (!req.file) {
+  //     return res.status(400).json({ error: "Aucun fichier envoyé." });
+  //   }
+  //   const user = await getUserFromContext({
+  //     req,
+  //     res,
+  //     user: undefined as User | null | undefined,
+  //   });
 
-    res.json({ message: "Image saved." });
-  });
+  //   if (!user) {
+  //     return res.status(401).json({ error: "Utilisateur non authentifié." });
+  //   }
+  //   user.profilePicture = req.file.path;
+  //   await datasource.getRepository(User).save(user);
 
-  app.listen(5000, () => {
-    console.info("🚀 Serveur disponible sur http://localhost:5000");
-  });
+  //   res.json({ message: "Image saved." });
+  // });
 
   app.post("/books/:id/cover", upload.single("file"), async (req, res) => {
     const bookId = Number(req.params.id);
@@ -92,11 +89,16 @@ async function initiliaze() {
       return res.status(400).json({ error: "Aucun fichier envoyé" });
     }
 
-    book.image = req.file.path;
+    const publicPath = `/uploads/${req.file.filename}`;
+    book.image = publicPath;
 
     await datasource.getRepository(Book).save(book);
 
-    res.json({ message: "Couverture enregistrée", image: book.image });
+    res.json({ message: "Couverture enregistrée", image: publicPath });
+  });
+
+  app.listen(5000, () => {
+    console.info("🚀 Serveur disponible sur http://localhost:5000");
   });
 }
 

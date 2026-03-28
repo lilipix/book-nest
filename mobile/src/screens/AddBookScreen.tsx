@@ -8,27 +8,38 @@ import {
   TextInput,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import {
+  RouteProp,
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { BookStatus } from "@/gql/graphql";
 import { useMutation } from "@apollo/client/react";
 import { MUTATION_CREATE_BOOK } from "@/api/CreateBook";
 import { QUERY_BOOKS } from "@/api/Books";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Watch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AddBookStackParamList } from "@/navigation/types";
+import { isLocalImage } from "@/utils/image";
+import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
+import BookCoverField from "@/components/BookCoverFields";
+import { uploadBookCover } from "@/api/uploadBookCover";
+import { fetchBookByIsbn } from "@/services/bookLookup";
 
 type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
 export const CreateBookSchema = z.object({
   title: z.string().min(2, "Titre trop court"),
   author: z.string().min(2, "Auteur trop court"),
-  image: z.string().url("URL invalide").optional().or(z.literal("")).nullable(),
+  image: z.string().optional().nullable().or(z.literal("")),
   status: z.enum(BookStatus),
   isFavorite: z.boolean(),
   isbn: z.string().optional(),
@@ -40,6 +51,11 @@ export default function AddBookScreen() {
   const route = useRoute<AddBookRouteProp>();
   const navigation = useNavigation<any>();
   const isbn = route.params?.isbn;
+  const [isFetchingBook, setIsFetchingBook] = useState(false);
+  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
+    onChange: (uri) =>
+      setValue("image", uri ?? "", { shouldDirty: true, shouldValidate: true }),
+  });
 
   const [loadingBook, setLoadingBook] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,75 +64,139 @@ export default function AddBookScreen() {
     refetchQueries: [{ query: QUERY_BOOKS }],
   });
 
+  const defaultFormValues: CreateBookFormValues = {
+    title: "",
+    author: "",
+    image: null,
+    status: BookStatus.Unread,
+    isFavorite: false,
+    isbn: isbn || undefined,
+  };
+
   const {
     control,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<CreateBookFormValues>({
     resolver: zodResolver(CreateBookSchema),
-    defaultValues: {
-      title: "",
-      author: "",
-      image: null,
-      status: BookStatus.Unread,
-      isFavorite: false,
-      isbn: isbn || undefined,
-    },
+    defaultValues: defaultFormValues,
   });
 
   const imageValue = watch("image");
 
+  useFocusEffect(
+    useCallback(() => {
+      if (!isbn) {
+        reset(defaultFormValues);
+        setError(null);
+      }
+    }, [isbn, reset]),
+  );
+
   const onSubmit = async (data: CreateBookFormValues) => {
     try {
-      await createBook({
-        variables: { data: { ...data, isbn: isbn } },
+      const image = data.image;
+      const res = await createBook({
+        variables: {
+          data: {
+            ...data,
+            isbn,
+            image: isLocalImage(image) ? null : image,
+          },
+        },
       });
+
+      const bookId = res.data?.createBook?.id;
+
+      if (!bookId) throw new Error("ID manquant");
+
+      if (isLocalImage(image)) {
+        await uploadBookCover(bookId, image!);
+      }
+
+      reset(defaultFormValues);
+
+      Alert.alert("Succès", "Livre créé");
 
       navigation.navigate("MainTabs", {
         screen: "Bibliothèque",
         params: {
           screen: "LibraryHome",
-          params: { scannedIsbn: isbn },
         },
       });
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      const graphqlMessage =
+        e?.graphQLErrors?.[0]?.message ||
+        e?.networkError?.result?.errors?.[0]?.message ||
+        e?.message;
+
+      if (graphqlMessage === "Ce livre existe déjà dans la bibliothèque") {
+        Alert.alert("Livre déjà présent dans la bibliothèque", graphqlMessage);
+        return;
+      }
+
+      Alert.alert("Erreur", graphqlMessage || "Impossible de créer le livre.");
     }
   };
 
+  const lastFetchedIsbn = useRef<string | null>(null);
+
   useEffect(() => {
     if (!isbn) return;
+    if (lastFetchedIsbn.current === isbn) return;
 
-    const fetchBook = async () => {
+    lastFetchedIsbn.current = isbn;
+
+    const loadBook = async () => {
+      if (isFetchingBook) return;
       try {
-        setError(null);
+        setIsFetchingBook(true);
         setLoadingBook(true);
+        setError("");
 
-        const res = await fetch(
-          `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
-        );
-        const data = await res.json();
+        const result = await fetchBookByIsbn(isbn);
 
-        if (data.totalItems > 0) {
-          const book = data.items[0].volumeInfo;
-
-          setValue("title", book.title || "");
-          setValue("author", book.authors?.join(", ") || "");
-          setValue("image", book.imageLinks?.thumbnail || null);
-        } else {
+        if (!result.found) {
+          setValue("title", "");
+          setValue("author", "");
+          setValue("image", "", { shouldDirty: true });
           setError("Livre non trouvé, saisie manuelle requise.");
+          return;
         }
-      } catch (e) {
-        console.error(e);
-        setError("Une erreur est survenue pendant la recherche du livre.");
+
+        setValue("title", result.title);
+        setValue("author", result.author);
+        setValue("image", result.image, { shouldDirty: true });
+
+        if (!result.image) {
+          setError(
+            "Livre trouvé, mais aucune couverture n'est disponible. Vous pouvez prendre une photo.",
+          );
+        }
+      } catch (e: any) {
+        const message = e?.message ?? "";
+
+        if (message.includes("429")) {
+          Alert.alert(
+            "Trop de requêtes",
+            "Google Books limite temporairement les recherches. Réessayer dans quelques instants.",
+          );
+          return;
+        }
+
+        Alert.alert(
+          "Erreur",
+          "Impossible de récupérer les informations du livre.",
+        );
       } finally {
+        setIsFetchingBook(false);
         setLoadingBook(false);
       }
     };
-
-    fetchBook();
+    loadBook();
   }, [isbn, setValue]);
 
   return (
@@ -199,16 +279,14 @@ export default function AddBookScreen() {
           <Controller
             control={control}
             name="image"
-            render={({ field: { onChange, value } }) => (
+            render={({ field: { value } }) => (
               <View style={styles.fieldGroup}>
-                <Text style={styles.label}>URL de la couverture</Text>
-                <TextInput
-                  placeholder="https://..."
-                  placeholderTextColor="#9CA3AF"
-                  value={value || ""}
-                  onChangeText={(text) => onChange(text || null)}
-                  style={[styles.input, errors.image && styles.inputError]}
-                  autoCapitalize="none"
+                <BookCoverField
+                  value={imageValue}
+                  onTakePhoto={takePhoto}
+                  onPickImage={pickImageFromLibrary}
+                  onRemoveImage={removeImage}
+                  mode="create"
                 />
                 {errors.image && (
                   <Text style={styles.error}>{errors.image.message}</Text>
@@ -358,6 +436,16 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     lineHeight: 22,
   },
+  fieldGroup: {
+    marginBottom: 14,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 6,
+  },
 
   card: {
     backgroundColor: "#FFFFFF",
@@ -376,17 +464,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1F2937",
     marginBottom: 12,
-  },
-
-  fieldGroup: {
-    marginBottom: 14,
-  },
-
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 6,
   },
 
   input: {
@@ -523,5 +600,63 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "700",
     fontSize: 16,
+  },
+  imageActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  imageActionButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#FFFFFF",
+  },
+  imageActionText: {
+    color: "#0F172A",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  removeImageButton: {
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+  },
+  removeImageText: {
+    color: "#DC2626",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  coverPreview: {
+    width: "100%",
+    height: 220,
+    borderRadius: 14,
+    resizeMode: "contain",
+    backgroundColor: "#E2E8F0",
+  },
+  coverPlaceholder: {
+    height: 220,
+    borderRadius: 14,
+    backgroundColor: "#F1F5F9",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    borderStyle: "dashed",
+  },
+  coverPlaceholderText: {
+    color: "#64748B",
+    fontSize: 14,
+  },
+  helperText: {
+    color: "#64748B",
+    fontSize: 13,
+    lineHeight: 18,
   },
 });
