@@ -1,6 +1,7 @@
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { Book, BookStatus } from "@/gql/graphql";
-import { getBookColor } from "@/utils";
+import { getBookColor } from "@/utils/style";
+import { getBookImageUri } from "@/utils/image";
 
 type Props = {
   book: Book;
@@ -15,6 +16,7 @@ export default function BookGridItem({
   highlighted = false,
 }: Props) {
   const backgroundColor = getBookColor(book.title);
+  const imageUri = getBookImageUri(book.image);
   return (
     <Pressable style={[styles.container]} onPress={onPress}>
       <View style={styles.coverContainer}>
@@ -23,8 +25,8 @@ export default function BookGridItem({
             <Text style={styles.foundBadgeText}>Trouvé</Text>
           </View>
         )}
-        {book.image ? (
-          <Image source={{ uri: book.image }} style={styles.cover} />
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.cover} />
         ) : (
           <View style={[styles.placeholder, { backgroundColor }]}>
             <Text numberOfLines={4} style={styles.placeholderTitle}>

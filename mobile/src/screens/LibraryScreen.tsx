@@ -26,7 +26,7 @@ import {
 } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LibraryStackParamList } from "@/navigation/types";
-import { Filter } from "types";
+import { Filter } from "@/types";
 
 type LibraryRouteProp = RouteProp<LibraryStackParamList, "LibraryHome">;
 
