@@ -5,7 +5,7 @@ import {
   BookStatus,
   BookUpdateInput,
 } from "../entities/Book";
-import { ILike, IsNull, Not } from "typeorm";
+import { ILike, IsNull, Not, QueryFailedError } from "typeorm";
 
 @Resolver()
 export class BookResolver {
@@ -54,10 +54,23 @@ export class BookResolver {
   async createBook(
     @Arg("data", () => BookCreateInput) data: BookCreateInput,
   ): Promise<Book> {
-    const newBook = new Book();
-    Object.assign(newBook, data);
-    await newBook.save();
-    return newBook;
+    try {
+      const newBook = new Book();
+      Object.assign(newBook, data);
+
+      await newBook.save();
+
+      return newBook;
+    } catch (error) {
+      if (
+        error instanceof QueryFailedError &&
+        (error as any).driverError?.code === "23505"
+      ) {
+        throw new Error("Le livre existe déjà dans la bibliothèque");
+      }
+
+      throw new Error("Erreur lors de la création du livre");
+    }
   }
 
   @Mutation(() => Book, { nullable: true })

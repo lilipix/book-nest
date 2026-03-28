@@ -2,7 +2,9 @@ import { DELETE_BOOK } from "@/api/DeleteBook";
 import { BookStatus } from "@/gql/graphql";
 import { useBook } from "@/hooks/useBook";
 import { LibraryStackParamList } from "@/navigation/types";
-import { formatDateFr, getBookColor } from "@/utils";
+import { formatDateFr } from "@/utils/dates";
+import { getBookImageUri } from "@/utils/image";
+import { getBookColor } from "@/utils/style";
 import { useMutation } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -55,6 +57,8 @@ const BookDetailsScreen = () => {
     }, [refetch]),
   );
 
+  const imageUri = getBookImageUri(book?.image);
+
   const backgroundColor = useMemo(() => {
     return getBookColor(book?.title ?? "Livre");
   }, [book?.title]);
@@ -106,8 +110,12 @@ const BookDetailsScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.topSection}>
-        {book.image ? (
-          <Image source={{ uri: book.image }} style={styles.cover} />
+        {imageUri ? (
+          <Image
+            key={imageUri}
+            source={{ uri: imageUri }}
+            style={styles.cover}
+          />
         ) : (
           <View style={[styles.placeholderCover, { backgroundColor }]}>
             <Text style={styles.placeholderLetter}>

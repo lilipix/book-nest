@@ -10,6 +10,7 @@ import {
   Text,
   TextInput,
   View,
+  Image,
 } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -19,12 +20,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
-
+import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
 import { BookStatus } from "@/gql/graphql";
 import { useBook } from "@/hooks/useBook";
 import { useUpdateBook } from "@/hooks/useUpdateBook";
 import { LibraryStackParamList } from "@/navigation/types";
-import { dateToIsoOnly, isoToDate, isoToFr } from "@/utils";
+import {
+  dateToIsoOnly,
+  isoDateRegex,
+  isoDateToIsoDateTime,
+  isoToDate,
+  isoToFr,
+  normalizeIsoDate,
+} from "@/utils/dates";
+import { getBookImageUri, isLocalImage } from "@/utils/image";
+import { Ionicons } from "@expo/vector-icons";
+import BookCoverField from "@/components/BookCoverFields";
+import { uploadBookCover } from "@/api/uploadBookCover";
 
 type EditBookRouteProp = RouteProp<LibraryStackParamList, "EditBook">;
 type EditBookNavigationProp = NativeStackNavigationProp<
@@ -32,11 +44,10 @@ type EditBookNavigationProp = NativeStackNavigationProp<
   "EditBook"
 >;
 
-const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
-
 const editBookSchema = z
   .object({
     status: z.nativeEnum(BookStatus),
+    image: z.string().optional().nullable().or(z.literal("")),
     isFavorite: z.boolean(),
     isBorrowed: z.boolean(),
     borrowedBy: z.string(),
@@ -71,20 +82,15 @@ const editBookSchema = z
 
 type EditBookFormValues = z.infer<typeof editBookSchema>;
 
-function normalizeIsoDate(value?: string | null) {
-  if (!value) return "";
-  return value.slice(0, 10);
-}
-
-function isoDateToIsoDateTime(date: string) {
-  return `${date}T12:00:00.000Z`;
-}
-
 export default function EditBookScreen() {
   const route = useRoute<EditBookRouteProp>();
   const navigation = useNavigation<EditBookNavigationProp>();
   const { bookId } = route.params;
+  const [coverUri, setCoverUri] = useState<string | null>(null);
 
+  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
+    onChange: setCoverUri,
+  });
   const { book, loading, error } = useBook(String(bookId));
   const { updateBook, loading: updating } = useUpdateBook();
 
@@ -109,34 +115,47 @@ export default function EditBookScreen() {
   });
 
   const isBorrowed = watch("isBorrowed");
+  const imageValue = watch("image");
 
   useEffect(() => {
     if (!book) return;
 
     reset({
       status: book.status ?? BookStatus.Unread,
+      image: book.image ?? null,
       isFavorite: !!book.isFavorite,
       isBorrowed: !!book.isBorrowed,
       borrowedBy: book.borrowedBy ?? "",
       borrowedAt: normalizeIsoDate(book.borrowedAt),
     });
+    setCoverUri(book?.image ?? null);
   }, [book, reset]);
 
   const onSubmit = async (data: EditBookFormValues) => {
     try {
+      const payload: any = {
+        status: data.status,
+        isFavorite: data.isFavorite,
+        isBorrowed: data.isBorrowed,
+        borrowedBy: data.isBorrowed ? data.borrowedBy.trim() || null : null,
+        borrowedAt:
+          data.isBorrowed && data.borrowedAt.trim()
+            ? isoDateToIsoDateTime(data.borrowedAt.trim())
+            : null,
+      };
+
+      if (coverUri === null) {
+        payload.image = null;
+      }
+
       await updateBook({
         id: String(bookId),
-        data: {
-          status: data.status,
-          isFavorite: data.isFavorite,
-          isBorrowed: data.isBorrowed,
-          borrowedBy: data.isBorrowed ? data.borrowedBy.trim() || null : null,
-          borrowedAt:
-            data.isBorrowed && data.borrowedAt.trim()
-              ? isoDateToIsoDateTime(data.borrowedAt.trim())
-              : null,
-        },
+        data: payload,
       });
+
+      if (coverUri && isLocalImage(coverUri)) {
+        await uploadBookCover(String(bookId), coverUri);
+      }
 
       Alert.alert("Succès", "Livre mis à jour.");
       navigation.goBack();
@@ -164,6 +183,24 @@ export default function EditBookScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
+      <Controller
+        control={control}
+        name="image"
+        render={({ field: { value } }) => (
+          <View style={styles.fieldGroup}>
+            <BookCoverField
+              value={coverUri}
+              onTakePhoto={takePhoto}
+              onPickImage={pickImageFromLibrary}
+              onRemoveImage={removeImage}
+              mode="edit"
+            />
+            {errors.image && (
+              <Text style={styles.error}>{errors.image.message}</Text>
+            )}
+          </View>
+        )}
+      />
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Statut</Text>
 
@@ -437,5 +474,13 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "700",
+  },
+  fieldGroup: {
+    marginBottom: 14,
+  },
+  error: {
+    color: "#DC2626",
+    marginTop: 6,
+    fontSize: 13,
   },
 });
