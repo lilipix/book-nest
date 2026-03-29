@@ -1,3 +1,5 @@
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL!;
+
 export async function uploadBookCover(bookId: string, uri: string) {
   const fileName = uri.split("/").pop() || `cover_${Date.now()}.jpg`;
 
@@ -15,13 +17,10 @@ export async function uploadBookCover(bookId: string, uri: string) {
     type: mimeType,
   } as any);
 
-  const res = await fetch(
-    `http://192.168.1.57:8080/api/books/${bookId}/cover`,
-    {
-      method: "POST",
-      body: formData,
-    },
-  );
+  const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/cover`, {
+    method: "POST",
+    body: formData,
+  });
 
   const json = await res.json();
 
