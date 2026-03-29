@@ -18,7 +18,7 @@ export const fetchBookByIsbn = async (
   }
 
   lastGoogleBooksCall = now;
-  console.log("Google Books call", isbn, new Date().toISOString());
+
   const res = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
   );

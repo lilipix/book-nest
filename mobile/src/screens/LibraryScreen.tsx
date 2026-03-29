@@ -19,16 +19,32 @@ import SearchBar from "@/components/SearchBar";
 import BookGridItem from "@/components/BookGridItem";
 import { Book } from "@/gql/graphql";
 import {
+  CompositeNavigationProp,
   RouteProp,
   useFocusEffect,
   useNavigation,
   useRoute,
 } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LibraryStackParamList } from "@/navigation/types";
+import {
+  LibraryStackParamList,
+  MainTabParamList,
+  RootStackParamList,
+} from "@/navigation/types";
 import { Filter } from "@/types";
 
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+
 type LibraryRouteProp = RouteProp<LibraryStackParamList, "LibraryHome">;
+
+type LibraryNavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<LibraryStackParamList, "LibraryHome">,
+  CompositeNavigationProp<
+    BottomTabNavigationProp<MainTabParamList, "Bibliothèque">,
+    NativeStackNavigationProp<RootStackParamList>
+  >
+>;
 
 export default function LibraryScreen() {
   const listRef = useRef<FlatList>(null);
@@ -37,7 +53,7 @@ export default function LibraryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [highlightIsbn, setHighlightIsbn] = useState<string | undefined>();
   const [showScanMessage, setShowScanMessage] = useState(false);
-  const navigation = useNavigation<LibraryRouteProp>();
+  const navigation = useNavigation<LibraryNavigationProp>();
   const route = useRoute<LibraryRouteProp>();
   const scannedIsbn = route.params?.scannedIsbn;
   const { books, loading, error, refetch } = useBooks(filter);
@@ -117,7 +133,7 @@ export default function LibraryScreen() {
   }, [navigation]);
 
   const openBook = (book: Book) => {
-    navigation.navigate("BookDetails", { bookId: book.id });
+    navigation.navigate("BookDetails", { bookId: Number(book.id) });
   };
 
   const renderItem = useCallback(
@@ -176,6 +192,9 @@ export default function LibraryScreen() {
       )}
 
       <FilterSegment active={filter} onChange={setFilter} />
+      <View style={styles.bookCountContainer}>
+        <Text>Nombres de livres : {filteredBooks.length}</Text>
+      </View>
 
       {filteredBooks.length === 0 ? (
         <View>
@@ -218,7 +237,16 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     alignSelf: "center",
   },
-
+  bookCountContainer: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    alignItems: "center",
+  },
   addScannedButton: {
     alignSelf: "center",
     marginTop: 10,
