@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "concurrently -n \"BACK\" -c \"cyan.bgBlack\" \"ts-node-dev src/index.ts\""
+    "start": "concurrently -n \"BACK\" -c \"cyan.bgBlack\" \"ts-node-dev src/index.ts\"",
+    "typeorm": "POSTGRES_HOST=localhost POSTGRES_PASSWORD=superpixel POSTGRES_USER=lili POSTGRES_DB=book_nest typeorm-ts-node-commonjs -d src/datasource.ts"
   },
   "keywords": [],
   "author": "",

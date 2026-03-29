@@ -1,13 +1,17 @@
 import { DataSource } from "typeorm";
-
+const syncMode = process.env.NODE_ENV === "dev";
 export const datasource = new DataSource({
   type: "postgres",
-  host: "db",
-  port: 5432,
+  host: process.env.POSTGRES_HOST,
+  port: parseInt(process.env.POSTGRES_PORT || "5432"),
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   entities: ["./src/entities/*.ts"],
-  synchronize: true,
+  // Automatic synchronization only in dev and test
+  synchronize: syncMode,
+  migrations: ["./migrations/*.ts"],
+  // runs migrations automatically in prod and staging
+  migrationsRun: !syncMode,
   logging: true,
 });
