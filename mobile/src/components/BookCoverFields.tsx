@@ -57,7 +57,7 @@ export default function BookCoverField({
         <Pressable style={styles.imageActionButton} onPress={onTakePhoto}>
           <Ionicons name="camera-outline" size={20} color="#0F766E" />
           <Text style={styles.imageActionText}>
-            {hasImage ? "Remplacer par photo" : "Prendre une photo"}
+            {hasImage ? "Prendre une photo" : "Prendre une photo"}
           </Text>
         </Pressable>
 

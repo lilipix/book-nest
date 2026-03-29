@@ -1,9 +1,4 @@
 services:
-  front:
-    image: lilipix/book-nest-frontend:latest
-    # override default CMD command for the frontend
-    entrypoint: sh
-    command: -c "npx serve dist"
   back:
     image: lilipix/book-nest-backend:latest
     env_file:
@@ -25,7 +20,6 @@ services:
       - 4000:80
     depends_on:
       - back
-      - front
 
 volumes:
   dbdata:
