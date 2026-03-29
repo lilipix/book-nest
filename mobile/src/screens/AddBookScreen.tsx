@@ -67,7 +67,7 @@ export default function AddBookScreen() {
   const defaultFormValues: CreateBookFormValues = {
     title: "",
     author: "",
-    image: null,
+    image: undefined,
     status: BookStatus.Unread,
     isFavorite: false,
     isbn: isbn || undefined,
@@ -98,14 +98,17 @@ export default function AddBookScreen() {
 
   const onSubmit = async (data: CreateBookFormValues) => {
     try {
-      const image = data.image;
+      const image = data.image?.trim() || undefined;
+
+      const payload = {
+        ...data,
+        isbn,
+        ...(image && !isLocalImage(image) ? { image } : {}),
+      };
+
       const res = await createBook({
         variables: {
-          data: {
-            ...data,
-            isbn,
-            image: isLocalImage(image) ? null : image,
-          },
+          data: payload,
         },
       });
 
@@ -113,8 +116,8 @@ export default function AddBookScreen() {
 
       if (!bookId) throw new Error("ID manquant");
 
-      if (isLocalImage(image)) {
-        await uploadBookCover(bookId, image!);
+      if (image && isLocalImage(image)) {
+        await uploadBookCover(bookId, image);
       }
 
       reset(defaultFormValues);
