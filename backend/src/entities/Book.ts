@@ -95,7 +95,7 @@ export class BookCreateInput {
   @Field(() => String, { nullable: true })
   @IsOptional()
   @Length(2, 255, { message: "Image must be between 2 and 255 chars" })
-  image?: string | null;
+  image?: string;
 
   @Field(() => BookStatus)
   status!: BookStatus;
