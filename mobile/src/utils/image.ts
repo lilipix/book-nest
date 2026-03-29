@@ -1,3 +1,5 @@
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL!;
+
 export const getBookImageUri = (image?: string | null) => {
   if (!image) return null;
 
@@ -10,7 +12,7 @@ export const getBookImageUri = (image?: string | null) => {
     return image;
   }
 
-  return `http://192.168.1.57:8080${image}`;
+  return `${API_BASE_URL}${image}`;
 };
 
 export const isLocalImage = (uri?: string | null) => {
