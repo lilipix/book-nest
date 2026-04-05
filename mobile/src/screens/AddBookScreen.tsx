@@ -1,42 +1,50 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  Switch,
-  Pressable,
   ActivityIndicator,
-  StyleSheet,
-  TextInput,
-  ScrollView,
-  Image,
   Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
+
+import { useMutation } from "@apollo/client/react";
+import { Ionicons } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  NavigationProp,
+  ParamListBase,
   RouteProp,
   useFocusEffect,
   useNavigation,
   useRoute,
 } from "@react-navigation/native";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { z } from "zod";
-import { BookStatus } from "@/gql/graphql";
-import { useMutation } from "@apollo/client/react";
-import { MUTATION_CREATE_BOOK } from "@/api/CreateBook";
-import { QUERY_BOOKS } from "@/api/Books";
-
-import { useForm, Controller, Watch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Ionicons } from "@expo/vector-icons";
+import { Controller, useForm } from "react-hook-form";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { z } from "zod";
+
+import { QUERY_BOOKS } from "@/api/Books";
+import { MUTATION_CREATE_BOOK } from "@/api/CreateBook";
+import { BookStatus } from "@/gql/graphql";
+
 import { AddBookStackParamList } from "@/navigation/types";
-import { isLocalImage } from "@/utils/image";
+
 import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
+
 import BookCoverField from "@/components/BookCoverFields";
-import { uploadBookCover } from "@/api/uploadBookCover";
+
+import { isLocalImage } from "@/utils/image";
+
 import { fetchBookByIsbn } from "@/services/bookLookup";
+import { uploadBookCover } from "@/services/uploadBookCover";
 
 type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
-export const CreateBookSchema = z.object({
+const CreateBookSchema = z.object({
   title: z.string().min(2, "Titre trop court"),
   author: z.string().min(2, "Auteur trop court"),
   image: z.string().optional().nullable().or(z.literal("")),
@@ -49,16 +57,17 @@ export type CreateBookFormValues = z.infer<typeof CreateBookSchema>;
 
 export default function AddBookScreen() {
   const route = useRoute<AddBookRouteProp>();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const isbn = route.params?.isbn;
+
   const [isFetchingBook, setIsFetchingBook] = useState(false);
+  const [loadingBook, setLoadingBook] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
     onChange: (uri) =>
       setValue("image", uri ?? "", { shouldDirty: true, shouldValidate: true }),
   });
-
-  const [loadingBook, setLoadingBook] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [createBook, { loading }] = useMutation(MUTATION_CREATE_BOOK, {
     refetchQueries: [{ query: QUERY_BOOKS }],
@@ -93,6 +102,7 @@ export default function AddBookScreen() {
         reset(defaultFormValues);
         setError(null);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isbn, reset]),
   );
 
@@ -130,18 +140,26 @@ export default function AddBookScreen() {
           screen: "LibraryHome",
         },
       });
-    } catch (e: any) {
-      const graphqlMessage =
-        e?.graphQLErrors?.[0]?.message ||
-        e?.networkError?.result?.errors?.[0]?.message ||
-        e?.message;
+    } catch (e: unknown) {
+      let graphqlMessage = "Impossible de créer le livre.";
+      if (typeof e === "object" && e !== null) {
+        graphqlMessage =
+          (e as { graphQLErrors?: { message?: string }[] })?.graphQLErrors?.[0]
+            ?.message ||
+          (
+            e as {
+              networkError?: { result?: { errors?: { message?: string }[] } };
+            }
+          )?.networkError?.result?.errors?.[0]?.message ||
+          (e as { message?: string })?.message ||
+          graphqlMessage;
+      }
 
       if (graphqlMessage === "Ce livre existe déjà dans la bibliothèque") {
         Alert.alert("Livre déjà présent dans la bibliothèque", graphqlMessage);
         return;
       }
-
-      Alert.alert("Erreur", graphqlMessage || "Impossible de créer le livre.");
+      Alert.alert("Erreur", graphqlMessage);
     }
   };
 
@@ -179,8 +197,11 @@ export default function AddBookScreen() {
             "Livre trouvé, mais aucune couverture n'est disponible. Vous pouvez prendre une photo.",
           );
         }
-      } catch (e: any) {
-        const message = e?.message ?? "";
+      } catch (e: unknown) {
+        const message =
+          typeof e === "object" && e !== null && "message" in e
+            ? String((e as { message?: string }).message)
+            : "";
 
         if (message.includes("429")) {
           Alert.alert(
@@ -200,6 +221,7 @@ export default function AddBookScreen() {
       }
     };
     loadBook();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isbn, setValue]);
 
   return (
@@ -282,7 +304,7 @@ export default function AddBookScreen() {
           <Controller
             control={control}
             name="image"
-            render={({ field: { value } }) => (
+            render={() => (
               <View style={styles.fieldGroup}>
                 <BookCoverField
                   value={imageValue}

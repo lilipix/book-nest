@@ -1,6 +1,9 @@
-import { Card, CardHeader } from "@/components/ui/card";
-import { BooksQuery } from "@/gql/graphql";
 import { BookOpen, BookOpenCheck, BookText, Heart } from "lucide-react";
+
+import { BooksQuery } from "@/gql/graphql";
+
+import { Card, CardHeader } from "@/components/ui/card";
+
 import ActionMenu from "./ActionMenu";
 
 type BookCardProps = {

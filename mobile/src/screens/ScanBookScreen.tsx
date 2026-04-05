@@ -1,9 +1,21 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { Vibration } from "react-native";
-import { set } from "zod";
+
+import {
+  NavigationProp,
+  ParamListBase,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+
+type ScanBookParamList = {
+  ScanBook: { mode: "search" | "add" };
+};
+
+type ScanBookScreenRouteProp = RouteProp<ScanBookParamList, "ScanBook">;
 
 function isValidISBN13(isbn: string): boolean {
   if (!/^\d{13}$/.test(isbn)) return false;
@@ -20,13 +32,14 @@ function isValidISBN13(isbn: string): boolean {
 }
 
 export default function Isbn() {
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const route = useRoute<ScanBookScreenRouteProp>();
+  const { mode } = route.params;
+
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [isbn, setIsbn] = useState<string | null>(null);
   const [message, setMessage] = useState("Scanner un code ISBN");
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
-  const { mode } = route.params;
 
   const handleScan = (isbn: string) => {
     if (mode === "search") {

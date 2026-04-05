@@ -1,7 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
-import { queryWhoAmI } from "../api/WhoAmI";
+import { BookOpen, BookOpenCheck, Heart, MenuIcon } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+
 import { mutationSignout } from "../api/Signout";
+import { queryWhoAmI } from "../api/WhoAmI";
 import {
   Menubar,
   MenubarContent,
@@ -11,7 +13,6 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from "./ui/menubar";
-import { BookOpen, BookOpenCheck, Heart, MenuIcon } from "lucide-react";
 
 const NavBar = () => {
   const navigate = useNavigate();

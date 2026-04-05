@@ -1,13 +1,17 @@
 import React from "react";
-import { View, Pressable, Text, StyleSheet } from "react-native";
+import { Pressable, StyleSheet,Text, View } from "react-native";
+
 import { Filter } from "@/types";
 
-type Props = {
+type FilterSegmentProps = {
   active?: Filter;
   onChange: (filter?: Filter) => void;
 };
 
-export default function FilterSegment({ onChange, active }: Props) {
+export default function FilterSegment({
+  onChange,
+  active,
+}: FilterSegmentProps) {
   const renderSegment = (label: string, value: Filter | undefined) => {
     const isActive = active === value;
 

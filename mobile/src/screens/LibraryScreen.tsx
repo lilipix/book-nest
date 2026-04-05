@@ -6,18 +6,14 @@ import React, {
   useState,
 } from "react";
 import {
-  View,
   ActivityIndicator,
-  Text,
-  StyleSheet,
   FlatList,
-  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import FilterSegment from "../components/FilterSegment";
-import { useBooks } from "../hooks/useBooks";
-import SearchBar from "@/components/SearchBar";
-import BookGridItem from "@/components/BookGridItem";
-import { Book } from "@/gql/graphql";
+
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import {
   CompositeNavigationProp,
   RouteProp,
@@ -25,16 +21,25 @@ import {
   useNavigation,
   useRoute,
 } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { Book } from "@/gql/graphql";
+
 import {
   LibraryStackParamList,
   MainTabParamList,
   RootStackParamList,
 } from "@/navigation/types";
+
+import BookGridItem from "@/components/BookGridItem";
+import ScanFeedBack from "@/components/ScanFeedback";
+import SearchBar from "@/components/SearchBar";
+
 import { Filter } from "@/types";
 
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import FilterSegment from "../components/FilterSegment";
+import { useBooks } from "../hooks/useBooks";
 
 type LibraryRouteProp = RouteProp<LibraryStackParamList, "LibraryHome">;
 
@@ -47,36 +52,32 @@ type LibraryNavigationProp = CompositeNavigationProp<
 >;
 
 export default function LibraryScreen() {
-  const listRef = useRef<FlatList>(null);
-  const [filter, setFilter] = useState<Filter | undefined>();
-  const [search, setSearch] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
-  const [highlightIsbn, setHighlightIsbn] = useState<string | undefined>();
-  const [showScanMessage, setShowScanMessage] = useState(false);
   const navigation = useNavigation<LibraryNavigationProp>();
   const route = useRoute<LibraryRouteProp>();
   const scannedIsbn = route.params?.scannedIsbn;
+
+  const listRef = useRef<FlatList>(null);
+
+  const [filter, setFilter] = useState<Filter | undefined>();
+  const [search, setSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [dismissedScanIsbn, setDismissedScanIsbn] = useState<
+    string | undefined
+  >();
+
   const { books, loading, error, refetch } = useBooks(filter);
 
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch]),
-  );
-
   const normalizedSearch = search.trim().toLowerCase();
+
+  const highlightIsbn =
+    scannedIsbn && scannedIsbn !== dismissedScanIsbn ? scannedIsbn : undefined;
+
+  const showScanMessage = !!scannedIsbn && scannedIsbn !== dismissedScanIsbn;
 
   const scannedBook = useMemo(() => {
     if (!scannedIsbn) return undefined;
     return books.find((b) => b.isbn === scannedIsbn);
   }, [books, scannedIsbn]);
-
-  useEffect(() => {
-    if (scannedIsbn) {
-      setHighlightIsbn(scannedIsbn);
-      setShowScanMessage(true);
-    }
-  }, [scannedIsbn]);
 
   const filteredBooks = useMemo(() => {
     let result = books;
@@ -100,6 +101,12 @@ export default function LibraryScreen() {
 
     return result;
   }, [books, normalizedSearch, scannedBook]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   useEffect(() => {
     if (!scannedBook || filteredBooks.length === 0) return;
@@ -127,14 +134,34 @@ export default function LibraryScreen() {
   };
 
   const clearScanFeedback = useCallback(() => {
-    setHighlightIsbn(undefined);
-    setShowScanMessage(false);
+    if (scannedIsbn) {
+      setDismissedScanIsbn(scannedIsbn);
+    }
     navigation.setParams({ scannedIsbn: undefined });
-  }, [navigation]);
+  }, [navigation, scannedIsbn]);
 
-  const openBook = (book: Book) => {
-    navigation.navigate("BookDetails", { bookId: Number(book.id) });
-  };
+  const openBook = useCallback(
+    (book: Book) => {
+      navigation.navigate("BookDetails", { bookId: Number(book.id) });
+    },
+    [navigation],
+  );
+
+  const openAddBookFromScan = useCallback(() => {
+    if (!scannedIsbn) return;
+
+    navigation.navigate("MainTabs", {
+      screen: "Ajouter un livre",
+      params: {
+        screen: "AddBookHome",
+        params: { isbn: scannedIsbn },
+      },
+    });
+  }, [navigation, scannedIsbn]);
+
+  const emptyMessage = normalizedSearch
+    ? "Aucun livre ne correspond à votre recherche."
+    : "Vous n'avez pas encore de livres dans votre bibliothèque.";
 
   const renderItem = useCallback(
     ({ item }: { item: Book }) => (
@@ -147,48 +174,21 @@ export default function LibraryScreen() {
         }}
       />
     ),
-    [highlightIsbn, clearScanFeedback],
+    [highlightIsbn, clearScanFeedback, openBook],
   );
 
   if (loading) return <ActivityIndicator />;
   if (error) return <Text>Erreur : {error.message}</Text>;
 
-  const emptyMessage = normalizedSearch
-    ? "Aucun livre ne correspond à votre recherche."
-    : "Vous n'avez pas encore de livres dans votre bibliothèque.";
-
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
       <SearchBar onSearch={setSearch} onScanPress={openScanner} />
       {showScanMessage && (
-        <View style={styles.scanCard}>
-          <Text style={styles.scanCardText}>
-            {scannedBook
-              ? "Livre trouvé dans votre bibliothèque"
-              : "Livre non trouvé dans votre bibliothèque"}
-          </Text>
-
-          {!scannedBook && (
-            <Pressable
-              style={({ pressed }) => [
-                styles.addScannedButton,
-                pressed && styles.pressed,
-              ]}
-              onPress={() => {
-                if (!scannedIsbn) return;
-                navigation.navigate("MainTabs", {
-                  screen: "Ajouter un livre",
-                  params: {
-                    screen: "AddBookHome",
-                    params: { isbn: scannedIsbn },
-                  },
-                });
-              }}
-            >
-              <Text style={styles.addScannedButtonText}>Ajouter ce livre</Text>
-            </Pressable>
-          )}
-        </View>
+        <ScanFeedBack
+          found={!!scannedBook}
+          scannedIsbn={scannedIsbn}
+          onAddBook={openAddBookFromScan}
+        />
       )}
 
       <FilterSegment active={filter} onChange={setFilter} />
@@ -220,23 +220,23 @@ export default function LibraryScreen() {
   );
 }
 const styles = StyleSheet.create({
-  scanCard: {
-    marginHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 12,
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: "#F0FDFA",
-    borderWidth: 1,
-    borderColor: "#99F6E4",
-  },
+  // scanCard: {
+  //   marginHorizontal: 16,
+  //   marginTop: 8,
+  //   marginBottom: 12,
+  //   padding: 12,
+  //   borderRadius: 12,
+  //   backgroundColor: "#F0FDFA",
+  //   borderWidth: 1,
+  //   borderColor: "#99F6E4",
+  // },
 
-  scanCardText: {
-    color: "#065F46",
-    fontSize: 14,
-    fontWeight: "600",
-    alignSelf: "center",
-  },
+  // scanCardText: {
+  //   color: "#065F46",
+  //   fontSize: 14,
+  //   fontWeight: "600",
+  //   alignSelf: "center",
+  // },
   bookCountContainer: {
     marginHorizontal: 16,
     marginBottom: 8,
@@ -247,24 +247,24 @@ const styles = StyleSheet.create({
     borderColor: "#E2E8F0",
     alignItems: "center",
   },
-  addScannedButton: {
-    alignSelf: "center",
-    marginTop: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#0F766E",
-    backgroundColor: "#FFFFFF",
-  },
+  // addScannedButton: {
+  //   alignSelf: "center",
+  //   marginTop: 10,
+  //   paddingHorizontal: 12,
+  //   paddingVertical: 8,
+  //   borderRadius: 10,
+  //   borderWidth: 1,
+  //   borderColor: "#0F766E",
+  //   backgroundColor: "#FFFFFF",
+  // },
 
-  addScannedButtonText: {
-    color: "#0F766E",
-    fontSize: 14,
-    fontWeight: "600",
-  },
+  // addScannedButtonText: {
+  //   color: "#0F766E",
+  //   fontSize: 14,
+  //   fontWeight: "600",
+  // },
 
-  pressed: {
-    opacity: 0.75,
-  },
+  // pressed: {
+  //   opacity: 0.75,
+  // },
 });

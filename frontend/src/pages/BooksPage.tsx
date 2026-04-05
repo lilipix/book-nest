@@ -1,8 +1,10 @@
-import { queryBooks } from "@/api/Books";
-import BookCard from "@/components/BookCard";
-import { Filter } from "@/types/types";
-
 import { useQuery } from "@apollo/client";
+
+import { queryBooks } from "@/api/Books";
+
+import BookCard from "@/components/BookCard";
+
+import { Filter } from "@/types/types";
 
 type BooksPageProps = {
   filter?: Filter;

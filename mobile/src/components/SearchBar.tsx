@@ -1,13 +1,14 @@
-import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 
-type Props = {
+import { Ionicons } from "@expo/vector-icons";
+
+type SearchBarProps = {
   onSearch: (text: string) => void;
   onScanPress: () => void;
 };
 
-export default function SearchBar({ onSearch, onScanPress }: Props) {
+export default function SearchBar({ onSearch, onScanPress }: SearchBarProps) {
   const [value, setValue] = useState("");
 
   useEffect(() => {
@@ -16,6 +17,7 @@ export default function SearchBar({ onSearch, onScanPress }: Props) {
     }, 300);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return (
