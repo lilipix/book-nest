@@ -1,10 +1,7 @@
-import { MUTATION_UPDATE_BOOK } from "@/api/UpdateBook";
-import {
-  BookUpdateInput,
-  UpdateBookMutation,
-  UpdateBookMutationVariables,
-} from "@/gql/graphql";
 import { useMutation } from "@apollo/client/react";
+
+import { MUTATION_UPDATE_BOOK } from "@/api/UpdateBook";
+import { UpdateBookMutation, UpdateBookMutationVariables } from "@/gql/graphql";
 
 export const useUpdateBook = () => {
   const [mutate, { loading, error, data }] = useMutation<

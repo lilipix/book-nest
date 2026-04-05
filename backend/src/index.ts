@@ -1,17 +1,17 @@
-import "reflect-metadata";
-import { datasource } from "./datasource";
-import { buildSchema } from "type-graphql";
 import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import { UsersResolver } from "./resolvers/Users";
-import { authChecker, getUserFromContext } from "./auth";
-import { User } from "./entities/User";
-import { Book } from "./entities/Book";
-import { BookResolver } from "./resolvers/Books";
-import express from "express";
-
 import { expressMiddleware } from "@as-integrations/express5";
+import express from "express";
+import { buildSchema } from "type-graphql";
+
+import { authChecker, getUserFromContext } from "./auth";
+import { datasource } from "./datasource";
+import { Book } from "./entities/Book";
+import { User } from "./entities/User";
+import { BookResolver } from "./resolvers/Books";
+import { UsersResolver } from "./resolvers/Users";
 import { upload } from "./utils/multer";
+
+import "reflect-metadata";
 // import cookieParser from "cookie-parser";
 
 async function initiliaze() {

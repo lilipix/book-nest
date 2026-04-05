@@ -1,8 +1,10 @@
-import bookNest from "./assets/bookNest.png";
 import { Link, Outlet } from "react-router-dom";
-import NavBar from "./components/NavBar";
-import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+
+import bookNest from "./assets/bookNest.png";
+import NavBar from "./components/NavBar";
+
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
