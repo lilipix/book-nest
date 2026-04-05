@@ -1,6 +1,8 @@
+import { useQuery } from "@apollo/client/react";
+
 import { QUERY_BOOKS } from "@/api/Books";
 import { Book, BookStatus } from "@/gql/graphql";
-import { useQuery } from "@apollo/client/react";
+
 import { Filter } from "@/types";
 
 type BooksQuery = {
@@ -32,7 +34,7 @@ const getFilterVariables = (filter?: Filter) => {
   }
 };
 
-export const useBooks = (filter?: Filter, search?: string) => {
+export const useBooks = (filter?: Filter) => {
   const { data, loading, error, refetch } = useQuery<
     BooksQuery,
     BooksVariables

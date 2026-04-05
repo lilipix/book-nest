@@ -1,15 +1,18 @@
+import { useEffect, useRef, useState } from "react";
+
 import { DocumentNode, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Card } from "@/components/ui/card";
 
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
-import { LoaderCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { queryBooks } from "@/api/Books";
 import { mutationCreateBook } from "@/api/CreateBook";
+
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -21,7 +24,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { queryBooks } from "@/api/Books";
 
 const CreateBookSchema = z.object({
   title: z
@@ -61,13 +63,13 @@ const CreateBookPage = () => {
   const [mode, setMode] = useState<"manual" | "scan" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isScanOpen, setIsScanOpen] = useState(true);
-  const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+  const apiKey = process.env.EXPO_PUBLIC_GOOGLE_BOOKS_API_KEY;
 
   const [createBook, { loading }] = useMutation(
     mutationCreateBook as DocumentNode,
     {
       refetchQueries: [{ query: queryBooks }],
-    }
+    },
   );
   const form = useForm<CreateBookFormValues>({
     resolver: zodResolver(CreateBookSchema),
@@ -88,7 +90,7 @@ const CreateBookPage = () => {
       timeoutRef.current = setTimeout(() => {
         setIsScanOpen(false);
         setError(
-          "Aucun code détecté après 15 secondes. Veuillez saisir le livre manuellement."
+          "Aucun code détecté après 15 secondes. Veuillez saisir le livre manuellement.",
         );
       }, 15000);
 
@@ -120,7 +122,7 @@ const CreateBookPage = () => {
       console.log("Scanned ISBN:", scannedIsbn);
       try {
         const res = await fetch(
-          `https://www.googleapis.com/books/v1/volumes?q=isbn:${scannedIsbn}&key=${apiKey}`
+          `https://www.googleapis.com/books/v1/volumes?q=isbn:${scannedIsbn}&key=${apiKey}`,
         );
         const data = await res.json();
         console.log("Book data:", data);
@@ -139,7 +141,7 @@ const CreateBookPage = () => {
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des données du livre :",
-          error
+          error,
         );
       }
     }

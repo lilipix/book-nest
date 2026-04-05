@@ -10,21 +10,27 @@ import {
   Text,
   TextInput,
   View,
-  Image,
 } from "react-native";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
-import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
-import { BookStatus } from "@/gql/graphql";
-import { useBook } from "@/hooks/useBook";
-import { useUpdateBook } from "@/hooks/useUpdateBook";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
+
+import { BookStatus, BookUpdateInput } from "@/gql/graphql";
+
 import { LibraryStackParamList } from "@/navigation/types";
+
+import { useBook } from "@/hooks/useBook";
+import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
+import { useUpdateBook } from "@/hooks/useUpdateBook";
+
+import BookCoverField from "@/components/BookCoverFields";
+
 import {
   dateToIsoOnly,
   isoDateRegex,
@@ -33,10 +39,9 @@ import {
   isoToFr,
   normalizeIsoDate,
 } from "@/utils/dates";
-import { getBookImageUri, isLocalImage } from "@/utils/image";
-import { Ionicons } from "@expo/vector-icons";
-import BookCoverField from "@/components/BookCoverFields";
-import { uploadBookCover } from "@/api/uploadBookCover";
+import { isLocalImage } from "@/utils/image";
+
+import { uploadBookCover } from "@/services/uploadBookCover";
 
 type EditBookRouteProp = RouteProp<LibraryStackParamList, "EditBook">;
 type EditBookNavigationProp = NativeStackNavigationProp<
@@ -86,27 +91,27 @@ export default function EditBookScreen() {
   const route = useRoute<EditBookRouteProp>();
   const navigation = useNavigation<EditBookNavigationProp>();
   const { bookId } = route.params;
-  const [coverUri, setCoverUri] = useState<string | null>(null);
-
-  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
-    onChange: setCoverUri,
-  });
-  const { book, loading, error } = useBook(String(bookId));
-  const { updateBook, loading: updating } = useUpdateBook();
 
   const [showIOSBorrowedPicker, setShowIOSBorrowedPicker] = useState(false);
 
+  const { book, loading, error } = useBook(String(bookId));
+  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
+    onChange: (uri) => {
+      setValue("image", uri, { shouldDirty: true });
+    },
+  });
+  const { updateBook, loading: updating } = useUpdateBook();
   const {
     control,
     handleSubmit,
     reset,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<EditBookFormValues>({
     resolver: zodResolver(editBookSchema),
     defaultValues: {
       status: BookStatus.ToRead,
+      image: undefined,
       isFavorite: false,
       isBorrowed: false,
       borrowedBy: "",
@@ -114,26 +119,24 @@ export default function EditBookScreen() {
     },
   });
 
-  const isBorrowed = watch("isBorrowed");
-  const imageValue = watch("image");
+  const isBorrowed = useWatch({ control, name: "isBorrowed" });
 
   useEffect(() => {
     if (!book) return;
 
     reset({
       status: book.status ?? BookStatus.Unread,
-      image: book.image ?? null,
+      image: book.image ?? undefined,
       isFavorite: !!book.isFavorite,
       isBorrowed: !!book.isBorrowed,
       borrowedBy: book.borrowedBy ?? "",
       borrowedAt: normalizeIsoDate(book.borrowedAt),
     });
-    setCoverUri(book?.image ?? null);
   }, [book, reset]);
 
   const onSubmit = async (data: EditBookFormValues) => {
     try {
-      const payload: any = {
+      const payload: BookUpdateInput = {
         status: data.status,
         isFavorite: data.isFavorite,
         isBorrowed: data.isBorrowed,
@@ -144,7 +147,7 @@ export default function EditBookScreen() {
             : null,
       };
 
-      if (coverUri === null) {
+      if (data.image === null || data.image === "") {
         payload.image = null;
       }
 
@@ -153,8 +156,8 @@ export default function EditBookScreen() {
         data: payload,
       });
 
-      if (coverUri && isLocalImage(coverUri)) {
-        await uploadBookCover(String(bookId), coverUri);
+      if (data.image && isLocalImage(data.image)) {
+        await uploadBookCover(String(bookId), data.image);
       }
 
       Alert.alert("Succès", "Livre mis à jour.");
@@ -189,7 +192,7 @@ export default function EditBookScreen() {
         render={({ field: { value } }) => (
           <View style={styles.fieldGroup}>
             <BookCoverField
-              value={coverUri}
+              value={value ?? null}
               onTakePhoto={takePhoto}
               onPickImage={pickImageFromLibrary}
               onRemoveImage={removeImage}

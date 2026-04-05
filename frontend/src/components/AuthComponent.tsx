@@ -1,6 +1,8 @@
 import React from "react";
+
 import { useQuery } from "@apollo/client";
 import { Navigate } from "react-router-dom";
+
 import { queryWhoAmI } from "../api/WhoAmI";
 import { AuthStates } from "../services/AuthStates";
 

@@ -1,5 +1,6 @@
-import { IsOptional, IsUrl, Length } from "class-validator";
+import { IsOptional, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
+import { registerEnumType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -9,7 +10,6 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from "typeorm";
-import { registerEnumType } from "type-graphql";
 
 export enum BookStatus {
   TO_READ = "TO_READ",

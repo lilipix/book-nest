@@ -1,6 +1,7 @@
 import Cookies from "cookies";
 import { verify } from "jsonwebtoken";
 import { AuthChecker } from "type-graphql";
+
 import { User } from "./entities/User";
 
 export type ContextType = { req: any; res: any; user: User | null | undefined };
