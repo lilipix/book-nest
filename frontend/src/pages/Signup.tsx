@@ -1,6 +1,8 @@
-import { useMutation } from "@apollo/client";
-import { mutationCreateUser } from "../api/CreateUser";
 import { useState } from "react";
+
+import { useMutation } from "@apollo/client";
+
+import { mutationCreateUser } from "../api/CreateUser";
 
 const Signup = () => {
   const [email, setEmail] = useState("");

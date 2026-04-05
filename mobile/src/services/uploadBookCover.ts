@@ -11,11 +11,13 @@ export async function uploadBookCover(bookId: string, uri: string) {
 
   const formData = new FormData();
 
-  formData.append("file", {
+  const file = {
     uri,
     name: fileName,
     type: mimeType,
-  } as any);
+  } as const;
+
+  formData.append("file", file as never);
 
   const res = await fetch(`${API_BASE_URL}/api/books/${bookId}/cover`, {
     method: "POST",

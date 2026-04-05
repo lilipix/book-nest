@@ -1,6 +1,7 @@
+import { useQuery } from "@apollo/client/react";
+
 import { QUERYBOOK } from "@/api/Book";
 import { Book } from "@/gql/graphql";
-import { useQuery } from "@apollo/client/react";
 
 type GetBookQueryData = {
   book: Book;

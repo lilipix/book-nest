@@ -1,21 +1,23 @@
+import { ApolloClient, ApolloProvider,InMemoryCache } from "@apollo/client";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
-import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./pages/Home.tsx";
-import About from "./pages/About.tsx";
-import Page404 from "./pages/Page404.tsx";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
-import Signin from "./pages/Signin.tsx";
-import Signup from "./pages/Signup.tsx";
-import Create from "./pages/Admin.tsx";
+
+import App from "./App.tsx";
 import AuthComponent from "./components/AuthComponent.tsx";
 import BadURLRedirect from "./components/BadURLRedirect.tsx";
-import { AuthStates } from "./services/AuthStates.ts";
+import About from "./pages/About.tsx";
+import Create from "./pages/Admin.tsx";
 import BooksPage from "./pages/BooksPage.tsx";
 import CreateBookPage from "./pages/CreateBookPage.tsx";
 import EditBookPage from "./pages/EditBookPage.tsx";
+import Home from "./pages/Home.tsx";
+import Page404 from "./pages/Page404.tsx";
+import Signin from "./pages/Signin.tsx";
+import Signup from "./pages/Signup.tsx";
+import { AuthStates } from "./services/AuthStates.ts";
 import { Filter } from "./types/types";
+
+import "./index.css";
 
 const client = new ApolloClient({
   uri: "/api",

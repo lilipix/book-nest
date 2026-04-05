@@ -1,10 +1,14 @@
-import { DELETE_BOOK } from "@/api/DeleteBook";
-import { BookStatus } from "@/gql/graphql";
-import { useBook } from "@/hooks/useBook";
-import { LibraryStackParamList } from "@/navigation/types";
-import { formatDateFr } from "@/utils/dates";
-import { getBookImageUri } from "@/utils/image";
-import { getBookColor } from "@/utils/style";
+import { useCallback, useMemo } from "react";
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
 import { useMutation } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -14,17 +18,17 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useCallback, useMemo } from "react";
-import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-  StyleSheet,
-} from "react-native";
-import { de, id } from "zod/v4/locales";
+
+import { DELETE_BOOK } from "@/api/DeleteBook";
+import { BookStatus } from "@/gql/graphql";
+
+import { LibraryStackParamList } from "@/navigation/types";
+
+import { useBook } from "@/hooks/useBook";
+
+import { formatDateFr } from "@/utils/dates";
+import { getBookImageUri } from "@/utils/image";
+import { getBookColor } from "@/utils/style";
 
 type BookDetailsRouteProp = RouteProp<LibraryStackParamList, "BookDetails">;
 type BookDetailNavigationProp = NativeStackNavigationProp<
@@ -48,6 +52,7 @@ const BookDetailsScreen = () => {
   const route = useRoute<BookDetailsRouteProp>();
   const navigation = useNavigation<BookDetailNavigationProp>();
   const { bookId } = route.params;
+
   const { book, loading, error, refetch } = useBook(String(bookId));
   const [deleteBook, { loading: deleting }] = useMutation(DELETE_BOOK);
 
@@ -58,6 +63,8 @@ const BookDetailsScreen = () => {
   );
 
   const imageUri = getBookImageUri(book?.image);
+  const isFavorite = !!book?.isFavorite;
+  const isBorrowed = !!book?.isBorrowed;
 
   const backgroundColor = useMemo(() => {
     return getBookColor(book?.title ?? "Livre");
@@ -65,6 +72,7 @@ const BookDetailsScreen = () => {
   const handleEdit = () => {
     navigation.navigate("EditBook", { bookId });
   };
+
   const handleDelete = () => {
     if (deleting) return;
     Alert.alert(
@@ -104,8 +112,6 @@ const BookDetailsScreen = () => {
       </View>
     );
   }
-  const isFavorite = !!book.isFavorite;
-  const isBorrowed = !!book.isBorrowed;
 
   return (
     <ScrollView contentContainerStyle={styles.content}>

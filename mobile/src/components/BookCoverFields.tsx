@@ -1,8 +1,10 @@
-import { View, Text, Image, Pressable, StyleSheet } from "react-native";
+import { Image, Pressable, StyleSheet,Text, View } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
+
 import { getBookImageUri } from "@/utils/image";
 
-type Props = {
+type BookCoverFieldProps = {
   value?: string | null;
   onTakePhoto: () => void;
   onPickImage: () => void;
@@ -18,7 +20,7 @@ export default function BookCoverField({
   onRemoveImage,
   label = "Couverture",
   mode = "create",
-}: Props) {
+}: BookCoverFieldProps) {
   const imageUri = getBookImageUri(value);
   const hasImage = !!imageUri;
 

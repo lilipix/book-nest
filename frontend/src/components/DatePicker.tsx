@@ -1,8 +1,9 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { useFormContext } from "react-hook-form";
+import { z } from "zod";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -10,8 +11,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useFormContext } from "react-hook-form";
-import { z } from "zod";
+
+import { cn } from "@/lib/utils";
 
 export const DatePickerFormBlockSchema = z.object({
   borrowedAt: z.date().nullable(),

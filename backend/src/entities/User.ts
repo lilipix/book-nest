@@ -14,6 +14,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from "typeorm";
+
 import { ContextType } from "../auth";
 
 export const IsUser: MiddlewareFn<ContextType> = async (

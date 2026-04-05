@@ -1,19 +1,19 @@
+import argon2 from "argon2";
+import { validate } from "class-validator";
+import Cookies from "cookies";
+import { sign } from "jsonwebtoken";
 import {
   Arg,
   Authorized,
   Ctx,
   ID,
-  Info,
   Mutation,
   Query,
   Resolver,
 } from "type-graphql";
-import { User, UserCreateInput, UserUpdateInput } from "../entities/User";
-import { validate } from "class-validator";
-import argon2 from "argon2";
-import { decode, sign, verify } from "jsonwebtoken";
-import Cookies from "cookies";
+
 import { ContextType, getUserFromContext } from "../auth";
+import { User, UserCreateInput } from "../entities/User";
 
 @Resolver()
 export class UsersResolver {
@@ -32,7 +32,7 @@ export class UsersResolver {
   @Query(() => User)
   async user(
     @Arg("id", () => ID) id: number,
-    @Ctx() context: ContextType
+    @Ctx() context: ContextType,
   ): Promise<User | null> {
     const user = await User.findOneBy({ id: context.user?.id });
     if (user) {
@@ -46,7 +46,7 @@ export class UsersResolver {
   async signin(
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Ctx() context: ContextType
+    @Ctx() context: ContextType,
   ): Promise<User | null> {
     try {
       const user = await User.findOneBy({ email });
@@ -57,7 +57,7 @@ export class UsersResolver {
               id: user.id,
               role: user.role,
             },
-            process.env.JWT_SECRET_KEY || ""
+            process.env.JWT_SECRET_KEY || "",
           );
           // try {
           //     verify(token, process.env.JWT_SECRET_KEY);
@@ -91,7 +91,7 @@ export class UsersResolver {
 
   @Mutation(() => User)
   async createUser(
-    @Arg("data", () => UserCreateInput) data: UserCreateInput
+    @Arg("data", () => UserCreateInput) data: UserCreateInput,
   ): Promise<User> {
     const errors = await validate(data);
     if (errors.length > 0) {

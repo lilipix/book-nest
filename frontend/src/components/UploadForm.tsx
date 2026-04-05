@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+
 import { useQuery } from "@apollo/client";
+
 import { queryWhoAmI } from "@/api/WhoAmI";
+
+import { Button } from "@/components/ui/button";
 
 const UploadForm = () => {
   const [file, setFile] = useState<File | null>(null);

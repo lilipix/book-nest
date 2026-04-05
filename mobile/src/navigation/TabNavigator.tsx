@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import LibraryStackNavigator from "./LibraryStackNavigator";
+
 import AddBookStackNavigator from "./AddBookStackNavigator";
+import LibraryStackNavigator from "./LibraryStackNavigator";
 import ProfileStackNavigator from "./ProfileStackNavigator";
 import { MainTabParamList } from "./types";
 
