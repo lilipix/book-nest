@@ -45,12 +45,12 @@ import { uploadBookCover } from "@/services/uploadBookCover";
 type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
 const CreateBookSchema = z.object({
-  title: z.string().min(2, "Titre trop court"),
-  author: z.string().min(2, "Auteur trop court"),
-  image: z.string().optional().nullable().or(z.literal("")),
+  title: z.string().trim().min(2, "Titre trop court"),
+  author: z.string().trim().min(2, "Auteur trop court"),
+  image: z.string().trim().optional().nullable().or(z.literal("")),
   status: z.enum(BookStatus),
   isFavorite: z.boolean(),
-  isbn: z.string().optional(),
+  isbn: z.string().trim().optional(),
 });
 
 export type CreateBookFormValues = z.infer<typeof CreateBookSchema>;
@@ -64,22 +64,26 @@ export default function AddBookScreen() {
   const [loadingBook, setLoadingBook] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
-    onChange: (uri) =>
-      setValue("image", uri ?? "", { shouldDirty: true, shouldValidate: true }),
-  });
-
   const [createBook, { loading }] = useMutation(MUTATION_CREATE_BOOK, {
     refetchQueries: [{ query: QUERY_BOOKS }],
   });
 
-  const defaultFormValues: CreateBookFormValues = {
+  const initialFormValues: CreateBookFormValues = {
     title: "",
     author: "",
     image: undefined,
     status: BookStatus.Unread,
     isFavorite: false,
     isbn: isbn || undefined,
+  };
+
+  const emptyFormValues: CreateBookFormValues = {
+    title: "",
+    author: "",
+    image: undefined,
+    status: BookStatus.Unread,
+    isFavorite: false,
+    isbn: undefined,
   };
 
   const {
@@ -91,29 +95,69 @@ export default function AddBookScreen() {
     formState: { errors },
   } = useForm<CreateBookFormValues>({
     resolver: zodResolver(CreateBookSchema),
-    defaultValues: defaultFormValues,
+    defaultValues: initialFormValues,
+  });
+
+  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
+    onChange: (uri) =>
+      setValue("image", uri ?? "", { shouldDirty: true, shouldValidate: true }),
   });
 
   const imageValue = watch("image");
+  const lastFetchedIsbn = useRef<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       if (!isbn) {
-        reset(defaultFormValues);
+        reset(emptyFormValues);
         setError(null);
+        lastFetchedIsbn.current = null;
       }
+
+      return () => {
+        reset(emptyFormValues);
+        setError(null);
+        lastFetchedIsbn.current = null;
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isbn, reset]),
   );
 
+  const getErrorMessage = (e: unknown) => {
+    if (typeof e !== "object" || e === null) {
+      return "Impossible de créer le livre.";
+    }
+
+    return (
+      (e as { graphQLErrors?: { message?: string }[] })?.graphQLErrors?.[0]
+        ?.message ||
+      (
+        e as {
+          networkError?: { result?: { errors?: { message?: string }[] } };
+        }
+      )?.networkError?.result?.errors?.[0]?.message ||
+      (e as { message?: string })?.message ||
+      "Impossible de créer le livre."
+    );
+  };
   const onSubmit = async (data: CreateBookFormValues) => {
     try {
       const image = data.image?.trim() || undefined;
 
+      const cleanTitle = data.title.trim();
+      const cleanAuthor = data.author.trim();
+      const cleanImage = data.image?.trim() || undefined;
+      const cleanIsbn = isbn?.trim() || undefined;
+
       const payload = {
-        ...data,
-        isbn,
-        ...(image && !isLocalImage(image) ? { image } : {}),
+        title: cleanTitle,
+        author: cleanAuthor,
+        status: data.status,
+        isFavorite: data.isFavorite,
+        ...(cleanIsbn ? { isbn: cleanIsbn } : {}),
+        ...(cleanImage && !isLocalImage(cleanImage)
+          ? { image: cleanImage }
+          : {}),
       };
 
       const res = await createBook({
@@ -130,7 +174,9 @@ export default function AddBookScreen() {
         await uploadBookCover(bookId, image);
       }
 
-      reset(defaultFormValues);
+      reset(emptyFormValues);
+      setError(null);
+      lastFetchedIsbn.current = null;
 
       Alert.alert("Succès", "Livre créé");
 
@@ -141,29 +187,16 @@ export default function AddBookScreen() {
         },
       });
     } catch (e: unknown) {
-      let graphqlMessage = "Impossible de créer le livre.";
-      if (typeof e === "object" && e !== null) {
-        graphqlMessage =
-          (e as { graphQLErrors?: { message?: string }[] })?.graphQLErrors?.[0]
-            ?.message ||
-          (
-            e as {
-              networkError?: { result?: { errors?: { message?: string }[] } };
-            }
-          )?.networkError?.result?.errors?.[0]?.message ||
-          (e as { message?: string })?.message ||
-          graphqlMessage;
-      }
+      const graphqlMessage = getErrorMessage(e);
 
       if (graphqlMessage === "Ce livre existe déjà dans la bibliothèque") {
-        Alert.alert("Livre déjà présent dans la bibliothèque", graphqlMessage);
+        Alert.alert("Livre déjà présent", graphqlMessage);
         return;
       }
+
       Alert.alert("Erreur", graphqlMessage);
     }
   };
-
-  const lastFetchedIsbn = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isbn) return;
@@ -221,8 +254,7 @@ export default function AddBookScreen() {
       }
     };
     loadBook();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isbn, setValue]);
+  }, [isbn, setValue, isFetchingBook]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
