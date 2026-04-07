@@ -1,4 +1,6 @@
-import { Image, Pressable,StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+
+import { Ionicons } from "@expo/vector-icons";
 
 import { Book, BookStatus } from "@/gql/graphql";
 
@@ -39,19 +41,25 @@ export default function BookGridItem({
 
         {book.isFavorite && (
           <View style={[styles.badge, styles.favorite]}>
-            <Text style={styles.badgeText}>⭐</Text>
+            <Ionicons name="heart" size={12} color="#EF4444" />
           </View>
         )}
 
         {book.status === BookStatus.Read && (
           <View style={[styles.badge, styles.read]}>
-            <Text style={styles.badgeText}>📖</Text>
+            <Ionicons name="checkmark-circle" size={12} color="#10B981" />
+          </View>
+        )}
+
+        {book.status === BookStatus.ToRead && (
+          <View style={[styles.badge, styles.read]}>
+            <Ionicons name="book-outline" size={12} color="#444" />
           </View>
         )}
 
         {book.borrowedBy && (
           <View style={[styles.badge, styles.borrowed]}>
-            <Text style={styles.badgeText}>🤝</Text>
+            <Ionicons name="person-outline" size={12} color="#c27c2c" />
           </View>
         )}
       </View>
@@ -126,9 +134,6 @@ const styles = StyleSheet.create({
     bottom: 4,
     right: 4,
     backgroundColor: "white",
-  },
-  badgeText: {
-    fontSize: 12,
   },
   foundBadge: {
     position: "absolute",
