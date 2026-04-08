@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { colors } from "@/styles/theme";
+
 type ScanFeedbackProps = {
   found?: boolean;
   scannedIsbn: string | null;
@@ -58,12 +60,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#0F766E",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.primary,
+    backgroundColor: colors.background,
   },
 
   addScannedButtonText: {
-    color: "#0F766E",
+    color: colors.primary,
     fontSize: 14,
     fontWeight: "600",
   },
