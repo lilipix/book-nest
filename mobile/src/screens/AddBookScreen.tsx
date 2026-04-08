@@ -42,15 +42,19 @@ import { isLocalImage } from "@/utils/image";
 import { fetchBookByIsbn } from "@/services/bookLookup";
 import { uploadBookCover } from "@/services/uploadBookCover";
 
+import { formStyles } from "@/styles/formStyles";
+import { colors } from "@/styles/theme";
+import Button from "@/ui/Button";
+
 type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
 const CreateBookSchema = z.object({
-  title: z.string().trim().min(2, "Titre trop court"),
-  author: z.string().trim().min(2, "Auteur trop court"),
-  image: z.string().trim().optional().nullable().or(z.literal("")),
+  title: z.string().min(2, "Titre trop court"),
+  author: z.string().min(2, "Auteur trop court"),
+  image: z.string().optional().nullable().or(z.literal("")),
   status: z.enum(BookStatus),
   isFavorite: z.boolean(),
-  isbn: z.string().trim().optional(),
+  isbn: z.string().optional(),
 });
 
 export type CreateBookFormValues = z.infer<typeof CreateBookSchema>;
@@ -64,26 +68,22 @@ export default function AddBookScreen() {
   const [loadingBook, setLoadingBook] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
+    onChange: (uri) =>
+      setValue("image", uri ?? "", { shouldDirty: true, shouldValidate: true }),
+  });
+
   const [createBook, { loading }] = useMutation(MUTATION_CREATE_BOOK, {
     refetchQueries: [{ query: QUERY_BOOKS }],
   });
 
-  const initialFormValues: CreateBookFormValues = {
+  const defaultFormValues: CreateBookFormValues = {
     title: "",
     author: "",
     image: undefined,
     status: BookStatus.Unread,
     isFavorite: false,
     isbn: isbn || undefined,
-  };
-
-  const emptyFormValues: CreateBookFormValues = {
-    title: "",
-    author: "",
-    image: undefined,
-    status: BookStatus.Unread,
-    isFavorite: false,
-    isbn: undefined,
   };
 
   const {
@@ -95,69 +95,29 @@ export default function AddBookScreen() {
     formState: { errors },
   } = useForm<CreateBookFormValues>({
     resolver: zodResolver(CreateBookSchema),
-    defaultValues: initialFormValues,
-  });
-
-  const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
-    onChange: (uri) =>
-      setValue("image", uri ?? "", { shouldDirty: true, shouldValidate: true }),
+    defaultValues: defaultFormValues,
   });
 
   const imageValue = watch("image");
-  const lastFetchedIsbn = useRef<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       if (!isbn) {
-        reset(emptyFormValues);
+        reset(defaultFormValues);
         setError(null);
-        lastFetchedIsbn.current = null;
       }
-
-      return () => {
-        reset(emptyFormValues);
-        setError(null);
-        lastFetchedIsbn.current = null;
-      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isbn, reset]),
   );
 
-  const getErrorMessage = (e: unknown) => {
-    if (typeof e !== "object" || e === null) {
-      return "Impossible de créer le livre.";
-    }
-
-    return (
-      (e as { graphQLErrors?: { message?: string }[] })?.graphQLErrors?.[0]
-        ?.message ||
-      (
-        e as {
-          networkError?: { result?: { errors?: { message?: string }[] } };
-        }
-      )?.networkError?.result?.errors?.[0]?.message ||
-      (e as { message?: string })?.message ||
-      "Impossible de créer le livre."
-    );
-  };
   const onSubmit = async (data: CreateBookFormValues) => {
     try {
       const image = data.image?.trim() || undefined;
 
-      const cleanTitle = data.title.trim();
-      const cleanAuthor = data.author.trim();
-      const cleanImage = data.image?.trim() || undefined;
-      const cleanIsbn = isbn?.trim() || undefined;
-
       const payload = {
-        title: cleanTitle,
-        author: cleanAuthor,
-        status: data.status,
-        isFavorite: data.isFavorite,
-        ...(cleanIsbn ? { isbn: cleanIsbn } : {}),
-        ...(cleanImage && !isLocalImage(cleanImage)
-          ? { image: cleanImage }
-          : {}),
+        ...data,
+        isbn,
+        ...(image && !isLocalImage(image) ? { image } : {}),
       };
 
       const res = await createBook({
@@ -174,9 +134,7 @@ export default function AddBookScreen() {
         await uploadBookCover(bookId, image);
       }
 
-      reset(emptyFormValues);
-      setError(null);
-      lastFetchedIsbn.current = null;
+      reset(defaultFormValues);
 
       Alert.alert("Succès", "Livre créé");
 
@@ -187,16 +145,29 @@ export default function AddBookScreen() {
         },
       });
     } catch (e: unknown) {
-      const graphqlMessage = getErrorMessage(e);
-
-      if (graphqlMessage === "Ce livre existe déjà dans la bibliothèque") {
-        Alert.alert("Livre déjà présent", graphqlMessage);
-        return;
+      let graphqlMessage = "Impossible de créer le livre.";
+      if (typeof e === "object" && e !== null) {
+        graphqlMessage =
+          (e as { graphQLErrors?: { message?: string }[] })?.graphQLErrors?.[0]
+            ?.message ||
+          (
+            e as {
+              networkError?: { result?: { errors?: { message?: string }[] } };
+            }
+          )?.networkError?.result?.errors?.[0]?.message ||
+          (e as { message?: string })?.message ||
+          graphqlMessage;
       }
 
+      if (graphqlMessage === "Ce livre existe déjà dans la bibliothèque") {
+        Alert.alert("Livre déjà présent dans la bibliothèque", graphqlMessage);
+        return;
+      }
       Alert.alert("Erreur", graphqlMessage);
     }
   };
+
+  const lastFetchedIsbn = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isbn) return;
@@ -254,60 +225,69 @@ export default function AddBookScreen() {
       }
     };
     loadBook();
-  }, [isbn, setValue, isFetchingBook]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isbn, setValue]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
+        style={formStyles.container}
+        contentContainerStyle={formStyles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.subtitle}>
+        <View style={formStyles.header}>
+          <Text style={formStyles.subtitle}>
             Scanne un ISBN ou complète le formulaire manuellement
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Recherche rapide</Text>
+        <View style={formStyles.card}>
+          <Text style={formStyles.sectionTitle}>Recherche rapide</Text>
 
           {loadingBook && (
             <View style={styles.infoRow}>
-              <ActivityIndicator size="small" color="#0F766E" />
+              <ActivityIndicator size="small" color={colors.primary} />
               <Text style={styles.infoText}>Chargement du livre...</Text>
             </View>
           )}
 
-          {error && <Text style={styles.error}>{error}</Text>}
+          {error && <Text style={formStyles.error}>{error}</Text>}
 
-          <Pressable
-            style={styles.secondaryButton}
+          <Button
+            label="Scanner un ISBN"
+            variant="secondary"
             onPress={() => navigation.navigate("ScanBook", { mode: "add" })}
-          >
-            <Ionicons name="barcode-outline" size={22} color="#0F766E" />
-            <Text style={styles.secondaryButtonText}>Scanner un ISBN</Text>
-          </Pressable>
+            leftIcon={
+              <Ionicons
+                name="barcode-outline"
+                size={22}
+                color={colors.primary}
+              />
+            }
+          />
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Informations du livre</Text>
+        <View style={formStyles.card}>
+          <Text style={formStyles.sectionTitle}>Informations du livre</Text>
 
           <Controller
             control={control}
             name="title"
             render={({ field: { onChange, value } }) => (
-              <View style={styles.fieldGroup}>
-                <Text style={styles.label}>Titre</Text>
+              <View style={formStyles.fieldGroup}>
+                <Text style={formStyles.label}>Titre</Text>
                 <TextInput
                   placeholder="Ex. Le Petit Prince"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.muted}
                   value={value}
                   onChangeText={onChange}
-                  style={[styles.input, errors.title && styles.inputError]}
+                  style={[
+                    formStyles.input,
+                    errors.title && formStyles.inputError,
+                  ]}
                 />
                 {errors.title && (
-                  <Text style={styles.error}>{errors.title.message}</Text>
+                  <Text style={formStyles.error}>{errors.title.message}</Text>
                 )}
               </View>
             )}
@@ -317,17 +297,20 @@ export default function AddBookScreen() {
             control={control}
             name="author"
             render={({ field: { onChange, value } }) => (
-              <View style={styles.fieldGroup}>
-                <Text style={styles.label}>Auteur</Text>
+              <View style={formStyles.fieldGroup}>
+                <Text style={formStyles.label}>Auteur</Text>
                 <TextInput
                   placeholder="Ex. Antoine de Saint-Exupéry"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.muted}
                   value={value}
                   onChangeText={onChange}
-                  style={[styles.input, errors.author && styles.inputError]}
+                  style={[
+                    formStyles.input,
+                    errors.author && formStyles.inputError,
+                  ]}
                 />
                 {errors.author && (
-                  <Text style={styles.error}>{errors.author.message}</Text>
+                  <Text style={formStyles.error}>{errors.author.message}</Text>
                 )}
               </View>
             )}
@@ -337,7 +320,7 @@ export default function AddBookScreen() {
             control={control}
             name="image"
             render={() => (
-              <View style={styles.fieldGroup}>
+              <View style={formStyles.fieldGroup}>
                 <BookCoverField
                   value={imageValue}
                   onTakePhoto={takePhoto}
@@ -346,7 +329,7 @@ export default function AddBookScreen() {
                   mode="create"
                 />
                 {errors.image && (
-                  <Text style={styles.error}>{errors.image.message}</Text>
+                  <Text style={formStyles.error}>{errors.image.message}</Text>
                 )}
               </View>
             )}
@@ -364,25 +347,25 @@ export default function AddBookScreen() {
           )}
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Statut</Text>
+        <View style={formStyles.card}>
+          <Text style={formStyles.sectionTitle}>Statut</Text>
 
           <Controller
             control={control}
             name="status"
             render={({ field: { value, onChange } }) => (
-              <View style={styles.statusContainer}>
+              <View style={formStyles.statusContainer}>
                 <Pressable
                   style={[
-                    styles.statusButton,
-                    value === BookStatus.Read && styles.activeStatusButton,
+                    formStyles.statusButton,
+                    value === BookStatus.Read && formStyles.activeStatusButton,
                   ]}
                   onPress={() => onChange(BookStatus.Read)}
                 >
                   <Text
                     style={[
-                      styles.statusText,
-                      value === BookStatus.Read && styles.activeStatusText,
+                      formStyles.statusText,
+                      value === BookStatus.Read && formStyles.activeStatusText,
                     ]}
                   >
                     Lu
@@ -391,15 +374,17 @@ export default function AddBookScreen() {
 
                 <Pressable
                   style={[
-                    styles.statusButton,
-                    value === BookStatus.ToRead && styles.activeStatusButton,
+                    formStyles.statusButton,
+                    value === BookStatus.ToRead &&
+                      formStyles.activeStatusButton,
                   ]}
                   onPress={() => onChange(BookStatus.ToRead)}
                 >
                   <Text
                     style={[
-                      styles.statusText,
-                      value === BookStatus.ToRead && styles.activeStatusText,
+                      formStyles.statusText,
+                      value === BookStatus.ToRead &&
+                        formStyles.activeStatusText,
                     ]}
                   >
                     À lire
@@ -408,15 +393,17 @@ export default function AddBookScreen() {
 
                 <Pressable
                   style={[
-                    styles.statusButton,
-                    value === BookStatus.Unread && styles.activeStatusButton,
+                    formStyles.statusButton,
+                    value === BookStatus.Unread &&
+                      formStyles.activeStatusButton,
                   ]}
                   onPress={() => onChange(BookStatus.Unread)}
                 >
                   <Text
                     style={[
-                      styles.statusText,
-                      value === BookStatus.Unread && styles.activeStatusText,
+                      formStyles.statusText,
+                      value === BookStatus.Unread &&
+                        formStyles.activeStatusText,
                     ]}
                   >
                     Non lu
@@ -427,17 +414,19 @@ export default function AddBookScreen() {
           />
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Options</Text>
+        <View style={formStyles.card}>
+          <Text style={formStyles.sectionTitle}>Options</Text>
 
           <Controller
             control={control}
             name="isFavorite"
             render={({ field: { onChange, value } }) => (
-              <View style={styles.switchRow}>
+              <View style={formStyles.switchRow}>
                 <View>
-                  <Text style={styles.switchLabel}>Ajouter aux favoris</Text>
-                  <Text style={styles.switchHint}>
+                  <Text style={formStyles.switchLabel}>
+                    Ajouter aux favoris
+                  </Text>
+                  <Text style={formStyles.switchHint}>
                     Pour retrouver ce livre plus rapidement
                   </Text>
                 </View>
@@ -447,103 +436,17 @@ export default function AddBookScreen() {
           />
         </View>
 
-        <Pressable
-          style={[
-            styles.primaryButton,
-            loading && styles.primaryButtonDisabled,
-          ]}
+        <Button
+          label="Enregistrer"
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.primaryButtonText}>Enregistrer</Text>
-          )}
-        </Pressable>
+          loading={loading}
+        />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5F7FA",
-  },
-
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-
-  header: {
-    marginBottom: 20,
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#1F2937",
-    marginBottom: 6,
-  },
-
-  subtitle: {
-    fontSize: 15,
-    color: "#6B7280",
-    lineHeight: 22,
-  },
-  fieldGroup: {
-    marginBottom: 14,
-  },
-
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 6,
-  },
-
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-  },
-
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: 12,
-  },
-
-  input: {
-    backgroundColor: "#F9FAFB",
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 12,
-    fontSize: 15,
-    color: "#111827",
-  },
-
-  inputError: {
-    borderColor: "#DC2626",
-  },
-
-  error: {
-    color: "#DC2626",
-    marginTop: 6,
-    fontSize: 13,
-  },
-
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -552,7 +455,7 @@ const styles = StyleSheet.create({
   },
 
   infoText: {
-    color: "#6B7280",
+    color: colors.muted,
     fontSize: 14,
   },
 
@@ -561,15 +464,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     borderWidth: 1,
-    borderColor: "#0F766E",
-    backgroundColor: "#ECFDF5",
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
   },
 
   secondaryButtonText: {
-    color: "#0F766E",
+    color: colors.primary,
     fontWeight: "600",
     fontSize: 15,
   },
@@ -582,7 +485,7 @@ const styles = StyleSheet.create({
   previewLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#374151",
+    color: colors.textSecondary,
     marginBottom: 10,
   },
 
@@ -590,130 +493,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 150,
     borderRadius: 12,
-    backgroundColor: "#E5E7EB",
-  },
-
-  statusContainer: {
-    flexDirection: "row",
-    backgroundColor: "#F3F4F6",
-    borderRadius: 12,
-    padding: 4,
-  },
-
-  statusButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-
-  activeStatusButton: {
-    backgroundColor: "#0F766E",
-  },
-
-  statusText: {
-    color: "#374151",
-    fontWeight: "500",
-    fontSize: 14,
-  },
-
-  activeStatusText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
-  },
-
-  switchRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  switchLabel: {
-    fontSize: 15,
-    color: "#1F2937",
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-
-  switchHint: {
-    fontSize: 13,
-    color: "#6B7280",
-    maxWidth: 220,
-  },
-
-  primaryButton: {
-    backgroundColor: "#0F766E",
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 4,
-  },
-
-  primaryButtonDisabled: {
-    opacity: 0.7,
-  },
-
-  primaryButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  imageActions: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  imageActionButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#FFFFFF",
-  },
-  imageActionText: {
-    color: "#0F172A",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  removeImageButton: {
-    alignSelf: "flex-start",
-    paddingVertical: 6,
-  },
-  removeImageText: {
-    color: "#DC2626",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  coverPreview: {
-    width: "100%",
-    height: 220,
-    borderRadius: 14,
-    resizeMode: "contain",
-    backgroundColor: "#E2E8F0",
-  },
-  coverPlaceholder: {
-    height: 220,
-    borderRadius: 14,
-    backgroundColor: "#F1F5F9",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    borderStyle: "dashed",
-  },
-  coverPlaceholderText: {
-    color: "#64748B",
-    fontSize: 14,
-  },
-  helperText: {
-    color: "#64748B",
-    fontSize: 13,
-    lineHeight: 18,
+    backgroundColor: colors.borderSoft,
   },
 });

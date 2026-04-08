@@ -1,8 +1,10 @@
-import { Image, Pressable, StyleSheet,Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
 import { getBookImageUri } from "@/utils/image";
+
+import { colors } from "@/styles/theme";
 
 type BookCoverFieldProps = {
   value?: string | null;
@@ -26,13 +28,17 @@ export default function BookCoverField({
 
   return (
     <View style={styles.fieldGroup}>
-      <Text style={styles.label}>{label}</Text>
+      {mode === "create" && <Text style={styles.label}>{label}</Text>}
 
       {hasImage ? (
         <Image source={{ uri: imageUri }} style={styles.coverPreview} />
       ) : (
         <View style={styles.coverPlaceholder}>
-          <Ionicons name="image-outline" size={32} color="#94A3B8" />
+          <Ionicons
+            name="image-outline"
+            size={32}
+            color={colors.imageOutline}
+          />
           <Text style={styles.coverPlaceholderText}>Aucune couverture</Text>
         </View>
       )}
@@ -57,14 +63,14 @@ export default function BookCoverField({
 
       <View style={styles.imageActions}>
         <Pressable style={styles.imageActionButton} onPress={onTakePhoto}>
-          <Ionicons name="camera-outline" size={20} color="#0F766E" />
+          <Ionicons name="camera-outline" size={20} color={colors.primary} />
           <Text style={styles.imageActionText}>
             {hasImage ? "Prendre une photo" : "Prendre une photo"}
           </Text>
         </Pressable>
 
         <Pressable style={styles.imageActionButton} onPress={onPickImage}>
-          <Ionicons name="images-outline" size={20} color="#0F766E" />
+          <Ionicons name="images-outline" size={20} color={colors.primary} />
           <Text style={styles.imageActionText}>
             {hasImage ? "Remplacer" : "Choisir"}
           </Text>
@@ -88,7 +94,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#374151",
+    color: colors.textSecondary,
     marginBottom: 6,
   },
   coverPreview: {
@@ -135,7 +141,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
   imageActionText: {
     color: "#0F172A",
@@ -148,7 +154,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   removeImageText: {
-    color: "#DC2626",
+    color: colors.error,
     fontSize: 14,
     fontWeight: "600",
   },

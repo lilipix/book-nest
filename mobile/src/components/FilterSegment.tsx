@@ -1,7 +1,9 @@
 import React from "react";
-import { Pressable, StyleSheet,Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Filter } from "@/types";
+
+import { colors } from "@/styles/theme";
 
 type FilterSegmentProps = {
   active?: Filter;
@@ -66,17 +68,17 @@ const styles = StyleSheet.create({
   },
 
   inactiveText: {
-    color: "#374151",
+    color: colors.textSecondary,
     fontWeight: "500",
   },
 
   active: {
-    backgroundColor: "#0F766E",
+    backgroundColor: colors.primary,
     transform: [{ scale: 1.05 }],
   },
 
   activeText: {
-    color: "#FFFFFF",
+    color: colors.white,
     fontWeight: "600",
   },
 });

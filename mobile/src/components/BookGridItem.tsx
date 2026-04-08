@@ -7,6 +7,8 @@ import { Book, BookStatus } from "@/gql/graphql";
 import { getBookImageUri } from "@/utils/image";
 import { getBookColor } from "@/utils/style";
 
+import { colors } from "@/styles/theme";
+
 type BookGridItemProps = {
   book: Book;
   onPress: () => void;
@@ -41,7 +43,7 @@ export default function BookGridItem({
 
         {book.isFavorite && (
           <View style={[styles.badge, styles.favorite]}>
-            <Ionicons name="heart" size={12} color="#EF4444" />
+            <Ionicons name="heart" size={12} color={colors.error} />
           </View>
         )}
 
@@ -76,6 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 6,
     alignItems: "center",
+    backgroundColor: "#F5F7FA",
   },
 
   coverContainer: {
