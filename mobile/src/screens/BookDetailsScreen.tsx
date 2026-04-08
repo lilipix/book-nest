@@ -19,12 +19,13 @@ import { LibraryStackParamList } from "@/navigation/types";
 
 import { useBook } from "@/hooks/useBook";
 
+import Button from "@/components/ui/Button";
+
 import { formatDateFr } from "@/utils/dates";
 import { getBookImageUri } from "@/utils/image";
 import { getBookColor } from "@/utils/style";
 
 import { colors } from "@/styles/theme";
-import Button from "@/ui/Button";
 
 type BookDetailsRouteProp = RouteProp<LibraryStackParamList, "BookDetails">;
 type BookDetailNavigationProp = NativeStackNavigationProp<
