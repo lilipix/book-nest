@@ -3,10 +3,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   View,
@@ -35,7 +33,10 @@ import { AddBookStackParamList } from "@/navigation/types";
 
 import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
 
-import BookCoverField from "@/components/BookCoverFields";
+import BookCoverField from "@/components/books/BookCoverFields";
+import SettingSwitchRow from "@/components/books/SettingSwitchRow";
+import StatusSelector from "@/components/books/StatusSelector";
+import Button from "@/components/ui/Button";
 
 import { isLocalImage } from "@/utils/image";
 
@@ -44,7 +45,6 @@ import { uploadBookCover } from "@/services/uploadBookCover";
 
 import { formStyles } from "@/styles/formStyles";
 import { colors } from "@/styles/theme";
-import Button from "@/ui/Button";
 
 type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
@@ -237,7 +237,7 @@ export default function AddBookScreen() {
       >
         <View style={formStyles.header}>
           <Text style={formStyles.subtitle}>
-            Scanne un ISBN ou complète le formulaire manuellement
+            Scannez un ISBN ou complètez le formulaire manuellement
           </Text>
         </View>
 
@@ -354,62 +354,7 @@ export default function AddBookScreen() {
             control={control}
             name="status"
             render={({ field: { value, onChange } }) => (
-              <View style={formStyles.statusContainer}>
-                <Pressable
-                  style={[
-                    formStyles.statusButton,
-                    value === BookStatus.Read && formStyles.activeStatusButton,
-                  ]}
-                  onPress={() => onChange(BookStatus.Read)}
-                >
-                  <Text
-                    style={[
-                      formStyles.statusText,
-                      value === BookStatus.Read && formStyles.activeStatusText,
-                    ]}
-                  >
-                    Lu
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  style={[
-                    formStyles.statusButton,
-                    value === BookStatus.ToRead &&
-                      formStyles.activeStatusButton,
-                  ]}
-                  onPress={() => onChange(BookStatus.ToRead)}
-                >
-                  <Text
-                    style={[
-                      formStyles.statusText,
-                      value === BookStatus.ToRead &&
-                        formStyles.activeStatusText,
-                    ]}
-                  >
-                    À lire
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  style={[
-                    formStyles.statusButton,
-                    value === BookStatus.Unread &&
-                      formStyles.activeStatusButton,
-                  ]}
-                  onPress={() => onChange(BookStatus.Unread)}
-                >
-                  <Text
-                    style={[
-                      formStyles.statusText,
-                      value === BookStatus.Unread &&
-                        formStyles.activeStatusText,
-                    ]}
-                  >
-                    Non lu
-                  </Text>
-                </Pressable>
-              </View>
+              <StatusSelector value={value} onChange={onChange} />
             )}
           />
         </View>
@@ -421,17 +366,12 @@ export default function AddBookScreen() {
             control={control}
             name="isFavorite"
             render={({ field: { onChange, value } }) => (
-              <View style={formStyles.switchRow}>
-                <View>
-                  <Text style={formStyles.switchLabel}>
-                    Ajouter aux favoris
-                  </Text>
-                  <Text style={formStyles.switchHint}>
-                    Pour retrouver ce livre plus rapidement
-                  </Text>
-                </View>
-                <Switch value={value} onValueChange={onChange} />
-              </View>
+              <SettingSwitchRow
+                label="Ajouter aux favoris"
+                hint="Pour retrouver ce livre plus rapidement"
+                value={value}
+                onValueChange={onChange}
+              />
             )}
           />
         </View>

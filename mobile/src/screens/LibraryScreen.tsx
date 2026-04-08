@@ -32,11 +32,13 @@ import {
   RootStackParamList,
 } from "@/navigation/types";
 
-import BookGridItem from "@/components/BookGridItem";
+import BookGridItem from "@/components/books/BookGridItem";
 import ScanFeedBack from "@/components/ScanFeedback";
 import SearchBar from "@/components/SearchBar";
 
 import { Filter } from "@/types";
+
+import { colors } from "@/styles/theme";
 
 import FilterSegment from "../components/FilterSegment";
 import { useBooks } from "../hooks/useBooks";
@@ -181,7 +183,10 @@ export default function LibraryScreen() {
   if (error) return <Text>Erreur : {error.message}</Text>;
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      edges={["left", "right"]}
+    >
       <SearchBar onSearch={setSearch} onScanPress={openScanner} />
       {showScanMessage && (
         <ScanFeedBack
