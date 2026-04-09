@@ -25,7 +25,7 @@ import { formatDateFr } from "@/utils/dates";
 import { getBookImageUri } from "@/utils/image";
 import { getBookColor } from "@/utils/style";
 
-import { colors } from "@/styles/theme";
+import { bookShadow, colors, radius } from "@/styles/theme";
 
 type BookDetailsRouteProp = RouteProp<LibraryStackParamList, "BookDetails">;
 type BookDetailNavigationProp = NativeStackNavigationProp<
@@ -112,8 +112,8 @@ const BookDetailsScreen = () => {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: "#F5F7FA" }}
-      edges={["left", "right", "bottom"]}
+      style={{ flex: 1, backgroundColor: colors.background }}
+      edges={["left", "right"]}
     >
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.topSection}>
@@ -121,10 +121,12 @@ const BookDetailsScreen = () => {
             <Image
               key={imageUri}
               source={{ uri: imageUri }}
-              style={styles.cover}
+              style={[styles.cover, bookShadow]}
             />
           ) : (
-            <View style={[styles.placeholderCover, { backgroundColor }]}>
+            <View
+              style={[styles.placeholderCover, { backgroundColor }, bookShadow]}
+            >
               <Text style={styles.placeholderLetter}>
                 {book.title?.charAt(0)?.toUpperCase() || "L"}
               </Text>
@@ -234,6 +236,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 16,
     backgroundColor: colors.background,
+    paddingBottom: 48,
   },
   center: {
     flex: 1,
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   errorText: {
-    color: colors.error,
+    color: colors.danger,
     fontSize: 16,
   },
   topSection: {
@@ -253,20 +256,20 @@ const styles = StyleSheet.create({
   cover: {
     width: 120,
     height: 180,
-    borderRadius: 12,
-    backgroundColor: "#E5E7EB",
+    borderRadius: radius.sm,
+    backgroundColor: colors.borderSoft,
   },
   placeholderCover: {
     width: 120,
     height: 180,
-    borderRadius: 12,
+    borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
   },
   placeholderLetter: {
     fontSize: 42,
     fontWeight: "700",
-    color: "white",
+    color: colors.white,
   },
   mainInfos: {
     flex: 1,
@@ -276,11 +279,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#0F172A",
+    color: colors.text,
   },
   author: {
     fontSize: 16,
-    color: "#475569",
+    color: colors.textSecondary,
   },
   badgesRow: {
     flexDirection: "row",
@@ -292,7 +295,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryMedium,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 999,
+    borderRadius: radius.full,
     alignSelf: "flex-start",
   },
   statusBadgeText: {
@@ -304,10 +307,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "#FEE2E2",
+    backgroundColor: colors.favoriteLight,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 999,
+    borderRadius: radius.full,
     alignSelf: "flex-start",
   },
   favoriteBadgeText: {
@@ -316,20 +319,20 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   card: {
-    backgroundColor: "white",
-    borderRadius: 16,
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
     padding: 16,
     gap: 14,
     shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
   sectionTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#0F172A",
+    color: colors.text,
   },
   infoRow: {
     flexDirection: "row",
@@ -338,23 +341,23 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 15,
-    color: "#64748B",
+    color: colors.muted,
   },
   infoValue: {
     flexShrink: 1,
     textAlign: "right",
     fontSize: 15,
     fontWeight: "600",
-    color: "#0F172A",
+    color: colors.text,
   },
   emptyText: {
-    color: "#64748B",
+    color: colors.muted,
     fontSize: 15,
   },
   actions: {
     gap: 12,
     paddingTop: 8,
-    paddingBottom: 24,
+    paddingBottom: 8,
   },
 });
 

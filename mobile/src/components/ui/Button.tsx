@@ -8,7 +8,7 @@ import {
 
 import type { ReactNode } from "react";
 
-import { colors } from "@/styles/theme";
+import { colors, radius } from "@/styles/theme";
 
 type Variant = "primary" | "secondary" | "danger";
 
@@ -70,7 +70,7 @@ export default function Button({
 const styles = StyleSheet.create({
   base: {
     minHeight: 54,
-    borderRadius: 14,
+    borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 16,

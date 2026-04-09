@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { getBookImageUri } from "@/utils/image";
 
-import { colors } from "@/styles/theme";
+import { colors, radius } from "@/styles/theme";
 
 type BookCoverFieldProps = {
   value?: string | null;
@@ -34,18 +34,14 @@ export default function BookCoverField({
         <Image source={{ uri: imageUri }} style={styles.coverPreview} />
       ) : (
         <View style={styles.coverPlaceholder}>
-          <Ionicons
-            name="image-outline"
-            size={32}
-            color={colors.imageOutline}
-          />
+          <Ionicons name="image-outline" size={32} color={colors.muted} />
           <Text style={styles.coverPlaceholderText}>Aucune couverture</Text>
         </View>
       )}
 
       {mode === "create" && !hasImage && (
         <Text style={styles.helperText}>
-          Ajouter une couverture en prenant une photo ou depuis la galerie.
+          Ajoutez une couverture en prenant une photo ou depuis la galerie.
         </Text>
       )}
 
@@ -65,7 +61,7 @@ export default function BookCoverField({
         <Pressable style={styles.imageActionButton} onPress={onTakePhoto}>
           <Ionicons name="camera-outline" size={20} color={colors.primary} />
           <Text style={styles.imageActionText}>
-            {hasImage ? "Prendre une photo" : "Prendre une photo"}
+            {hasImage ? "Changer la photo" : "Prendre une photo"}
           </Text>
         </Pressable>
 
@@ -79,7 +75,7 @@ export default function BookCoverField({
 
       {!!value && (
         <Pressable style={styles.removeImageButton} onPress={onRemoveImage}>
-          <Text style={styles.removeImageText}>Retirer l’image</Text>
+          <Text style={styles.removeImageText}>Retirer l&apos;image</Text>
         </Pressable>
       )}
     </View>
@@ -100,27 +96,27 @@ const styles = StyleSheet.create({
   coverPreview: {
     width: "100%",
     height: 220,
-    borderRadius: 14,
+    borderRadius: radius.md,
     resizeMode: "contain",
-    backgroundColor: "#E2E8F0",
+    backgroundColor: colors.borderSoft,
   },
   coverPlaceholder: {
     height: 220,
-    borderRadius: 14,
-    backgroundColor: "#F1F5F9",
+    borderRadius: radius.md,
+    backgroundColor: colors.inputBackground,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.borderSoft,
     borderStyle: "dashed",
   },
   coverPlaceholderText: {
-    color: "#64748B",
+    color: colors.muted,
     fontSize: 14,
   },
   helperText: {
-    color: "#64748B",
+    color: colors.muted,
     fontSize: 13,
     lineHeight: 18,
     marginTop: 8,
@@ -133,18 +129,18 @@ const styles = StyleSheet.create({
   imageActionButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: 12,
+    borderColor: colors.primary,
+    borderRadius: radius.md,
     paddingVertical: 12,
     paddingHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: colors.background,
+    backgroundColor: colors.primaryLight,
   },
   imageActionText: {
-    color: "#0F172A",
+    color: colors.primary,
     fontWeight: "600",
     fontSize: 14,
   },
@@ -154,7 +150,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   removeImageText: {
-    color: colors.error,
+    color: colors.danger,
     fontSize: 14,
     fontWeight: "600",
   },

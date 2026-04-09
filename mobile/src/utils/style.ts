@@ -17,16 +17,16 @@ const colors = [
 //   "#F2D6DC",
 //   "#DCEAD7",
 // ];
-const fallbackColors = [
-  "#DCE7D9", // vert sauge clair
-  "#E8DAD1", // beige rosé
-  "#DDE6ED", // bleu gris clair
-  "#E6DFF1", // violet très doux
-  "#F1DDE4", // rose poudré
-  "#E3EAD7", // vert olive très clair
-];
+// const fallbackColors = [
+//   "#DCE7D9", // vert sauge clair
+//   "#E8DAD1", // beige rosé
+//   "#DDE6ED", // bleu gris clair
+//   "#E6DFF1", // violet très doux
+//   "#F1DDE4", // rose poudré
+//   "#E3EAD7", // vert olive très clair
+// ];
 
 export function getBookColor(title: string) {
-  const index = title.length % fallbackColors.length;
-  return fallbackColors[index];
+  const index = title.length % colors.length;
+  return colors[index];
 }
