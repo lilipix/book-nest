@@ -71,11 +71,11 @@ export const formStyles = StyleSheet.create({
   },
 
   inputError: {
-    borderColor: colors.error,
+    borderColor: colors.danger,
   },
 
   error: {
-    color: colors.error,
+    color: colors.danger,
     marginTop: 6,
     fontSize: 13,
   },
@@ -117,7 +117,7 @@ export const formStyles = StyleSheet.create({
 
   switchLabel: {
     fontSize: 15,
-    color: colors.text,
+    color: colors.textSecondary,
     fontWeight: "600",
     marginBottom: 4,
   },

@@ -204,7 +204,7 @@ export default function EditBookScreen() {
       >
         <View style={formStyles.header}>
           <Text style={formStyles.subtitle}>
-            Modifiez le statut, la couverture et les informations de prêt
+            Modifiez le statut, la couverture et les informations de prêt.
           </Text>
         </View>
 

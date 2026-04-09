@@ -44,7 +44,7 @@ import { fetchBookByIsbn } from "@/services/bookLookup";
 import { uploadBookCover } from "@/services/uploadBookCover";
 
 import { formStyles } from "@/styles/formStyles";
-import { colors } from "@/styles/theme";
+import { colors, radius } from "@/styles/theme";
 
 type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
@@ -237,7 +237,7 @@ export default function AddBookScreen() {
       >
         <View style={formStyles.header}>
           <Text style={formStyles.subtitle}>
-            Scannez un ISBN ou complètez le formulaire manuellement
+            Scannez un ISBN ou complètez le formulaire manuellement.
           </Text>
         </View>
 
@@ -381,24 +381,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  secondaryButton: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryLight,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-
-  secondaryButtonText: {
-    color: colors.primary,
-    fontWeight: "600",
-    fontSize: 15,
-  },
-
   previewWrapper: {
     marginTop: 8,
     alignItems: "center",
@@ -414,7 +396,7 @@ const styles = StyleSheet.create({
   previewImage: {
     width: 100,
     height: 150,
-    borderRadius: 12,
+    borderRadius: radius.sm,
     backgroundColor: colors.borderSoft,
   },
 });

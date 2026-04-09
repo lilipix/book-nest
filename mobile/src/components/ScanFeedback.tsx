@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors } from "@/styles/theme";
+import { colors, radius } from "@/styles/theme";
 
 type ScanFeedbackProps = {
   found?: boolean;
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 12,
     padding: 12,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: "#F0FDFA",
     borderWidth: 1,
     borderColor: "#99F6E4",
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.primary,
     backgroundColor: colors.background,

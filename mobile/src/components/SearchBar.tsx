@@ -3,6 +3,8 @@ import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
+import { radius } from "@/styles/theme";
+
 type SearchBarProps = {
   onSearch: (text: string) => void;
   onScanPress: () => void;
@@ -51,7 +53,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 16,
     marginVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.sm,
   },
 
   input: {

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Filter } from "@/types";
 
-import { colors } from "@/styles/theme";
+import { colors, radius } from "@/styles/theme";
 
 type FilterSegmentProps = {
   active?: Filter;
@@ -56,11 +56,12 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 18,
+    borderRadius: radius.lg,
   },
 
   text: {
     fontSize: 14,
+    color: colors.textSecondary,
   },
 
   inactive: {

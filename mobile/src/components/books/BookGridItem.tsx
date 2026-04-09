@@ -7,7 +7,7 @@ import { Book, BookStatus } from "@/gql/graphql";
 import { getBookImageUri } from "@/utils/image";
 import { getBookColor } from "@/utils/style";
 
-import { colors } from "@/styles/theme";
+import { bookShadow, colors, radius } from "@/styles/theme";
 
 type BookGridItemProps = {
   book: Book;
@@ -32,18 +32,23 @@ export default function BookGridItem({
           </View>
         )}
         {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.cover} />
+          <Image
+            source={{ uri: imageUri }}
+            style={[styles.cover, bookShadow]}
+          />
         ) : (
-          <View style={[styles.placeholder, { backgroundColor }]}>
-            <Text numberOfLines={4} style={styles.placeholderTitle}>
-              {book.title}
+          <View
+            style={[styles.placeholderCover, { backgroundColor }, bookShadow]}
+          >
+            <Text style={styles.placeholderLetter}>
+              {book.title?.charAt(0)?.toUpperCase() || "L"}
             </Text>
           </View>
         )}
 
         {book.isFavorite && (
           <View style={[styles.badge, styles.favorite]}>
-            <Ionicons name="heart" size={12} color={colors.error} />
+            <Ionicons name="heart" size={12} color={colors.danger} />
           </View>
         )}
 
@@ -88,27 +93,29 @@ const styles = StyleSheet.create({
   cover: {
     width: 110,
     height: 160,
-    borderRadius: 12,
-    backgroundColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
+    borderRadius: radius.sm,
+    // shadowColor: "#000",
+    // shadowOpacity: 0.12,
+    // shadowRadius: 6,
+    // shadowOffset: { width: 0, height: 3 },
+    // elevation: 3,
   },
-  placeholder: {
+  placeholderCover: {
     width: 110,
     height: 160,
-    borderRadius: 12,
-    justifyContent: "center",
+    borderRadius: radius.sm,
     alignItems: "center",
-    padding: 10,
+    justifyContent: "center",
+    // shadowColor: "#000",
+    // shadowOpacity: 0.12,
+    // shadowRadius: 6,
+    // shadowOffset: { width: 0, height: 3 },
+    // elevation: 3,
   },
-  placeholderTitle: {
-    color: "#1F2937",
-    fontSize: 12,
-    textAlign: "center",
-    fontWeight: "600",
+  placeholderLetter: {
+    fontSize: 42,
+    fontWeight: "700",
+    color: colors.white,
   },
   title: {
     fontSize: 13,
@@ -120,7 +127,7 @@ const styles = StyleSheet.create({
   badge: {
     position: "absolute",
     padding: 4,
-    borderRadius: 10,
+    borderRadius: radius.md,
     zIndex: 10,
   },
   favorite: {
@@ -145,7 +152,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0F766E",
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 999,
+    borderRadius: radius.full,
     zIndex: 2,
   },
   foundBadgeText: {
