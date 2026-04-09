@@ -9,7 +9,7 @@ type Props = {
   hint?: string;
 };
 
-export default function SettingSwitchRow({
+export default function OptionSwitchRow({
   label,
   value,
   onValueChange,
