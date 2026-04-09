@@ -31,7 +31,7 @@ import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
 import { useUpdateBook } from "@/hooks/useUpdateBook";
 
 import BookCoverField from "@/components/books/BookCoverFields";
-import SettingSwitchRow from "@/components/books/SettingSwitchRow";
+import SettingSwitchRow from "@/components/books/OptionSwitchRow";
 import StatusSelector from "@/components/books/StatusSelector";
 import Button from "@/components/ui/Button";
 

@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 
@@ -34,7 +33,8 @@ import { AddBookStackParamList } from "@/navigation/types";
 import { useBookCoverPicker } from "@/hooks/useBookCoverPicker";
 
 import BookCoverField from "@/components/books/BookCoverFields";
-import SettingSwitchRow from "@/components/books/SettingSwitchRow";
+import FormField from "@/components/books/FormField";
+import SettingSwitchRow from "@/components/books/OptionSwitchRow";
 import StatusSelector from "@/components/books/StatusSelector";
 import Button from "@/components/ui/Button";
 
@@ -274,22 +274,13 @@ export default function AddBookScreen() {
             control={control}
             name="title"
             render={({ field: { onChange, value } }) => (
-              <View style={formStyles.fieldGroup}>
-                <Text style={formStyles.label}>Titre</Text>
-                <TextInput
-                  placeholder="Ex. Le Petit Prince"
-                  placeholderTextColor={colors.muted}
-                  value={value}
-                  onChangeText={onChange}
-                  style={[
-                    formStyles.input,
-                    errors.title && formStyles.inputError,
-                  ]}
-                />
-                {errors.title && (
-                  <Text style={formStyles.error}>{errors.title.message}</Text>
-                )}
-              </View>
+              <FormField
+                label="Titre"
+                placeholder="Ex. Le Petit Prince"
+                value={value}
+                onChangeText={onChange}
+                error={errors.title?.message}
+              />
             )}
           />
 
@@ -297,22 +288,13 @@ export default function AddBookScreen() {
             control={control}
             name="author"
             render={({ field: { onChange, value } }) => (
-              <View style={formStyles.fieldGroup}>
-                <Text style={formStyles.label}>Auteur</Text>
-                <TextInput
-                  placeholder="Ex. Antoine de Saint-Exupéry"
-                  placeholderTextColor={colors.muted}
-                  value={value}
-                  onChangeText={onChange}
-                  style={[
-                    formStyles.input,
-                    errors.author && formStyles.inputError,
-                  ]}
-                />
-                {errors.author && (
-                  <Text style={formStyles.error}>{errors.author.message}</Text>
-                )}
-              </View>
+              <FormField
+                label="Auteur"
+                placeholder="Ex. Antoine de Saint-Exupéry"
+                value={value}
+                onChangeText={onChange}
+                error={errors.author?.message}
+              />
             )}
           />
 
