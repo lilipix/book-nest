@@ -17,7 +17,6 @@ export const colors = {
   favorite: "#E11D48",
   favoriteLight: "#FEE2E2",
   white: "#FFFFFF",
-  imageOutline: "#94A3B8",
 };
 
 export const radius = {

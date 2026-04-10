@@ -4,7 +4,9 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { getBookImageUri } from "@/utils/image";
 
-import { colors, radius } from "@/styles/theme";
+import { colors, radius, spacing } from "@/styles/theme";
+
+import Button from "../ui/Button";
 
 type BookCoverFieldProps = {
   value?: string | null;
@@ -74,9 +76,11 @@ export default function BookCoverField({
       </View>
 
       {!!value && (
-        <Pressable style={styles.removeImageButton} onPress={onRemoveImage}>
-          <Text style={styles.removeImageText}>Retirer l&apos;image</Text>
-        </Pressable>
+        <Button
+          label="Retirer l'image"
+          onPress={onRemoveImage}
+          variant="danger"
+        />
       )}
     </View>
   );
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputBackground,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.borderSoft,
     borderStyle: "dashed",
@@ -119,20 +123,21 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 13,
     lineHeight: 18,
-    marginTop: 8,
+    marginTop: spacing.sm,
     marginBottom: 10,
   },
   imageActions: {
     flexDirection: "row",
     gap: 10,
+    marginVertical: spacing.md,
   },
   imageActionButton: {
     flex: 1,
     borderWidth: 1,
     borderColor: colors.primary,
     borderRadius: radius.md,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -147,7 +152,7 @@ const styles = StyleSheet.create({
   removeImageButton: {
     alignSelf: "flex-start",
     paddingVertical: 6,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   removeImageText: {
     color: colors.danger,
