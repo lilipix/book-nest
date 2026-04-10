@@ -25,7 +25,7 @@ import { formatDateFr } from "@/utils/dates";
 import { getBookImageUri } from "@/utils/image";
 import { getBookColor } from "@/utils/style";
 
-import { bookShadow, colors, radius } from "@/styles/theme";
+import { bookShadow, colors, radius, spacing } from "@/styles/theme";
 
 type BookDetailsRouteProp = RouteProp<LibraryStackParamList, "BookDetails">;
 type BookDetailNavigationProp = NativeStackNavigationProp<
@@ -33,16 +33,16 @@ type BookDetailNavigationProp = NativeStackNavigationProp<
   "BookDetails"
 >;
 
-function getStatusLabel(status?: BookStatus | null) {
+function getStatusBadge(status?: BookStatus | null) {
   switch (status) {
     case BookStatus.Read:
-      return "Lu";
+      return { label: "Lu", icon: "checkmark-done-outline" as const };
     case BookStatus.Unread:
-      return "Non lu";
+      return { label: "Non lu", icon: "close-outline" as const };
     case BookStatus.ToRead:
-      return "À lire";
+      return { label: "À lire", icon: "book-outline" as const };
     default:
-      return "Non défini";
+      return { label: "Non défini", icon: "help-circle-outline" as const };
   }
 }
 const BookDetailsScreen = () => {
@@ -139,8 +139,13 @@ const BookDetailsScreen = () => {
 
             <View style={styles.badgesRow}>
               <View style={styles.statusBadge}>
+                <Ionicons
+                  name={getStatusBadge(book.status).icon}
+                  size={14}
+                  color={colors.primary}
+                />
                 <Text style={styles.statusBadgeText}>
-                  {getStatusLabel(book.status)}
+                  {getStatusBadge(book.status).label}
                 </Text>
               </View>
 
@@ -159,7 +164,9 @@ const BookDetailsScreen = () => {
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Statut</Text>
-            <Text style={styles.infoValue}>{getStatusLabel(book.status)}</Text>
+            <Text style={styles.infoValue}>
+              {getStatusBadge(book.status).label}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -233,8 +240,8 @@ const BookDetailsScreen = () => {
 
 const styles = StyleSheet.create({
   content: {
-    padding: 16,
-    gap: 16,
+    padding: spacing.lg,
+    gap: spacing.lg,
     backgroundColor: colors.background,
     paddingBottom: 48,
   },
@@ -242,15 +249,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
+    padding: spacing.xxl,
   },
   errorText: {
     color: colors.danger,
-    fontSize: 16,
+    fontSize: spacing.lg,
   },
   topSection: {
     flexDirection: "row",
-    gap: 16,
+    gap: spacing.lg,
     alignItems: "flex-start",
   },
   cover: {
@@ -273,8 +280,8 @@ const styles = StyleSheet.create({
   },
   mainInfos: {
     flex: 1,
-    gap: 8,
-    paddingTop: 4,
+    gap: spacing.sm,
+    paddingTop: spacing.xs,
   },
   title: {
     fontSize: 24,
@@ -288,10 +295,13 @@ const styles = StyleSheet.create({
   badgesRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-    marginTop: 8,
+    gap: spacing.sm,
+    marginTop: spacing.sm,
   },
   statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
     backgroundColor: colors.primaryMedium,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -306,7 +316,7 @@ const styles = StyleSheet.create({
   favoriteBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: spacing.sm,
     backgroundColor: colors.favoriteLight,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -321,8 +331,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
-    padding: 16,
-    gap: 14,
+    padding: spacing.md,
+    gap: spacing.lg,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -337,7 +347,7 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 16,
+    gap: spacing.lg,
   },
   infoLabel: {
     fontSize: 15,
@@ -355,9 +365,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   actions: {
-    gap: 12,
-    paddingTop: 8,
-    paddingBottom: 8,
+    gap: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.sm,
   },
 });
 

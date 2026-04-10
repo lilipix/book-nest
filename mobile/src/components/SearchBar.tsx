@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
-import { radius } from "@/styles/theme";
+import { radius, spacing } from "@/styles/theme";
 
 type SearchBarProps = {
   onSearch: (text: string) => void;
@@ -51,14 +51,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    marginHorizontal: 16,
-    marginVertical: 8,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.sm,
     borderRadius: radius.sm,
   },
 
   input: {
     flex: 1,
-    marginHorizontal: 8,
-    fontSize: 16,
+    marginHorizontal: spacing.sm,
+    fontSize: spacing.lg,
   },
 });

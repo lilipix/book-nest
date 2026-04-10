@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-import { colors } from "./theme";
+import { colors, radius, spacing } from "./theme";
 
 export const formStyles = StyleSheet.create({
   container: {
@@ -9,12 +9,12 @@ export const formStyles = StyleSheet.create({
   },
 
   content: {
-    padding: 20,
+    padding: spacing.xl,
     paddingBottom: 40,
   },
 
   header: {
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
 
   subtitle: {
@@ -31,9 +31,9 @@ export const formStyles = StyleSheet.create({
 
   card: {
     backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -45,7 +45,7 @@ export const formStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: colors.text,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
 
   fieldGroup: {
@@ -64,8 +64,8 @@ export const formStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: spacing.md,
+    borderRadius: spacing.md,
     fontSize: 15,
     color: colors.text,
   },
@@ -119,7 +119,7 @@ export const formStyles = StyleSheet.create({
     fontSize: 15,
     color: colors.textSecondary,
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
 
   switchHint: {

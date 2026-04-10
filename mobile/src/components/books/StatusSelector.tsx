@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { BookStatus } from "@/gql/graphql";
 
-import { colors, radius } from "@/styles/theme";
+import { colors, radius, spacing } from "@/styles/theme";
 
 type Props = {
   value: BookStatus;
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#F3F4F6",
     borderRadius: radius.sm,
-    padding: 4,
+    padding: spacing.xs,
   },
 
   button: {

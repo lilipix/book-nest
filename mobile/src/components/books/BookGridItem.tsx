@@ -7,7 +7,7 @@ import { Book, BookStatus } from "@/gql/graphql";
 import { getBookImageUri } from "@/utils/image";
 import { getBookColor } from "@/utils/style";
 
-import { bookShadow, colors, radius } from "@/styles/theme";
+import { bookShadow, colors, radius, spacing } from "@/styles/theme";
 
 type BookGridItemProps = {
   book: Book;
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 6,
     alignItems: "center",
-    backgroundColor: "#F5F7FA",
+    backgroundColor: colors.background,
   },
 
   coverContainer: {
@@ -94,11 +94,6 @@ const styles = StyleSheet.create({
     width: 110,
     height: 160,
     borderRadius: radius.sm,
-    // shadowColor: "#000",
-    // shadowOpacity: 0.12,
-    // shadowRadius: 6,
-    // shadowOffset: { width: 0, height: 3 },
-    // elevation: 3,
   },
   placeholderCover: {
     width: 110,
@@ -106,11 +101,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     alignItems: "center",
     justifyContent: "center",
-    // shadowColor: "#000",
-    // shadowOpacity: 0.12,
-    // shadowRadius: 6,
-    // shadowOffset: { width: 0, height: 3 },
-    // elevation: 3,
   },
   placeholderLetter: {
     fontSize: 42,
@@ -126,37 +116,37 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: "absolute",
-    padding: 4,
+    padding: spacing.xs,
     borderRadius: radius.md,
     zIndex: 10,
   },
   favorite: {
-    top: 4,
-    right: 4,
-    backgroundColor: "white",
+    top: spacing.xs,
+    right: spacing.xs,
+    backgroundColor: colors.white,
   },
   read: {
-    bottom: 4,
-    left: 4,
-    backgroundColor: "white",
+    bottom: spacing.xs,
+    left: spacing.xs,
+    backgroundColor: colors.white,
   },
   borrowed: {
-    bottom: 4,
-    right: 4,
-    backgroundColor: "white",
+    bottom: spacing.xs,
+    right: spacing.xs,
+    backgroundColor: colors.white,
   },
   foundBadge: {
     position: "absolute",
-    top: 8,
-    left: 8,
-    backgroundColor: "#0F766E",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    top: spacing.sm,
+    left: spacing.sm,
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: radius.full,
     zIndex: 2,
   },
   foundBadgeText: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 12,
     fontWeight: "600",
   },

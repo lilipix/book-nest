@@ -38,7 +38,7 @@ import SearchBar from "@/components/SearchBar";
 
 import { Filter } from "@/types";
 
-import { colors } from "@/styles/theme";
+import { colors, spacing } from "@/styles/theme";
 
 import FilterSegment from "../components/FilterSegment";
 import { useBooks } from "../hooks/useBooks";
@@ -226,10 +226,10 @@ export default function LibraryScreen() {
 }
 const styles = StyleSheet.create({
   bookCountContainer: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-    padding: 8,
-    borderRadius: 12,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: spacing.md,
     backgroundColor: "#F8FAFC",
     borderWidth: 1,
     borderColor: "#E2E8F0",

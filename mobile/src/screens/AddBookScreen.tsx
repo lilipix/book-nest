@@ -44,7 +44,7 @@ import { fetchBookByIsbn } from "@/services/bookLookup";
 import { uploadBookCover } from "@/services/uploadBookCover";
 
 import { formStyles } from "@/styles/formStyles";
-import { colors, radius } from "@/styles/theme";
+import { colors, radius, spacing } from "@/styles/theme";
 
 type AddBookRouteProp = RouteProp<AddBookStackParamList, "AddBookHome">;
 
@@ -372,8 +372,8 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
-    gap: 8,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
 
   infoText: {
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
 
   previewWrapper: {
-    marginTop: 8,
+    marginTop: spacing.sm,
     alignItems: "center",
   },
 

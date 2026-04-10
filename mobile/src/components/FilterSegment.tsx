@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Filter } from "@/types";
 
-import { colors, radius } from "@/styles/theme";
+import { colors, radius, spacing } from "@/styles/theme";
 
 type FilterSegmentProps = {
   active?: Filter;
@@ -49,13 +49,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginHorizontal: 16,
-    marginVertical: 8,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.sm,
   },
 
   button: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderRadius: radius.lg,
   },
 
