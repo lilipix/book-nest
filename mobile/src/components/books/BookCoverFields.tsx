@@ -1,8 +1,12 @@
-import { Image, Pressable, StyleSheet,Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
 import { getBookImageUri } from "@/utils/image";
+
+import { colors, radius, spacing } from "@/styles/theme";
+
+import Button from "../ui/Button";
 
 type BookCoverFieldProps = {
   value?: string | null;
@@ -26,20 +30,20 @@ export default function BookCoverField({
 
   return (
     <View style={styles.fieldGroup}>
-      <Text style={styles.label}>{label}</Text>
+      {mode === "create" && <Text style={styles.label}>{label}</Text>}
 
       {hasImage ? (
         <Image source={{ uri: imageUri }} style={styles.coverPreview} />
       ) : (
         <View style={styles.coverPlaceholder}>
-          <Ionicons name="image-outline" size={32} color="#94A3B8" />
+          <Ionicons name="image-outline" size={32} color={colors.muted} />
           <Text style={styles.coverPlaceholderText}>Aucune couverture</Text>
         </View>
       )}
 
       {mode === "create" && !hasImage && (
         <Text style={styles.helperText}>
-          Ajouter une couverture en prenant une photo ou depuis la galerie.
+          Ajoutez une couverture en prenant une photo ou depuis la galerie.
         </Text>
       )}
 
@@ -57,14 +61,14 @@ export default function BookCoverField({
 
       <View style={styles.imageActions}>
         <Pressable style={styles.imageActionButton} onPress={onTakePhoto}>
-          <Ionicons name="camera-outline" size={20} color="#0F766E" />
+          <Ionicons name="camera-outline" size={20} color={colors.primary} />
           <Text style={styles.imageActionText}>
-            {hasImage ? "Prendre une photo" : "Prendre une photo"}
+            {hasImage ? "Changer la photo" : "Prendre une photo"}
           </Text>
         </Pressable>
 
         <Pressable style={styles.imageActionButton} onPress={onPickImage}>
-          <Ionicons name="images-outline" size={20} color="#0F766E" />
+          <Ionicons name="images-outline" size={20} color={colors.primary} />
           <Text style={styles.imageActionText}>
             {hasImage ? "Remplacer" : "Choisir"}
           </Text>
@@ -72,9 +76,11 @@ export default function BookCoverField({
       </View>
 
       {!!value && (
-        <Pressable style={styles.removeImageButton} onPress={onRemoveImage}>
-          <Text style={styles.removeImageText}>Retirer l’image</Text>
-        </Pressable>
+        <Button
+          label="Retirer l'image"
+          onPress={onRemoveImage}
+          variant="danger"
+        />
       )}
     </View>
   );
@@ -88,67 +94,68 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#374151",
+    color: colors.textSecondary,
     marginBottom: 6,
   },
   coverPreview: {
     width: "100%",
     height: 220,
-    borderRadius: 14,
+    borderRadius: radius.md,
     resizeMode: "contain",
-    backgroundColor: "#E2E8F0",
+    backgroundColor: colors.borderSoft,
   },
   coverPlaceholder: {
     height: 220,
-    borderRadius: 14,
-    backgroundColor: "#F1F5F9",
+    borderRadius: radius.md,
+    backgroundColor: colors.inputBackground,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: spacing.sm,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.borderSoft,
     borderStyle: "dashed",
   },
   coverPlaceholderText: {
-    color: "#64748B",
+    color: colors.muted,
     fontSize: 14,
   },
   helperText: {
-    color: "#64748B",
+    color: colors.muted,
     fontSize: 13,
     lineHeight: 18,
-    marginTop: 8,
+    marginTop: spacing.sm,
     marginBottom: 10,
   },
   imageActions: {
     flexDirection: "row",
     gap: 10,
+    marginVertical: spacing.md,
   },
   imageActionButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    borderColor: colors.primary,
+    borderRadius: radius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.primaryLight,
   },
   imageActionText: {
-    color: "#0F172A",
+    color: colors.primary,
     fontWeight: "600",
     fontSize: 14,
   },
   removeImageButton: {
     alignSelf: "flex-start",
     paddingVertical: 6,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   removeImageText: {
-    color: "#DC2626",
+    color: colors.danger,
     fontSize: 14,
     fontWeight: "600",
   },

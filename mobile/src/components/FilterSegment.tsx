@@ -1,7 +1,9 @@
 import React from "react";
-import { Pressable, StyleSheet,Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Filter } from "@/types";
+
+import { colors, radius, spacing } from "@/styles/theme";
 
 type FilterSegmentProps = {
   active?: Filter;
@@ -47,18 +49,19 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginHorizontal: 16,
-    marginVertical: 8,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.sm,
   },
 
   button: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 18,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
   },
 
   text: {
     fontSize: 14,
+    color: colors.textSecondary,
   },
 
   inactive: {
@@ -66,17 +69,17 @@ const styles = StyleSheet.create({
   },
 
   inactiveText: {
-    color: "#374151",
+    color: colors.textSecondary,
     fontWeight: "500",
   },
 
   active: {
-    backgroundColor: "#0F766E",
+    backgroundColor: colors.primary,
     transform: [{ scale: 1.05 }],
   },
 
   activeText: {
-    color: "#FFFFFF",
+    color: colors.white,
     fontWeight: "600",
   },
 });

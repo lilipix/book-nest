@@ -32,11 +32,13 @@ import {
   RootStackParamList,
 } from "@/navigation/types";
 
-import BookGridItem from "@/components/BookGridItem";
+import BookGridItem from "@/components/books/BookGridItem";
 import ScanFeedBack from "@/components/ScanFeedback";
 import SearchBar from "@/components/SearchBar";
 
 import { Filter } from "@/types";
+
+import { colors, spacing } from "@/styles/theme";
 
 import FilterSegment from "../components/FilterSegment";
 import { useBooks } from "../hooks/useBooks";
@@ -181,7 +183,10 @@ export default function LibraryScreen() {
   if (error) return <Text>Erreur : {error.message}</Text>;
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      edges={["left", "right"]}
+    >
       <SearchBar onSearch={setSearch} onScanPress={openScanner} />
       {showScanMessage && (
         <ScanFeedBack
@@ -220,51 +225,14 @@ export default function LibraryScreen() {
   );
 }
 const styles = StyleSheet.create({
-  // scanCard: {
-  //   marginHorizontal: 16,
-  //   marginTop: 8,
-  //   marginBottom: 12,
-  //   padding: 12,
-  //   borderRadius: 12,
-  //   backgroundColor: "#F0FDFA",
-  //   borderWidth: 1,
-  //   borderColor: "#99F6E4",
-  // },
-
-  // scanCardText: {
-  //   color: "#065F46",
-  //   fontSize: 14,
-  //   fontWeight: "600",
-  //   alignSelf: "center",
-  // },
   bookCountContainer: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-    padding: 8,
-    borderRadius: 12,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: spacing.md,
     backgroundColor: "#F8FAFC",
     borderWidth: 1,
     borderColor: "#E2E8F0",
     alignItems: "center",
   },
-  // addScannedButton: {
-  //   alignSelf: "center",
-  //   marginTop: 10,
-  //   paddingHorizontal: 12,
-  //   paddingVertical: 8,
-  //   borderRadius: 10,
-  //   borderWidth: 1,
-  //   borderColor: "#0F766E",
-  //   backgroundColor: "#FFFFFF",
-  // },
-
-  // addScannedButtonText: {
-  //   color: "#0F766E",
-  //   fontSize: 14,
-  //   fontWeight: "600",
-  // },
-
-  // pressed: {
-  //   opacity: 0.75,
-  // },
 });

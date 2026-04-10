@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { colors, radius, spacing } from "@/styles/theme";
+
 type ScanFeedbackProps = {
   found?: boolean;
   scannedIsbn: string | null;
@@ -34,11 +36,11 @@ const ScanFeedback = ({ found, scannedIsbn, onAddBook }: ScanFeedbackProps) => {
 };
 const styles = StyleSheet.create({
   scanCard: {
-    marginHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 12,
-    padding: 12,
-    borderRadius: 12,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.md,
     backgroundColor: "#F0FDFA",
     borderWidth: 1,
     borderColor: "#99F6E4",
@@ -54,16 +56,16 @@ const styles = StyleSheet.create({
   addScannedButton: {
     alignSelf: "center",
     marginTop: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: "#0F766E",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.primary,
+    backgroundColor: colors.background,
   },
 
   addScannedButtonText: {
-    color: "#0F766E",
+    color: colors.primary,
     fontSize: 14,
     fontWeight: "600",
   },

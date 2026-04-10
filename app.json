@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "0a597ac6-7bf3-4d3b-8927-e160b4932c8b"
+      }
+    },
+    "android": {
+      "package": "com.lilipix.booknest"
+    }
+  }
+}
