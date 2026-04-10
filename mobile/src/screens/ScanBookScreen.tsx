@@ -11,6 +11,8 @@ import {
 } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 
+import { colors, spacing } from "@/styles/theme";
+
 type ScanBookParamList = {
   ScanBook: { mode: "search" | "add" };
 };
@@ -125,25 +127,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
+    padding: spacing.xxl,
   },
   overlay: {
     position: "absolute",
     bottom: 40,
-    left: 20,
-    right: 20,
+    left: spacing.xl,
+    right: spacing.xl,
     backgroundColor: "rgba(0,0,0,0.7)",
-    padding: 16,
-    borderRadius: 12,
-    gap: 10,
+    padding: spacing.lg,
+    borderRadius: spacing.md,
+    gap: spacing.sm,
   },
   text: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 16,
     textAlign: "center",
   },
   isbn: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
