@@ -43,7 +43,7 @@ import {
   isoToFr,
   normalizeIsoDate,
 } from "@/utils/dates";
-import { isLocalImage } from "@/utils/image";
+import { isLocalImage, optimizeImageBeforeUpload } from "@/utils/image";
 
 import { uploadBookCover } from "@/services/uploadBookCover";
 
@@ -168,7 +168,8 @@ export default function EditBookScreen() {
       });
 
       if (data.image && isLocalImage(data.image)) {
-        await uploadBookCover(String(bookId), data.image);
+        const optimizedImage = await optimizeImageBeforeUpload(data.image);
+        await uploadBookCover(String(bookId), optimizedImage.uri);
       }
 
       Alert.alert("Succès", "Livre mis à jour.");
