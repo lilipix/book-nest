@@ -57,25 +57,6 @@ async function initiliaze() {
 
   app.use("/uploads", express.static("uploads"));
 
-  // app.post("/upload", upload.single("file"), async (req, res) => {
-  //   if (!req.file) {
-  //     return res.status(400).json({ error: "Aucun fichier envoyé." });
-  //   }
-  //   const user = await getUserFromContext({
-  //     req,
-  //     res,
-  //     user: undefined as User | null | undefined,
-  //   });
-
-  //   if (!user) {
-  //     return res.status(401).json({ error: "Utilisateur non authentifié." });
-  //   }
-  //   user.profilePicture = req.file.path;
-  //   await datasource.getRepository(User).save(user);
-
-  //   res.json({ message: "Image saved." });
-  // });
-
   app.post("/books/:id/cover", upload.single("file"), async (req, res) => {
     const bookId = Number(req.params.id);
 
