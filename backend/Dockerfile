@@ -13,6 +13,8 @@ COPY tsconfig.json tsconfig.json
 COPY src src
 COPY migrations migrations
 
+RUN mkdir -p /app/uploads
+
 EXPOSE 5000
 
 CMD ["npm", "start"]
