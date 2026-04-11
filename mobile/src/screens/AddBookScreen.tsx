@@ -128,14 +128,32 @@ export default function AddBookScreen() {
 
       const bookId = res.data?.createBook?.id;
 
-      if (!bookId) throw new Error("ID manquant");
-
-      if (image && isLocalImage(image)) {
-        const optimizedImage = await optimizeImageBeforeUpload(image);
-        await uploadBookCover(bookId, optimizedImage.uri);
+      if (!bookId) {
+        throw new Error("ID manquant");
       }
 
       reset(defaultFormValues);
+
+      if (image && isLocalImage(image)) {
+        try {
+          const optimizedImage = await optimizeImageBeforeUpload(image);
+          await uploadBookCover(String(bookId), optimizedImage.uri);
+        } catch {
+          Alert.alert(
+            "Livre ajouté",
+            "Le livre a bien été ajouté, mais la couverture n'a pas pu être envoyée.",
+          );
+
+          navigation.navigate("MainTabs", {
+            screen: "Bibliothèque",
+            params: {
+              screen: "LibraryHome",
+            },
+          });
+
+          return;
+        }
+      }
 
       Alert.alert("Succès", "Livre créé");
 
@@ -147,6 +165,7 @@ export default function AddBookScreen() {
       });
     } catch (e: unknown) {
       let graphqlMessage = "Impossible de créer le livre.";
+
       if (typeof e === "object" && e !== null) {
         graphqlMessage =
           (e as { graphQLErrors?: { message?: string }[] })?.graphQLErrors?.[0]
@@ -164,10 +183,10 @@ export default function AddBookScreen() {
         Alert.alert("Livre déjà présent dans la bibliothèque", graphqlMessage);
         return;
       }
+
       Alert.alert("Erreur", graphqlMessage);
     }
   };
-
   const lastFetchedIsbn = useRef<string | null>(null);
 
   useEffect(() => {
