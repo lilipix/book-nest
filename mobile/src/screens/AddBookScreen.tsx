@@ -38,7 +38,7 @@ import SettingSwitchRow from "@/components/books/OptionSwitchRow";
 import StatusSelector from "@/components/books/StatusSelector";
 import Button from "@/components/ui/Button";
 
-import { isLocalImage } from "@/utils/image";
+import { isLocalImage, optimizeImageBeforeUpload } from "@/utils/image";
 
 import { fetchBookByIsbn } from "@/services/bookLookup";
 import { uploadBookCover } from "@/services/uploadBookCover";
@@ -131,7 +131,8 @@ export default function AddBookScreen() {
       if (!bookId) throw new Error("ID manquant");
 
       if (image && isLocalImage(image)) {
-        await uploadBookCover(bookId, image);
+        const optimizedImage = await optimizeImageBeforeUpload(image);
+        await uploadBookCover(bookId, optimizedImage.uri);
       }
 
       reset(defaultFormValues);
