@@ -1,3 +1,5 @@
+import { Alert } from "react-native";
+
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL!;
 
 export async function uploadBookCover(bookId: string, uri: string) {
@@ -24,11 +26,33 @@ export async function uploadBookCover(bookId: string, uri: string) {
     body: formData,
   });
 
-  const json = await res.json();
+  //   const json = await res.json();
+
+  //   if (!res.ok) {
+  //     throw new Error(json?.error || "Erreur upload image");
+  //   }
+
+  //   return json;
+  // }
+
+  const contentType = res.headers.get("content-type") || "";
+  const rawText = await res.text();
 
   if (!res.ok) {
-    throw new Error(json?.error || "Erreur upload image");
+    Alert.alert(
+      "Erreur upload",
+      `Status: ${res.status}\nType: ${contentType}\nRéponse: ${rawText.slice(0, 500)}`,
+    );
+    throw new Error(
+      `Upload failed - status ${res.status} - response: ${rawText}`,
+    );
   }
 
-  return json;
+  if (!contentType.includes("application/json")) {
+    Alert.alert(
+      "Réponse inattendue",
+      `Type: ${contentType}\nRéponse: ${rawText.slice(0, 500)}`,
+    );
+    throw new Error(`Réponse non JSON: ${rawText}`);
+  }
 }
