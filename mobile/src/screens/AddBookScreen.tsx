@@ -242,6 +242,7 @@ export default function AddBookScreen() {
       } finally {
         setIsFetchingBook(false);
         setLoadingBook(false);
+        setError(null);
       }
     };
     loadBook();
