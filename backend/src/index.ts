@@ -7,6 +7,7 @@ import { authChecker, getUserFromContext } from "./auth";
 import { datasource } from "./datasource";
 import { Book } from "./entities/Book";
 import { User } from "./entities/User";
+import { BookLookupResolver } from "./resolvers/BookLookupResolver";
 import { BookResolver } from "./resolvers/Books";
 import { UsersResolver } from "./resolvers/Users";
 import { upload } from "./utils/multer";
@@ -19,7 +20,7 @@ async function initiliaze() {
   console.info("Datasource is connected 🔌");
 
   const schema = await buildSchema({
-    resolvers: [UsersResolver, BookResolver],
+    resolvers: [UsersResolver, BookResolver, BookLookupResolver],
     validate: true,
     authChecker,
   });
