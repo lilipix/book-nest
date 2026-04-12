@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 
-import { useMutation } from "@apollo/client/react";
+import { useApolloClient, useMutation } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -68,6 +68,7 @@ export default function AddBookScreen() {
   const [loadingBook, setLoadingBook] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const client = useApolloClient();
   const { takePhoto, pickImageFromLibrary, removeImage } = useBookCoverPicker({
     onChange: (uri) =>
       setValue("image", uri ?? "", { shouldDirty: true, shouldValidate: true }),
@@ -200,18 +201,12 @@ export default function AddBookScreen() {
       try {
         setIsFetchingBook(true);
         setLoadingBook(true);
-        setError("");
-
-        const result = await fetchBookByIsbn(isbn);
+        setError(null);
+        const result = await fetchBookByIsbn(client, isbn);
 
         if (!result.found) {
-          setValue("title", "");
-          setValue("author", "");
-          setValue("image", "", { shouldDirty: true });
-          setError("Livre non trouvé, saisie manuelle requise.");
           return;
         }
-
         setValue("title", result.title);
         setValue("author", result.author);
         setValue("image", result.image, { shouldDirty: true });
@@ -220,6 +215,8 @@ export default function AddBookScreen() {
           setError(
             "Livre trouvé, mais aucune couverture n'est disponible. Vous pouvez prendre une photo.",
           );
+        } else {
+          setError(null);
         }
       } catch (e: unknown) {
         const message =
@@ -242,12 +239,11 @@ export default function AddBookScreen() {
       } finally {
         setIsFetchingBook(false);
         setLoadingBook(false);
-        setError(null);
       }
     };
     loadBook();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isbn, setValue]);
+  }, [isbn, setValue, client]);
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
