@@ -105,4 +105,17 @@ export class BookResolver {
       throw new Error("Failed to delete book");
     }
   }
+
+  @Query(() => Book, { nullable: true })
+  async findLibraryBookByIsbn(@Arg("isbn") isbn: string): Promise<Book | null> {
+    const cleanedIsbn = isbn.trim();
+
+    if (!cleanedIsbn) {
+      throw new Error("ISBN manquant");
+    }
+
+    return Book.findOne({
+      where: { isbn: cleanedIsbn },
+    });
+  }
 }
