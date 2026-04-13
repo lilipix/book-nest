@@ -59,7 +59,7 @@ export class User extends BaseEntity {
   // email unique insensible à la casse (citext)
   @Column({ type: "citext", unique: true, nullable: false })
   @IsEmail({}, { message: "Invalid email" })
-  @Field({ nullable: true }) // this should be nullable because only admins + self user may see this, null otherwise
+  @Field() // TODO AJOUTER a terme nullable ou voir comment faire autrement this should be nullable because only admins + self user may see this, null otherwise
   @UseMiddleware(IsUser)
   email!: string;
 

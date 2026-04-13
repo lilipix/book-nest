@@ -1,14 +1,19 @@
 import Cookies from "cookies";
+import { IncomingMessage, ServerResponse } from "http";
 import { verify } from "jsonwebtoken";
 import { AuthChecker } from "type-graphql";
 
 import { User } from "./entities/User";
 
-export type ContextType = { req: any; res: any; user: User | null | undefined };
+export type ContextType = {
+  req: IncomingMessage;
+  res: ServerResponse;
+  user: User | null | undefined;
+};
 export type AuthContextType = ContextType & { user: User };
 
 export async function getUserFromContext(
-  context: ContextType
+  context: ContextType,
 ): Promise<User | null> {
   const cookies = new Cookies(context.req, context.res);
   const token = cookies.get("token");
@@ -20,7 +25,7 @@ export async function getUserFromContext(
   try {
     const payload = verify(
       token,
-      process.env.JWT_SECRET_KEY || ""
+      process.env.JWT_SECRET_KEY || "",
     ) as unknown as {
       id: number;
     };
@@ -43,7 +48,7 @@ export async function getUserFromContext(
 
 export const authChecker: AuthChecker<ContextType> = async (
   { root, args, context, info },
-  roles
+  roles,
 ) => {
   // @Authorized(["admin", "user"]) → roles = ["admin", "user"]
   // @Authorized() → roles = []

@@ -14,12 +14,13 @@ import {
 
 import { ContextType, getUserFromContext } from "../auth";
 import { User, UserCreateInput } from "../entities/User";
+import { AuthPayload } from "../types/AuthPayload";
 
 @Resolver()
 export class UsersResolver {
-  @Authorized()
+  @Authorized("owner")
   @Query(() => [User])
-  async users(@Ctx() context: ContextType): Promise<User[] | null> {
+  async users(): Promise<User[] | null> {
     const users = await User.find();
     if (users !== null) {
       return users;
@@ -42,70 +43,91 @@ export class UsersResolver {
     }
   }
 
-  @Mutation(() => User, { nullable: true })
-  async signin(
+  @Mutation(() => AuthPayload)
+  async signIn(
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Ctx() context: ContextType,
-  ): Promise<User | null> {
+  ): Promise<AuthPayload | null> {
     try {
       const user = await User.findOneBy({ email });
-      if (user) {
-        if (await argon2.verify(user.hashedPassword, password)) {
-          const token = sign(
-            {
-              id: user.id,
-              role: user.role,
-            },
-            process.env.JWT_SECRET_KEY || "",
-          );
-          // try {
-          //     verify(token, process.env.JWT_SECRET_KEY);
-          //     console.log("token verified");
-          // }
-          // catch (error) {
-          //     console.error("Error verifying token:", error);
-          // }
+      if (!user) {
+        throw new Error("Identifiants invalides");
+      }
 
-          const cookies = new Cookies(context.req, context.res);
+      const isValidPassword = await argon2.verify(
+        user.hashedPassword,
+        password,
+      );
 
-          cookies.set("token", token, {
-            secure: false,
-            httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 72, // 72 hours
-          });
-          console.log("cookies", cookies.get("token"));
-
-          return user;
-        } else {
-          return null;
-        }
-      } else {
+      if (!isValidPassword) {
         return null;
       }
+
+      const token = sign(
+        {
+          id: user.id,
+          role: user.role,
+        },
+        process.env.JWT_SECRET_KEY || "",
+        {
+          expiresIn: "7d",
+        },
+      );
+
+      return {
+        token,
+        user,
+      };
     } catch (e) {
       console.error(e);
       return null;
     }
   }
 
-  @Mutation(() => User)
-  async createUser(
+  @Mutation(() => AuthPayload)
+  async signUp(
     @Arg("data", () => UserCreateInput) data: UserCreateInput,
-  ): Promise<User> {
+  ): Promise<AuthPayload> {
     const errors = await validate(data);
+
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
     }
-    const newUser = new User();
+
     try {
+      const existingUser = await User.findOneBy({ email: data.email });
+
+      if (existingUser) {
+        throw new Error("Cet email est déjà utilisé");
+      }
+
       const hashedPassword = await argon2.hash(data.password);
-      Object.assign(newUser, data, { hashedPassword, password: undefined });
+
+      const newUser = User.create({
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        hashedPassword,
+      });
+
       await newUser.save();
-      return newUser;
+
+      const token = sign({ id: newUser.id }, process.env.JWT_SECRET || "", {
+        expiresIn: "7d",
+      });
+
+      return {
+        user: newUser,
+        token,
+      };
     } catch (error) {
       console.error(error);
-      throw new Error("unable to create user");
+
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+
+      throw new Error("Impossible de créer le compte");
     }
   }
 
@@ -138,7 +160,7 @@ export class UsersResolver {
 
   // @Authorized()
   @Query(() => User, { nullable: true })
-  async whoami(@Ctx() context: ContextType): Promise<User | null> {
+  async me(@Ctx() context: ContextType): Promise<User | null> {
     return getUserFromContext(context);
   }
 
