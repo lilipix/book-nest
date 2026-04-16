@@ -88,19 +88,23 @@ export class UsersResolver {
   async signUp(
     @Arg("data", () => UserCreateInput) data: UserCreateInput,
   ): Promise<AuthPayload> {
+    console.log("SIGNUP BACK 1 - start", data);
     const errors = await validate(data);
-
+    console.log("SIGNUP BACK 2 - after validate", errors);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
     }
 
     try {
+      console.log("SIGNUP BACK 3 - before find user");
       const existingUser = await User.findOneBy({ email: data.email });
+      console.log("SIGNUP BACK 4 - after find user", existingUser);
 
       if (existingUser) {
         throw new Error("Cet email est déjà utilisé");
       }
 
+      console.log("SIGNUP BACK 5 - before hash");
       const hashedPassword = await argon2.hash(data.password);
 
       const newUser = User.create({
@@ -112,7 +116,7 @@ export class UsersResolver {
 
       await newUser.save();
 
-      const token = sign({ id: newUser.id }, process.env.JWT_SECRET || "", {
+      const token = sign({ id: newUser.id }, process.env.JWT_SECRET_KEY || "", {
         expiresIn: "7d",
       });
 

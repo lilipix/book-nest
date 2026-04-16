@@ -41,6 +41,11 @@ export const formStyles = StyleSheet.create({
     elevation: 2,
   },
 
+  inputFocused: {
+    borderColor: colors.primary,
+    borderWidth: 1,
+  },
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
@@ -68,6 +73,12 @@ export const formStyles = StyleSheet.create({
     borderRadius: spacing.md,
     fontSize: 15,
     color: colors.text,
+  },
+
+  inputWrapper: {
+    position: "relative",
+    justifyContent: "center",
+    width: "100%",
   },
 
   inputError: {
@@ -126,5 +137,18 @@ export const formStyles = StyleSheet.create({
     fontSize: 13,
     color: colors.muted,
     maxWidth: 220,
+  },
+
+  eyeButton: {
+    position: "absolute",
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  inputWithIcon: {
+    paddingRight: 44,
   },
 });
