@@ -38,7 +38,11 @@ export default function RootNavigator() {
               component={RegisterScreen}
               options={{ headerShown: true, title: "Créer un compte" }}
             />
-            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: true, title: "Connexion" }}
+            />
           </>
         )}
       </Stack.Navigator>
