@@ -25,6 +25,7 @@
     "expo-camera": "~17.0.10",
     "expo-image-manipulator": "~14.0.8",
     "expo-image-picker": "~17.0.10",
+    "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "graphql": "^16.13.1",
     "lucide-react-native": "^0.577.0",

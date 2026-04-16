@@ -30,6 +30,8 @@ async function initiliaze() {
 
   const app = express();
 
+  app.use(express.json());
+
   // app.use(cors());
   app.use(express.json());
   // app.use(cookieParser());
@@ -48,7 +50,7 @@ async function initiliaze() {
           res,
           user: undefined as User | null | undefined,
         };
-
+        console.log("HTTP REQUEST:", req.method, req.url);
         const user = await getUserFromContext(context);
         context.user = user;
         return context;

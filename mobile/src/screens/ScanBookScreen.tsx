@@ -33,7 +33,7 @@ function isValidISBN13(isbn: string): boolean {
   return checkDigit === Number(isbn[12]);
 }
 
-export default function Isbn() {
+export default function ScanBookScreen() {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const route = useRoute<ScanBookScreenRouteProp>();
   const { mode } = route.params;

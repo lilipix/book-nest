@@ -1,7 +1,7 @@
 import { Arg, Query, Resolver } from "type-graphql";
 
 import { fetchBookByIsbnFromGoogle } from "../services/googleBooks";
-import { FindBookByIsbn } from "../types/BookLookupResult";
+import { FindBookByIsbn } from "../types/BookLookupResults";
 
 @Resolver()
 export class BookLookupResolver {

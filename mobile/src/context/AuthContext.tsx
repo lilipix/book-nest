@@ -1,31 +1,24 @@
-import { createContext, useContext, useState } from "react";
+import { createContext } from "react";
 
-type AuthContextType = {
-  user: any;
-  login: (user: any) => void;
-  logout: () => void;
+import { UserCreateInput } from "@/gql/graphql";
+
+export type AuthUser = {
+  id: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export type AuthContextType = {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isLoadingAuth: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (data: UserCreateInput) => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshMe: () => Promise<void>;
+};
 
-export function AuthProvider({ children }: any) {
-  const [user, setUser] = useState(null);
-
-  const login = (user: any) => {
-    setUser(user);
-  };
-
-  const logout = () => {
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  return useContext(AuthContext)!;
-}
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);

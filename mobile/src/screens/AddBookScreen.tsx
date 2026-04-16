@@ -3,6 +3,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -246,146 +248,158 @@ export default function AddBookScreen() {
   }, [isbn, setValue, client]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
-      <ScrollView
-        style={formStyles.container}
-        contentContainerStyle={formStyles.content}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.safeArea} edges={["left", "right"]}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={formStyles.header}>
-          <Text style={formStyles.subtitle}>
-            Scannez un ISBN ou complètez le formulaire manuellement.
-          </Text>
-        </View>
+        <ScrollView
+          style={formStyles.container}
+          contentContainerStyle={formStyles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={formStyles.header}>
+            <Text style={formStyles.subtitle}>
+              Scannez un ISBN ou complètez le formulaire manuellement.
+            </Text>
+          </View>
 
-        <View style={formStyles.card}>
-          <Text style={formStyles.sectionTitle}>Recherche rapide</Text>
+          <View style={formStyles.card}>
+            <Text style={formStyles.sectionTitle}>Recherche rapide</Text>
 
-          {loadingBook && (
-            <View style={styles.infoRow}>
-              <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.infoText}>Chargement du livre...</Text>
-            </View>
-          )}
-
-          {error && <Text style={formStyles.error}>{error}</Text>}
-
-          <Button
-            label="Scanner un ISBN"
-            variant="secondary"
-            onPress={() => navigation.navigate("ScanBook", { mode: "add" })}
-            leftIcon={
-              <Ionicons
-                name="barcode-outline"
-                size={22}
-                color={colors.primary}
-              />
-            }
-          />
-        </View>
-
-        <View style={formStyles.card}>
-          <Text style={formStyles.sectionTitle}>Informations du livre</Text>
-
-          <Controller
-            control={control}
-            name="title"
-            render={({ field: { onChange, value } }) => (
-              <FormField
-                label="Titre"
-                placeholder="Ex. Le Petit Prince"
-                value={value}
-                onChangeText={onChange}
-                error={errors.title?.message}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="author"
-            render={({ field: { onChange, value } }) => (
-              <FormField
-                label="Auteur"
-                placeholder="Ex. Antoine de Saint-Exupéry"
-                value={value}
-                onChangeText={onChange}
-                error={errors.author?.message}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="image"
-            render={() => (
-              <View style={formStyles.fieldGroup}>
-                <BookCoverField
-                  value={imageValue}
-                  onTakePhoto={takePhoto}
-                  onPickImage={pickImageFromLibrary}
-                  onRemoveImage={removeImage}
-                  mode="create"
-                />
-                {errors.image && (
-                  <Text style={formStyles.error}>{errors.image.message}</Text>
-                )}
+            {loadingBook && (
+              <View style={styles.infoRow}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.infoText}>Chargement du livre...</Text>
               </View>
             )}
-          />
 
-          {!!imageValue && (
-            <View style={styles.previewWrapper}>
-              <Text style={styles.previewLabel}>Aperçu</Text>
-              <Image
-                source={{ uri: imageValue }}
-                style={styles.previewImage}
-                resizeMode="cover"
-              />
-            </View>
-          )}
-        </View>
+            {error && <Text style={formStyles.error}>{error}</Text>}
 
-        <View style={formStyles.card}>
-          <Text style={formStyles.sectionTitle}>Statut</Text>
+            <Button
+              label="Scanner un ISBN"
+              variant="secondary"
+              onPress={() => navigation.navigate("ScanBook", { mode: "add" })}
+              leftIcon={
+                <Ionicons
+                  name="barcode-outline"
+                  size={22}
+                  color={colors.primary}
+                />
+              }
+            />
+          </View>
 
-          <Controller
-            control={control}
-            name="status"
-            render={({ field: { value, onChange } }) => (
-              <StatusSelector value={value} onChange={onChange} />
+          <View style={formStyles.card}>
+            <Text style={formStyles.sectionTitle}>Informations du livre</Text>
+
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { onChange, value } }) => (
+                <FormField
+                  label="Titre"
+                  placeholder="Ex. Le Petit Prince"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.title?.message}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="author"
+              render={({ field: { onChange, value } }) => (
+                <FormField
+                  label="Auteur"
+                  placeholder="Ex. Antoine de Saint-Exupéry"
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.author?.message}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="image"
+              render={() => (
+                <View style={formStyles.fieldGroup}>
+                  <BookCoverField
+                    value={imageValue}
+                    onTakePhoto={takePhoto}
+                    onPickImage={pickImageFromLibrary}
+                    onRemoveImage={removeImage}
+                    mode="create"
+                  />
+                  {errors.image && (
+                    <Text style={formStyles.error}>{errors.image.message}</Text>
+                  )}
+                </View>
+              )}
+            />
+
+            {!!imageValue && (
+              <View style={styles.previewWrapper}>
+                <Text style={styles.previewLabel}>Aperçu</Text>
+                <Image
+                  source={{ uri: imageValue }}
+                  style={styles.previewImage}
+                  resizeMode="cover"
+                />
+              </View>
             )}
+          </View>
+
+          <View style={formStyles.card}>
+            <Text style={formStyles.sectionTitle}>Statut</Text>
+
+            <Controller
+              control={control}
+              name="status"
+              render={({ field: { value, onChange } }) => (
+                <StatusSelector value={value} onChange={onChange} />
+              )}
+            />
+          </View>
+
+          <View style={formStyles.card}>
+            <Text style={formStyles.sectionTitle}>Options</Text>
+
+            <Controller
+              control={control}
+              name="isFavorite"
+              render={({ field: { onChange, value } }) => (
+                <SettingSwitchRow
+                  label="Ajouter aux favoris"
+                  hint="Pour retrouver ce livre plus rapidement"
+                  value={value}
+                  onValueChange={onChange}
+                />
+              )}
+            />
+          </View>
+
+          <Button
+            label="Enregistrer"
+            onPress={handleSubmit(onSubmit)}
+            loading={loading}
           />
-        </View>
-
-        <View style={formStyles.card}>
-          <Text style={formStyles.sectionTitle}>Options</Text>
-
-          <Controller
-            control={control}
-            name="isFavorite"
-            render={({ field: { onChange, value } }) => (
-              <SettingSwitchRow
-                label="Ajouter aux favoris"
-                hint="Pour retrouver ce livre plus rapidement"
-                value={value}
-                onValueChange={onChange}
-              />
-            )}
-          />
-        </View>
-
-        <Button
-          label="Enregistrer"
-          onPress={handleSubmit(onSubmit)}
-          loading={loading}
-        />
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",

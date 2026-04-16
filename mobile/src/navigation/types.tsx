@@ -21,6 +21,8 @@ export type MainTabParamList = {
 };
 
 export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   ScanBook: { mode: "search" | "add" };
 };

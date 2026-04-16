@@ -1,5 +1,14 @@
 import { useCallback, useMemo } from "react";
-import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { useMutation } from "@apollo/client/react";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,7 +21,7 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { DELETE_BOOK } from "@/api/DeleteBook";
+import { MUTATION_DELETE_BOOK } from "@/api/DeleteBook";
 import { BookStatus } from "@/gql/graphql";
 
 import { LibraryStackParamList } from "@/navigation/types";
@@ -51,7 +60,7 @@ const BookDetailsScreen = () => {
   const { bookId } = route.params;
 
   const { book, loading, error, refetch } = useBook(String(bookId));
-  const [deleteBook, { loading: deleting }] = useMutation(DELETE_BOOK);
+  const [deleteBook, { loading: deleting }] = useMutation(MUTATION_DELETE_BOOK);
 
   useFocusEffect(
     useCallback(() => {
@@ -111,134 +120,155 @@ const BookDetailsScreen = () => {
   }
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.background }}
-      edges={["left", "right"]}
-    >
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.topSection}>
-          {imageUri ? (
-            <Image
-              key={imageUri}
-              source={{ uri: imageUri }}
-              style={[styles.cover, bookShadow]}
-            />
-          ) : (
-            <View
-              style={[styles.placeholderCover, { backgroundColor }, bookShadow]}
-            >
-              <Text style={styles.placeholderLetter}>
-                {book.title?.charAt(0)?.toUpperCase() || "L"}
+    <SafeAreaView style={styles.safeArea} edges={["left", "right"]}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.topSection}>
+            {imageUri ? (
+              <Image
+                key={imageUri}
+                source={{ uri: imageUri }}
+                style={[styles.cover, bookShadow]}
+              />
+            ) : (
+              <View
+                style={[
+                  styles.placeholderCover,
+                  { backgroundColor },
+                  bookShadow,
+                ]}
+              >
+                <Text style={styles.placeholderLetter}>
+                  {book.title?.charAt(0)?.toUpperCase() || "L"}
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.mainInfos}>
+              <Text style={styles.title}>{book.title}</Text>
+              <Text style={styles.author}>{book.author}</Text>
+
+              <View style={styles.badgesRow}>
+                <View style={styles.statusBadge}>
+                  <Ionicons
+                    name={getStatusBadge(book.status).icon}
+                    size={14}
+                    color={colors.primary}
+                  />
+                  <Text style={styles.statusBadgeText}>
+                    {getStatusBadge(book.status).label}
+                  </Text>
+                </View>
+
+                {isFavorite && (
+                  <View style={styles.favoriteBadge}>
+                    <Ionicons name="heart" size={14} color={colors.favorite} />
+                    <Text style={styles.favoriteBadgeText}>Favori</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Informations</Text>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Statut</Text>
+              <Text style={styles.infoValue}>
+                {getStatusBadge(book.status).label}
               </Text>
             </View>
-          )}
 
-          <View style={styles.mainInfos}>
-            <Text style={styles.title}>{book.title}</Text>
-            <Text style={styles.author}>{book.author}</Text>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Favori</Text>
+              <Text style={styles.infoValue}>{isFavorite ? "Oui" : "Non"}</Text>
+            </View>
 
-            <View style={styles.badgesRow}>
-              <View style={styles.statusBadge}>
-                <Ionicons
-                  name={getStatusBadge(book.status).icon}
-                  size={14}
-                  color={colors.primary}
-                />
-                <Text style={styles.statusBadgeText}>
-                  {getStatusBadge(book.status).label}
-                </Text>
-              </View>
-
-              {isFavorite && (
-                <View style={styles.favoriteBadge}>
-                  <Ionicons name="heart" size={14} color={colors.favorite} />
-                  <Text style={styles.favoriteBadgeText}>Favori</Text>
-                </View>
-              )}
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Prêté</Text>
+              <Text style={styles.infoValue}>{isBorrowed ? "Oui" : "Non"}</Text>
             </View>
           </View>
-        </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Informations</Text>
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Prêt</Text>
 
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Statut</Text>
-            <Text style={styles.infoValue}>
-              {getStatusBadge(book.status).label}
-            </Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Favori</Text>
-            <Text style={styles.infoValue}>{isFavorite ? "Oui" : "Non"}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Prêté</Text>
-            <Text style={styles.infoValue}>{isBorrowed ? "Oui" : "Non"}</Text>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Prêt</Text>
-
-          {!isBorrowed ? (
-            <Text style={styles.emptyText}>
-              Ce livre n’est pas prêté actuellement.
-            </Text>
-          ) : (
-            <>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Prêté à</Text>
-                <Text style={styles.infoValue}>
-                  {book.borrowedBy || "Non renseigné"}
-                </Text>
-              </View>
-
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Date de prêt</Text>
-                <Text style={styles.infoValue}>
-                  {formatDateFr(book.borrowedAt) || "Non renseignée"}
-                </Text>
-              </View>
-
-              {book.returnedAt && (
+            {!isBorrowed ? (
+              <Text style={styles.emptyText}>
+                Ce livre n’est pas prêté actuellement.
+              </Text>
+            ) : (
+              <>
                 <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Date de retour</Text>
-                  <Text style={styles.infoValue}>{book.returnedAt}</Text>
+                  <Text style={styles.infoLabel}>Prêté à</Text>
+                  <Text style={styles.infoValue}>
+                    {book.borrowedBy || "Non renseigné"}
+                  </Text>
                 </View>
-              )}
-            </>
-          )}
-        </View>
 
-        <View style={styles.actions}>
-          <Button
-            label="Modifier"
-            onPress={handleEdit}
-            loading={loading}
-            leftIcon={
-              <Ionicons name="create-outline" size={20} color={colors.white} />
-            }
-          />
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Date de prêt</Text>
+                  <Text style={styles.infoValue}>
+                    {formatDateFr(book.borrowedAt) || "Non renseignée"}
+                  </Text>
+                </View>
 
-          <Button
-            label="Supprimer"
-            onPress={handleDelete}
-            variant="danger"
-            leftIcon={
-              <Ionicons name="trash-outline" size={18} color={colors.danger} />
-            }
-            loading={deleting}
-          />
-        </View>
-      </ScrollView>
+                {book.returnedAt && (
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Date de retour</Text>
+                    <Text style={styles.infoValue}>{book.returnedAt}</Text>
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+
+          <View style={styles.actions}>
+            <Button
+              label="Modifier"
+              onPress={handleEdit}
+              loading={loading}
+              leftIcon={
+                <Ionicons
+                  name="create-outline"
+                  size={20}
+                  color={colors.white}
+                />
+              }
+            />
+
+            <Button
+              label="Supprimer"
+              onPress={handleDelete}
+              variant="danger"
+              leftIcon={
+                <Ionicons
+                  name="trash-outline"
+                  size={18}
+                  color={colors.danger}
+                />
+              }
+              loading={deleting}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   content: {
     padding: spacing.lg,
     gap: spacing.lg,

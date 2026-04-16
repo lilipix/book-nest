@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -197,202 +198,214 @@ export default function EditBookScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
-      <ScrollView
-        style={formStyles.container}
-        contentContainerStyle={formStyles.content}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <View style={formStyles.header}>
-          <Text style={formStyles.subtitle}>
-            Modifiez le statut, la couverture et les informations de prêt.
-          </Text>
-        </View>
+        <ScrollView
+          style={formStyles.container}
+          contentContainerStyle={formStyles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={formStyles.header}>
+            <Text style={formStyles.subtitle}>
+              Modifiez le statut, la couverture et les informations de prêt.
+            </Text>
+          </View>
 
-        <View style={formStyles.card}>
-          <Text style={formStyles.sectionTitle}>Couverture</Text>
-
-          <Controller
-            control={control}
-            name="image"
-            render={({ field: { value } }) => (
-              <View style={formStyles.fieldGroup}>
-                <BookCoverField
-                  value={value ?? null}
-                  onTakePhoto={takePhoto}
-                  onPickImage={pickImageFromLibrary}
-                  onRemoveImage={removeImage}
-                  mode="edit"
-                />
-                {errors.image && (
-                  <Text style={formStyles.error}>{errors.image.message}</Text>
-                )}
-              </View>
-            )}
-          />
-        </View>
-
-        <View style={formStyles.card}>
-          <Text style={formStyles.sectionTitle}>Statut</Text>
-          <Controller
-            control={control}
-            name="status"
-            render={({ field: { value, onChange } }) => (
-              <StatusSelector value={value} onChange={onChange} />
-            )}
-          />
-        </View>
-
-        <View style={formStyles.card}>
-          <Text style={formStyles.sectionTitle}>Options</Text>
-
-          <Controller
-            control={control}
-            name="isFavorite"
-            render={({ field: { value, onChange } }) => (
-              <SettingSwitchRow
-                label="Ajouter aux favoris"
-                hint="Pour retrouver ce livre plus rapidement"
-                value={value}
-                onValueChange={onChange}
-              />
-            )}
-          />
-
-          <View style={styles.divider} />
-
-          <Controller
-            control={control}
-            name="isBorrowed"
-            render={({ field: { value, onChange } }) => (
-              <View style={formStyles.switchRow}>
-                <View>
-                  <Text style={formStyles.switchLabel}>Livre prêté</Text>
-                  <Text style={formStyles.switchHint}>
-                    Active cette option si le livre a été emprunté
-                  </Text>
-                </View>
-                <Switch
-                  value={value}
-                  onValueChange={(nextValue) => {
-                    onChange(nextValue);
-
-                    if (!nextValue) {
-                      setValue("borrowedBy", "");
-                      setValue("borrowedAt", "");
-                    }
-                  }}
-                />
-              </View>
-            )}
-          />
-        </View>
-
-        {isBorrowed && (
           <View style={formStyles.card}>
-            <Text style={formStyles.sectionTitle}>Informations de prêt</Text>
+            <Text style={formStyles.sectionTitle}>Couverture</Text>
 
             <Controller
               control={control}
-              name="borrowedBy"
-              render={({ field: { value, onChange } }) => (
+              name="image"
+              render={({ field: { value } }) => (
                 <View style={formStyles.fieldGroup}>
-                  <Text style={formStyles.label}>Prêté à</Text>
-                  <TextInput
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder="Nom de la personne"
-                    placeholderTextColor={colors.placeholder}
-                    style={[
-                      formStyles.input,
-                      errors.borrowedBy && formStyles.inputError,
-                    ]}
+                  <BookCoverField
+                    value={value ?? null}
+                    onTakePhoto={takePhoto}
+                    onPickImage={pickImageFromLibrary}
+                    onRemoveImage={removeImage}
+                    mode="edit"
                   />
-                  {errors.borrowedBy && (
-                    <Text style={formStyles.error}>
-                      {errors.borrowedBy.message}
-                    </Text>
-                  )}
-                </View>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="borrowedAt"
-              render={({ field: { value, onChange } }) => (
-                <View style={formStyles.fieldGroup}>
-                  <Text style={formStyles.label}>Date de prêt</Text>
-
-                  <Pressable
-                    style={[
-                      formStyles.input,
-                      styles.dateInput,
-                      errors.borrowedAt && formStyles.inputError,
-                    ]}
-                    onPress={() => {
-                      const currentDate = isoToDate(value);
-
-                      if (Platform.OS === "android") {
-                        DateTimePickerAndroid.open({
-                          value: currentDate,
-                          mode: "date",
-                          is24Hour: true,
-                          onChange: (_, selectedDate) => {
-                            if (!selectedDate) return;
-                            onChange(dateToIsoOnly(selectedDate));
-                          },
-                        });
-                      } else {
-                        setShowIOSBorrowedPicker(true);
-                      }
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.dateText,
-                        !value && styles.datePlaceholderText,
-                      ]}
-                    >
-                      {value ? isoToFr(value) : "Sélectionner une date"}
-                    </Text>
-                  </Pressable>
-
-                  {Platform.OS === "ios" && showIOSBorrowedPicker && (
-                    <DateTimePicker
-                      value={isoToDate(value)}
-                      mode="date"
-                      display="spinner"
-                      onChange={(_, selectedDate) => {
-                        if (!selectedDate) return;
-                        onChange(dateToIsoOnly(selectedDate));
-                        setShowIOSBorrowedPicker(false);
-                      }}
-                    />
-                  )}
-
-                  {errors.borrowedAt && (
-                    <Text style={formStyles.error}>
-                      {errors.borrowedAt.message}
-                    </Text>
+                  {errors.image && (
+                    <Text style={formStyles.error}>{errors.image.message}</Text>
                   )}
                 </View>
               )}
             />
           </View>
-        )}
 
-        <Button
-          label="Enregistrer"
-          onPress={handleSubmit(onSubmit)}
-          disabled={updating}
-        />
-      </ScrollView>
+          <View style={formStyles.card}>
+            <Text style={formStyles.sectionTitle}>Statut</Text>
+            <Controller
+              control={control}
+              name="status"
+              render={({ field: { value, onChange } }) => (
+                <StatusSelector value={value} onChange={onChange} />
+              )}
+            />
+          </View>
+
+          <View style={formStyles.card}>
+            <Text style={formStyles.sectionTitle}>Options</Text>
+
+            <Controller
+              control={control}
+              name="isFavorite"
+              render={({ field: { value, onChange } }) => (
+                <SettingSwitchRow
+                  label="Ajouter aux favoris"
+                  hint="Pour retrouver ce livre plus rapidement"
+                  value={value}
+                  onValueChange={onChange}
+                />
+              )}
+            />
+
+            <View style={styles.divider} />
+
+            <Controller
+              control={control}
+              name="isBorrowed"
+              render={({ field: { value, onChange } }) => (
+                <View style={formStyles.switchRow}>
+                  <View>
+                    <Text style={formStyles.switchLabel}>Livre prêté</Text>
+                    <Text style={formStyles.switchHint}>
+                      Active cette option si le livre a été emprunté
+                    </Text>
+                  </View>
+                  <Switch
+                    value={value}
+                    onValueChange={(nextValue) => {
+                      onChange(nextValue);
+
+                      if (!nextValue) {
+                        setValue("borrowedBy", "");
+                        setValue("borrowedAt", "");
+                      }
+                    }}
+                  />
+                </View>
+              )}
+            />
+          </View>
+
+          {isBorrowed && (
+            <View style={formStyles.card}>
+              <Text style={formStyles.sectionTitle}>Informations de prêt</Text>
+
+              <Controller
+                control={control}
+                name="borrowedBy"
+                render={({ field: { value, onChange } }) => (
+                  <View style={formStyles.fieldGroup}>
+                    <Text style={formStyles.label}>Prêté à</Text>
+                    <TextInput
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Nom de la personne"
+                      placeholderTextColor={colors.placeholder}
+                      style={[
+                        formStyles.input,
+                        errors.borrowedBy && formStyles.inputError,
+                      ]}
+                    />
+                    {errors.borrowedBy && (
+                      <Text style={formStyles.error}>
+                        {errors.borrowedBy.message}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="borrowedAt"
+                render={({ field: { value, onChange } }) => (
+                  <View style={formStyles.fieldGroup}>
+                    <Text style={formStyles.label}>Date de prêt</Text>
+
+                    <Pressable
+                      style={[
+                        formStyles.input,
+                        styles.dateInput,
+                        errors.borrowedAt && formStyles.inputError,
+                      ]}
+                      onPress={() => {
+                        const currentDate = isoToDate(value);
+
+                        if (Platform.OS === "android") {
+                          DateTimePickerAndroid.open({
+                            value: currentDate,
+                            mode: "date",
+                            is24Hour: true,
+                            onChange: (_, selectedDate) => {
+                              if (!selectedDate) return;
+                              onChange(dateToIsoOnly(selectedDate));
+                            },
+                          });
+                        } else {
+                          setShowIOSBorrowedPicker(true);
+                        }
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.dateText,
+                          !value && styles.datePlaceholderText,
+                        ]}
+                      >
+                        {value ? isoToFr(value) : "Sélectionner une date"}
+                      </Text>
+                    </Pressable>
+
+                    {Platform.OS === "ios" && showIOSBorrowedPicker && (
+                      <DateTimePicker
+                        value={isoToDate(value)}
+                        mode="date"
+                        display="spinner"
+                        onChange={(_, selectedDate) => {
+                          if (!selectedDate) return;
+                          onChange(dateToIsoOnly(selectedDate));
+                          setShowIOSBorrowedPicker(false);
+                        }}
+                      />
+                    )}
+
+                    {errors.borrowedAt && (
+                      <Text style={formStyles.error}>
+                        {errors.borrowedAt.message}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              />
+            </View>
+          )}
+
+          <Button
+            label="Enregistrer"
+            onPress={handleSubmit(onSubmit)}
+            disabled={updating}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   divider: {
     height: 1,
     backgroundColor: colors.borderSoft,
