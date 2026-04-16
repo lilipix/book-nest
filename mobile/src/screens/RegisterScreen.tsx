@@ -77,7 +77,6 @@ export default function RegisterScreen() {
         password: data.password,
       };
       await signUp(payload);
-      navigation.navigate("Login");
     } catch (error) {
       Alert.alert(
         "Inscription impossible",
