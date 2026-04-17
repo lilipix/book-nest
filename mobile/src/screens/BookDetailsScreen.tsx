@@ -360,9 +360,12 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.card,
-    borderRadius: radius.md,
+    // borderRadius: radius.md,
+    borderRadius: 20,
     padding: spacing.md,
     gap: spacing.lg,
+    borderWidth: 1,
+    borderColor: "#E8E8E8",
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 10,

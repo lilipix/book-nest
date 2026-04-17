@@ -20,7 +20,7 @@ const authLink = new SetContextLink(async (prevContext) => {
   return {
     headers: {
       ...prevContext.headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
     },
   };
 });

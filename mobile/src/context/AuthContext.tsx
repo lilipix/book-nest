@@ -1,13 +1,9 @@
 import { createContext } from "react";
 
 import { UserCreateInput } from "@/gql/graphql";
+import { MeQuery } from "@/gql/graphql";
 
-export type AuthUser = {
-  id: string;
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-};
+export type AuthUser = NonNullable<MeQuery["me"]>;
 
 export type AuthContextType = {
   user: AuthUser | null;

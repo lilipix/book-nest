@@ -7,6 +7,13 @@ query Me {
     email
     firstName
     lastName
+    familyMemberships {
+      id
+      role
+      familyLibrary {
+        id
+      }
+    }
   }
 }
 `);

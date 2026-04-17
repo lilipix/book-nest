@@ -25,4 +25,5 @@ export type RootStackParamList = {
   Register: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   ScanBook: { mode: "search" | "add" };
+  AddFamily: undefined;
 };

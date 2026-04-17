@@ -1,7 +1,7 @@
-import { gql } from "../gql";
+import { gql } from "@/gql";
 
 export const MUTATION_SIGN_UP = gql(`
-mutation SignUp($data: UserCreateInput!) {
+  mutation SignUp($data: UserCreateInput!) {
     signUp(data: $data) {
       token
       user {
@@ -9,6 +9,13 @@ mutation SignUp($data: UserCreateInput!) {
         email
         firstName
         lastName
+        familyMemberships {
+          id
+          role
+          familyLibrary {
+            id
+          }
+        }
       }
     }
   }

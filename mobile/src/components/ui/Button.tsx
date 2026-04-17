@@ -69,12 +69,14 @@ export default function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 54,
+    // minHeight: 54,
+    minHeight: 48,
+    paddingVertical: 12,
     borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    // paddingVertical: 14,
   },
 
   content: {
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
   },
 
   disabled: {
-    opacity: 0.7,
+    opacity: 0.55,
   },
 
   pressed: {
