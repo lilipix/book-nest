@@ -9,6 +9,13 @@ export const MUTATION_SIGN_IN = gql(`
         email
         firstName
         lastName
+        familyMemberships {
+          id
+          role
+          familyLibrary {
+            id
+          }
+        }
       }
     }
   }

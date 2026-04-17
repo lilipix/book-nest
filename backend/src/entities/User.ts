@@ -1,12 +1,5 @@
 import { IsEmail, Matches, MaxLength, MinLength } from "class-validator";
-import {
-  Field,
-  ID,
-  InputType,
-  MiddlewareFn,
-  ObjectType,
-  UseMiddleware,
-} from "type-graphql";
+import { Field, ID, InputType, MiddlewareFn, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Check,
@@ -90,6 +83,7 @@ export class User extends BaseEntity {
   @Field()
   createdAt!: Date;
 
+  @Field(() => [FamilyMember])
   @OneToMany(() => FamilyMember, (familyMember) => familyMember.user)
   familyMemberships!: FamilyMember[];
 

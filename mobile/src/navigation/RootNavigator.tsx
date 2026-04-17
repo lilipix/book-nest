@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoadingScreen from "@/components/LoadingScreen";
 
 import { useAuth } from "@/context/useAuth";
+import AddFamilyScreen from "@/screens/AddFamilyScreen";
 import LoginScreen from "@/screens/LoginScreen";
 import RegisterScreen from "@/screens/RegisterScreen";
 import ScanBookScreen from "@/screens/ScanBookScreen";
@@ -19,19 +20,13 @@ export default function RootNavigator() {
   if (isLoadingAuth) {
     return <LoadingScreen />;
   }
+
+  const hasFamilyLibrary = (user?.familyMemberships?.length ?? 0) > 0;
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {user ? (
-          <>
-            <Stack.Screen name="MainTabs" component={TabNavigator} />
-            <Stack.Screen
-              name="ScanBook"
-              component={ScanBookScreen}
-              options={{ headerShown: true, title: "Scanner un livre" }}
-            />
-          </>
-        ) : (
+        {!user ? (
           <>
             <Stack.Screen
               name="Register"
@@ -42,6 +37,24 @@ export default function RootNavigator() {
               name="Login"
               component={LoginScreen}
               options={{ headerShown: true, title: "Connexion" }}
+            />
+          </>
+        ) : !hasFamilyLibrary ? (
+          <Stack.Screen
+            name="AddFamily"
+            component={AddFamilyScreen}
+            options={{
+              headerShown: true,
+              title: "Créer ou rejoindre une famille",
+            }}
+          />
+        ) : (
+          <>
+            <Stack.Screen name="MainTabs" component={TabNavigator} />
+            <Stack.Screen
+              name="ScanBook"
+              component={ScanBookScreen}
+              options={{ headerShown: true, title: "Scanner un livre" }}
             />
           </>
         )}

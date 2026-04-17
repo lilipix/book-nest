@@ -25,6 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       fetchPolicy: "no-cache",
     });
 
+    console.log("QUERY_ME data", data);
+
     if (!data?.me) {
       throw new Error("Utilisateur introuvable");
     }
@@ -34,6 +36,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email: data.me.email ?? null,
       firstName: data.me.firstName ?? null,
       lastName: data.me.lastName ?? null,
+      familyMemberships:
+        data.me.familyMemberships?.map((membership) => ({
+          id: String(membership.id),
+          role: membership.role,
+          familyLibrary: {
+            id: String(membership.familyLibrary.id),
+          },
+        })) ?? [],
     });
   }, [client]);
 
@@ -48,8 +58,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         await refreshMe();
-      } catch {
-        await removeAuthToken();
+      } catch (error) {
+        // await removeAuthToken();
+        console.error("Erreur bootstrap auth", error);
         setUser(null);
       } finally {
         setIsLoadingAuth(false);
@@ -77,7 +88,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: payload.user.email ?? null,
         firstName: payload.user.firstName ?? null,
         lastName: payload.user.lastName ?? null,
+        familyMemberships:
+          payload.user.familyMemberships?.map((membership) => ({
+            id: String(membership.id),
+            role: membership.role,
+            familyLibrary: {
+              id: String(membership.familyLibrary.id),
+            },
+          })) ?? [],
       });
+
       await client.clearStore();
     },
     [client, signInMutation],
@@ -101,7 +121,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: payload.user.email ?? null,
         firstName: payload.user.firstName ?? null,
         lastName: payload.user.lastName ?? null,
+        familyMemberships:
+          payload.user.familyMemberships?.map((membership) => ({
+            id: String(membership.id),
+            role: membership.role,
+            familyLibrary: {
+              id: String(membership.familyLibrary.id),
+            },
+          })) ?? [],
       });
+
       await client.clearStore();
     },
     [client, signUpMutation],

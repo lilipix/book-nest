@@ -50,6 +50,7 @@ export class UsersResolver {
   ): Promise<AuthPayload | null> {
     try {
       const user = await User.findOneBy({ email });
+
       if (!user) {
         throw new Error("Identifiants invalides");
       }
@@ -74,9 +75,22 @@ export class UsersResolver {
         },
       );
 
+      const userWithRelations = await User.findOne({
+        where: { id: user.id },
+        relations: {
+          familyMemberships: {
+            familyLibrary: true,
+          },
+        },
+      });
+
+      if (!userWithRelations) {
+        throw new Error("Utilisateur introuvable");
+      }
+
       return {
         token,
-        user,
+        user: userWithRelations,
       };
     } catch (e) {
       console.error(e);
@@ -88,23 +102,19 @@ export class UsersResolver {
   async signUp(
     @Arg("data", () => UserCreateInput) data: UserCreateInput,
   ): Promise<AuthPayload> {
-    console.log("SIGNUP BACK 1 - start", data);
     const errors = await validate(data);
-    console.log("SIGNUP BACK 2 - after validate", errors);
+
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
     }
 
     try {
-      console.log("SIGNUP BACK 3 - before find user");
       const existingUser = await User.findOneBy({ email: data.email });
-      console.log("SIGNUP BACK 4 - after find user", existingUser);
 
       if (existingUser) {
         throw new Error("Cet email est déjà utilisé");
       }
 
-      console.log("SIGNUP BACK 5 - before hash");
       const hashedPassword = await argon2.hash(data.password);
 
       const newUser = User.create({
@@ -116,12 +126,29 @@ export class UsersResolver {
 
       await newUser.save();
 
-      const token = sign({ id: newUser.id }, process.env.JWT_SECRET_KEY || "", {
-        expiresIn: "7d",
+      const token = sign(
+        { id: newUser.id, role: newUser.role },
+        process.env.JWT_SECRET_KEY || "",
+        {
+          expiresIn: "7d",
+        },
+      );
+
+      const userWithRelations = await User.findOne({
+        where: { id: newUser.id },
+        relations: {
+          familyMemberships: {
+            familyLibrary: true,
+          },
+        },
       });
 
+      if (!userWithRelations) {
+        throw new Error("Utilisateur introuvable après création");
+      }
+
       return {
-        user: newUser,
+        user: userWithRelations,
         token,
       };
     } catch (error) {
@@ -134,7 +161,6 @@ export class UsersResolver {
       throw new Error("Impossible de créer le compte");
     }
   }
-
   // @Mutation(() => User, { nullable: true })
   // async updateUser(
   //     @Arg("id", () => ID) id: number,
@@ -165,7 +191,20 @@ export class UsersResolver {
   // @Authorized()
   @Query(() => User, { nullable: true })
   async me(@Ctx() context: ContextType): Promise<User | null> {
-    return getUserFromContext(context);
+    const currentUser = await getUserFromContext(context);
+    if (!currentUser) {
+      return null;
+    }
+    const user = await User.findOne({
+      where: { id: currentUser.id },
+      relations: {
+        familyMemberships: {
+          familyLibrary: true,
+        },
+      },
+    });
+
+    return user;
   }
 
   @Mutation(() => Boolean)
